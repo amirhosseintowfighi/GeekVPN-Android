@@ -2,11 +2,19 @@ name: Build APK
 
 # GeekVPN: builds libv2ray.aar from source (Xray core + cfscan in one gomobile
 # bind, see scripts/build-libv2ray.sh), then lints, tests and assembles the
-# debug APKs. Release signing arrives with phase 9.
+# debug APKs, then smoke-tests them on emulators and publishes the screenshots
+# to the ci/screenshots branch. Release signing arrives with phase 9.
+#
+# Everything here runs on GitHub-hosted runners. The self-hosted "iran" runner
+# is reserved for Iran-network tests and must never be reachable from a
+# pull_request trigger (see docs/geekvpn.md).
 
 on:
   workflow_dispatch:
   push:
+    branches-ignore:
+      # The screenshot branch is written by this workflow; building it would loop.
+      - 'ci/**'
 
 permissions:
   contents: read
@@ -197,3 +205,88 @@ jobs:
         name: universal
         path: V2rayNG/app/build/outputs/apk/*/debug/*universal*.apk
         if-no-files-found: error
+
+  device-smoke:
+    needs: app
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # minSdk, a mid-range release, and the newest image that boots reliably.
+        api-level: [24, 30, 35]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Download universal APK
+      uses: actions/download-artifact@v8
+      with:
+        name: universal
+        path: apk
+
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Run smoke test on emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: ${{ matrix.api-level }}
+        arch: x86_64
+        target: google_apis
+        disable-animations: true
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        script: bash scripts/ci/device-smoke.sh "$(find apk -path '*playstoreProd*' -name '*universal*.apk' | head -1)" out/api${{ matrix.api-level }}
+
+    - name: Upload smoke results
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: smoke-api${{ matrix.api-level }}
+        path: out/
+        if-no-files-found: ignore
+
+  publish-screenshots:
+    needs: device-smoke
+    if: ${{ always() && needs.device-smoke.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-screenshots
+      cancel-in-progress: false
+    steps:
+    - name: Download smoke results
+      # An emulator that never booted uploads nothing; publish whatever exists.
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        pattern: smoke-api*
+        path: results
+        merge-multiple: true
+
+    - name: Push to ci/screenshots
+      env:
+        GH_TOKEN: ${{ github.token }}
+        SOURCE_REF: ${{ github.ref_name }}
+      run: |
+        # One folder per source branch, replaced on every run, so the branch
+        # always shows the latest state of each line of work.
+        SLUG=$(echo "$SOURCE_REF" | tr '/' '_')
+        git clone --depth 1 --branch ci/screenshots \
+          "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" site \
+          || { git init -q site && git -C site checkout -q --orphan ci/screenshots \
+               && git -C site remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"; }
+        rm -rf "site/$SLUG" && mkdir -p "site/$SLUG" && cp -r results/. "site/$SLUG/"
+        printf 'source=%s\nsha=%s\nrun=%s/%s/actions/runs/%s\nsmoke=%s\n' \
+          "$SOURCE_REF" "${{ github.sha }}" "${{ github.server_url }}" "${{ github.repository }}" \
+          "${{ github.run_id }}" "${{ needs.device-smoke.result }}" > "site/$SLUG/RUN.txt"
+        cd site
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add -A
+        git commit -q -m "Screenshots for $SOURCE_REF @ ${GITHUB_SHA::8}" || exit 0
+        git push -q origin ci/screenshots

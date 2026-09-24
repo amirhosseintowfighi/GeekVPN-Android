@@ -86,7 +86,25 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 - `app`: `./gradlew lint test assembleDebug` را اجرا می‌کند و APKها را آپلود
   می‌کند: `arm64-v8a`، `armeabi-v7a` و `universal`.
 
+- `device-smoke`: همان APK `universal` را روی Emulator با API 24، 30 و 35 نصب و
+  اجرا می‌کند (`scripts/ci/device-smoke.sh`). اگر اپ crash کند، یا صفحه‌ی «درباره»
+  نسخه‌ی `cfscan` را نشان ندهد، job قرمز می‌شود.
+- `publish-screenshots`: اسکرین‌شات‌ها، dump صفحه و logcat هر API را در branch
+  `ci/screenshots` زیر پوشه‌ای به اسم branch منبع می‌گذارد (`/` به `_` تبدیل
+  می‌شود) و با هر اجرا جایگزینشان می‌کند. `RUN.txt` می‌گوید از کدام commit و run آمده‌اند.
+
 امضای release در فاز ۹ اضافه می‌شود.
+
+## رانرها
+
+- همه‌ی بیلدها و Emulatorها روی رانرهای GitHub (`ubuntu-latest`) اجرا می‌شوند.
+- رانر self-hosted با برچسب `iran` روی یک سرور داخل ایران است و فقط برای تست‌هایی
+  است که باید از شبکه‌ی ایران انجام شوند: اسکن IP تمیز، اتصال واقعی و دسترسی به API.
+  روی آن Android SDK و KVM نیست.
+- **هیچ workflow ای که روی `[self-hosted, iran]` اجرا می‌شود نباید trigger
+  `pull_request` یا `pull_request_target` داشته باشد.** فقط `push` به branchهای
+  خود ریپو، `workflow_dispatch` یا `schedule` مجاز است. دلیلش این است که کد یک PR
+  از فورک یا Dependabot نباید روی آن سرور اجرا شود.
 
 ## برند
 
