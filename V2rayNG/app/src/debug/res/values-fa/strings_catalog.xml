@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="geek_catalog_title">کاتالوگ GeekVPN</string>
+    <string name="geek_catalog_theme_light">روشن</string>
+    <string name="geek_catalog_theme_dark">تیره</string>
+    <string name="geek_catalog_buttons">دکمه‌ها</string>
+    <string name="geek_catalog_controls">سوییچ، چک‌باکس، نشان کشور</string>
+    <string name="geek_catalog_signal">تأخیر</string>
+    <string name="geek_catalog_glass">شیشه</string>
+    <string name="geek_catalog_glass_milk">شیشه‌ی شیری</string>
+    <string name="geek_catalog_glass_clear">شیشه‌ی شفاف</string>
+    <string name="geek_catalog_palette">پالت</string>
+    <string name="geek_catalog_sample_primary">ورود با تلگرام</string>
+    <string name="geek_catalog_sample_secondary">ساخت حساب</string>
+    <string name="geek_catalog_sample_danger">قطع اتصال</string>
+    <string name="geek_catalog_sample_disabled">غیرفعال</string>
+    <string name="geek_catalog_type_page">عنوان صفحه ۲۶–۳۰</string>
+    <string name="geek_catalog_type_section">عنوان بخش ۲۰</string>
+    <string name="geek_catalog_type_row">متن دکمه و ردیف ۱۴–۱۵</string>
+    <string name="geek_catalog_type_caption">زیرنویس ۱۲–۱۳ · Vazirmatn</string>
+</resources>

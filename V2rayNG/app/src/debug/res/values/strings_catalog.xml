@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="geek_catalog_title">GeekVPN catalog</string>
+    <string name="geek_catalog_theme_light">Light</string>
+    <string name="geek_catalog_theme_dark">Dark</string>
+    <string name="geek_catalog_buttons">Buttons</string>
+    <string name="geek_catalog_controls">Switches, checkboxes, badges</string>
+    <string name="geek_catalog_signal">Latency</string>
+    <string name="geek_catalog_glass">Glass</string>
+    <string name="geek_catalog_glass_milk">Milk glass</string>
+    <string name="geek_catalog_glass_clear">Clear glass</string>
+    <string name="geek_catalog_palette">Palette</string>
+    <string name="geek_catalog_sample_primary">Sign in with Telegram</string>
+    <string name="geek_catalog_sample_secondary">Create account</string>
+    <string name="geek_catalog_sample_danger">Disconnect</string>
+    <string name="geek_catalog_sample_disabled">Disabled</string>
+    <string name="geek_catalog_type_page">Page title 26–30</string>
+    <string name="geek_catalog_type_section">Section title 20</string>
+    <string name="geek_catalog_type_row">Button and row text 14–15</string>
+    <string name="geek_catalog_type_caption">Caption 12–13 · Vazirmatn</string>
+</resources>

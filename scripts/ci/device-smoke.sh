@@ -44,6 +44,23 @@ adb shell am start -W -n "$PKG/com.v2ray.ang.ui.AboutActivity" >/dev/null
 shot about
 alive "opening About"
 
+# Debug builds carry the component catalog; shoot it in both themes.
+CATALOG="$PKG/com.geekvpn.ui.catalog.CatalogActivity"
+if adb shell cmd package resolve-activity --brief -n "$CATALOG" 2>/dev/null | grep -q catalog \
+    || adb shell pm dump "$PKG" | grep -q "com.geekvpn.ui.catalog.CatalogActivity"; then
+    adb shell am start -W -n "$CATALOG" --ez dark false >/dev/null
+    shot catalog-light
+    alive "opening the catalog"
+    adb shell input swipe 500 1500 500 400 300
+    shot catalog-light-2 2
+    adb shell am force-stop "$PKG"
+    adb shell am start -W -n "$CATALOG" --ez dark true >/dev/null
+    shot catalog-dark
+    alive "opening the catalog in dark"
+    adb shell input swipe 500 1500 500 400 300
+    shot catalog-dark-2 2
+fi
+
 adb logcat -d > "$OUT/logcat.txt"
 
 if grep -q "FATAL EXCEPTION" "$OUT/logcat.txt" && grep -A3 "FATAL EXCEPTION" "$OUT/logcat.txt" | grep -q "$PKG"; then

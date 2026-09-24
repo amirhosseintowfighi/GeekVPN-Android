@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="geek_tab_home">خانه</string>
+    <string name="geek_tab_services">سرویس‌ها</string>
+    <string name="geek_tab_shop">فروشگاه</string>
+    <string name="geek_tab_account">حساب</string>
+
+    <string name="geek_latency_ms">تأخیر %1$d میلی‌ثانیه</string>
+    <string name="geek_latency_unknown">تأخیر اندازه‌گیری نشده</string>
+</resources>

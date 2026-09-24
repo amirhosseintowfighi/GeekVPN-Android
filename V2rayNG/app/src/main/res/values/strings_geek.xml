@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GeekVPN UI strings. Kept apart from upstream's strings.xml so v2rayNG merges do not conflict. -->
+<resources>
+    <string name="geek_tab_home">Home</string>
+    <string name="geek_tab_services">Services</string>
+    <string name="geek_tab_shop">Shop</string>
+    <string name="geek_tab_account">Account</string>
+
+    <string name="geek_latency_ms">Latency %1$d milliseconds</string>
+    <string name="geek_latency_unknown">Latency not measured</string>
+</resources>

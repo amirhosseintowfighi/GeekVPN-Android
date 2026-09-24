@@ -175,16 +175,11 @@ android {
 
     androidResources {
         generateLocaleConfig = true
+        // GeekVPN ships Persian (default, see AppLocaleManager) and English only. The other
+        // upstream translations stay in the tree so merges apply, but are not packaged.
         localeFilters += listOf(
             "en",
-            "zh-rCN",
-            "zh-rTW",
-            "vi",
-            "ru",
-            "fa",
-            "ar",
-            "bn",
-            "bqi-rIR"
+            "fa"
         )
     }
 
