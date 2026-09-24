@@ -164,6 +164,11 @@ jobs:
         chmod 755 gradlew
         ./gradlew -PndkVersion=${NDK_VERSION} lint test assembleDebug
 
+    - name: Print lint errors
+      if: ${{ failure() }}
+      run: |
+        find V2rayNG/app/build -name 'lint-results-*.txt' -exec grep -h -B1 -A3 'Error:' {} + || true
+
     - name: Upload lint reports
       if: ${{ always() }}
       uses: actions/upload-artifact@v7
