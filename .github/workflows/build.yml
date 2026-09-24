@@ -213,8 +213,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # minSdk, a mid-range release, and the newest image that boots reliably.
-        api-level: [24, 30, 35]
+        # minSdk on a small (320dp) screen to catch overflow; the rest on a
+        # 411dp Pixel 6, close to the design's 390dp artboard.
+        include:
+          - api-level: 24
+            profile: ''
+          - api-level: 30
+            profile: pixel_6
+          - api-level: 35
+            profile: pixel_6
     steps:
     - name: Checkout code
       uses: actions/checkout@v7
@@ -237,6 +244,7 @@ jobs:
         api-level: ${{ matrix.api-level }}
         arch: x86_64
         target: google_apis
+        profile: ${{ matrix.profile }}
         disable-animations: true
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         script: bash scripts/ci/device-smoke.sh "$(find apk -path '*playstoreProd*' -name '*universal*.apk' | head -1)" out/api${{ matrix.api-level }}

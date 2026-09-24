@@ -135,13 +135,19 @@ private fun FlatButton(
             .then(if (border != null) Modifier.border(1.dp, border, shape) else Modifier)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .alpha(if (enabled) 1f else 0.5f)
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) {
             Icon(icon, contentDescription = null, tint = content, modifier = Modifier.size(19.dp))
         }
-        Text(text = text, style = Geek.type.button.copy(fontSize = Geek.type.body.fontSize), color = content, maxLines = 1)
+        Text(
+            text = text,
+            style = Geek.type.button.copy(fontSize = Geek.type.body.fontSize),
+            color = content,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }

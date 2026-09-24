@@ -180,6 +180,8 @@ private fun CatalogScreen(dark: Boolean, onDarkChange: (Boolean) -> Unit) {
                         GeekSwitch(checked = switchB, onCheckedChange = { switchB = it })
                         GeekCheckbox(checked = checkA, onCheckedChange = { checkA = it })
                         GeekCheckbox(checked = checkB, onCheckedChange = { checkB = it })
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         CountryBadge("DE", selected = true)
                         CountryBadge("US")
                     }

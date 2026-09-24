@@ -42,7 +42,7 @@ fun GeekSwitch(
 ) {
     val colors = Geek.colors
     val track by animateColorAsState(if (checked) colors.action else colors.track, label = "track")
-    val knob by animateColorAsState(if (checked) colors.switchKnobOn else colors.onAction, label = "knob")
+    val knob by animateColorAsState(if (checked) colors.actionAccent else colors.onAction, label = "knob")
     val bias by animateFloatAsState(if (checked) 1f else -1f, label = "bias")
     val toggle = if (onCheckedChange != null) {
         Modifier
@@ -71,7 +71,7 @@ fun GeekSwitch(
     }
 }
 
-/** The design's check box: navy with a logo-blue tick, or an empty rounded square. */
+/** The design's check box: action colour with an accent tick, or an empty rounded square. */
 @Composable
 fun GeekCheckbox(
     checked: Boolean,
@@ -100,7 +100,7 @@ fun GeekCheckbox(
             contentAlignment = Alignment.Center,
         ) {
             if (checked) {
-                Icon(GeekIcons.Check, contentDescription = null, tint = colors.logoBlue, modifier = Modifier.size(16.dp))
+                Icon(GeekIcons.Check, contentDescription = null, tint = colors.actionAccent, modifier = Modifier.size(16.dp))
             }
         }
     }
