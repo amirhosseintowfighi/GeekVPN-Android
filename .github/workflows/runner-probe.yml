@@ -1,0 +1,60 @@
+name: Self-hosted runner probe
+
+# Reports what the self-hosted runner can do (OS, Android SDK, adb devices,
+# emulators, Java, Go) so the device-test workflow can be written for it.
+# Read-only: it installs and changes nothing.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/runner-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    steps:
+    - name: Runner facts
+      run: |
+        echo "OS=${{ runner.os }} ARCH=${{ runner.arch }} NAME=${{ runner.name }}"
+
+    - name: Probe (bash)
+      if: runner.os != 'Windows'
+      shell: bash
+      continue-on-error: true
+      run: |
+        set +e
+        uname -a
+        echo "--- ANDROID_HOME=$ANDROID_HOME ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+        SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+        [ -d "$SDK" ] || SDK="$HOME/Android/Sdk"
+        echo "--- SDK guess: $SDK"; ls "$SDK" 2>&1 | head -20
+        ls "$SDK/ndk" "$SDK/build-tools" "$SDK/platforms" 2>&1
+        echo "--- adb"; ("$SDK/platform-tools/adb" version || adb version) 2>&1 | head -2
+        ("$SDK/platform-tools/adb" devices -l || adb devices -l) 2>&1
+        echo "--- emulators"; ("$SDK/emulator/emulator" -list-avds || emulator -list-avds) 2>&1
+        echo "--- java"; java -version 2>&1; echo "JAVA_HOME=$JAVA_HOME"
+        echo "--- go"; go version 2>&1
+        echo "--- tools"; for t in git jq curl python3; do printf '%s: ' $t; command -v $t || echo missing; done
+        echo "--- disk"; df -h . 2>&1 | tail -1
+
+    - name: Probe (PowerShell)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      continue-on-error: true
+      run: |
+        $PSVersionTable.PSVersion
+        "ANDROID_HOME=$env:ANDROID_HOME ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT"
+        $sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } elseif ($env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT } else { "$env:LOCALAPPDATA\Android\Sdk" }
+        "SDK guess: $sdk"; Get-ChildItem $sdk -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+        Get-ChildItem "$sdk\ndk","$sdk\build-tools","$sdk\platforms" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+        "--- adb"; & "$sdk\platform-tools\adb.exe" version; & "$sdk\platform-tools\adb.exe" devices -l
+        "--- emulators"; & "$sdk\emulator\emulator.exe" -list-avds
+        "--- java"; java -version 2>&1; "JAVA_HOME=$env:JAVA_HOME"
+        "--- go"; go version
+        "--- tools"; foreach ($t in 'git','bash','jq','curl','python') { "{0}: {1}" -f $t, ((Get-Command $t -ErrorAction SilentlyContinue).Source) }
+        "--- disk"; Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free
