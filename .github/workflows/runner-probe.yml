@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   probe:
-    runs-on: self-hosted
+    runs-on: [self-hosted, iran]
     timeout-minutes: 10
     steps:
     - name: Runner facts
@@ -41,6 +41,16 @@ jobs:
         echo "--- go"; go version 2>&1
         echo "--- tools"; for t in git jq curl python3; do printf '%s: ' $t; command -v $t || echo missing; done
         echo "--- disk"; df -h . 2>&1 | tail -1
+        echo "--- os"; cat /etc/os-release 2>&1 | head -3; nproc; free -m | head -2
+        echo "--- kvm"; ls -l /dev/kvm 2>&1
+        # Which proxy the runner uses (host:port only), and what the open internet looks like from here.
+        echo "--- proxy set: https=${https_proxy:+yes} HTTPS=${HTTPS_PROXY:+yes} no_proxy=$no_proxy"
+        echo "--- reachability (direct, bypassing the runner proxy)"
+        for u in https://cp.cloudflare.com/ https://speed.cloudflare.com/__down?bytes=1000 https://check-host.net/ip https://github.com https://proxy.golang.org https://dl.google.com/android/repository/repository2-3.xml; do
+          printf '%-60s ' "$u"; curl -sS -o /dev/null --noproxy '*' -m 8 -w '%{http_code} %{time_total}s\n' "$u" 2>&1 | tail -1
+        done
+        echo "--- direct public IP"; curl -sS --noproxy '*' -m 8 https://check-host.net/ip 2>&1; echo
+        echo "--- ICMP unprivileged"; cat /proc/sys/net/ipv4/ping_group_range 2>&1; ping -c1 -W2 1.1.1.1 2>&1 | tail -2
 
     - name: Probe (PowerShell)
       if: runner.os == 'Windows'
