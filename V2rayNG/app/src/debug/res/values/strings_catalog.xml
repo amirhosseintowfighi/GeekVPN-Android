@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<!-- GeekVPN ships only English and Persian (localeFilters). The upstream locale folders
+     that remain in the tree for merge-friendliness are not packaged, so they need no copy. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="geek_catalog_title">GeekVPN catalog</string>
     <string name="geek_catalog_theme_light">Light</string>
     <string name="geek_catalog_theme_dark">Dark</string>

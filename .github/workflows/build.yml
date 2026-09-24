@@ -170,7 +170,7 @@ jobs:
       run: |
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
-        ./gradlew -PndkVersion=${NDK_VERSION} lint test assembleDebug
+        ./gradlew --continue -PndkVersion=${NDK_VERSION} lint test assembleDebug
 
     - name: Print lint errors
       if: ${{ failure() }}

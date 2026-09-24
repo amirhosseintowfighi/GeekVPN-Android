@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- GeekVPN UI strings. Kept apart from upstream's strings.xml so v2rayNG merges do not conflict. -->
-<resources>
+<!-- GeekVPN ships only English and Persian (localeFilters). The upstream locale folders
+     that remain in the tree for merge-friendliness are not packaged, so they need no copy. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="geek_tab_home">Home</string>
     <string name="geek_tab_services">Services</string>
     <string name="geek_tab_shop">Shop</string>
