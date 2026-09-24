@@ -23,8 +23,28 @@ adb wait-for-device
 adb install -r -g "$APK"
 adb logcat -c
 
+# The emulator's own launcher sometimes ANRs right after boot, and its
+# "isn't responding" dialog then covers whatever we screenshot. Tap "Wait".
+dismiss_system_anr() {
+    local dump
+    dump=$(adb exec-out uiautomator dump /dev/tty 2>/dev/null || true)
+    grep -q "isn't responding" <<<"$dump" || return 1
+    local bounds
+    bounds=$(grep -o 'text="Wait"[^>]*bounds="\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]"' <<<"$dump" \
+        | grep -o '\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]' | head -1)
+    if [[ -n "$bounds" ]]; then
+        read -r x1 y1 x2 y2 <<<"$(tr '[],' '   ' <<<"$bounds")"
+        adb shell input tap $(((x1 + x2) / 2)) $(((y1 + y2) / 2))
+    else
+        adb shell input keyevent KEYCODE_BACK
+    fi
+    echo "dismissed a system ANR dialog"
+    sleep 2
+}
+
 shot() {
     sleep "${2:-6}"
+    for _ in 1 2 3; do dismiss_system_anr || break; done
     adb exec-out screencap -p > "$OUT/$1.png"
     adb exec-out uiautomator dump /dev/tty 2>/dev/null > "$OUT/$1.xml" || true
 }
