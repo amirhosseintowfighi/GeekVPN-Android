@@ -21,6 +21,8 @@ data class GeekColors(
     val watermark: Color,
     /** "logo blue": accents, switch knob, selected check. */
     val logoBlue: Color,
+    /** Knob of a switch that is on; must contrast with [action], the on-track colour. */
+    val switchKnobOn: Color,
     /** "navy": primary actions. */
     val action: Color,
     val onAction: Color,
@@ -64,6 +66,7 @@ internal val LightGeekColors = GeekColors(
     backdropLine = Color(0xFFFFFFFF),
     watermark = Color(0x0FFFFFFF), // white @ 6%
     logoBlue = Color(0xFF00ACFE),
+    switchKnobOn = Color(0xFF00ACFE),
     action = Color(0xFF062845),
     onAction = Color(0xFFFFFFFF),
     milkGlass = Color(0xE0FFFFFF), // white @ 88%
@@ -105,6 +108,7 @@ internal val DarkGeekColors = GeekColors(
     backdropLine = Color(0xFFFFFFFF),
     watermark = Color(0x0AFFFFFF), // white @ 4%
     logoBlue = Color(0xFF00ACFE),
+    switchKnobOn = Color(0xFF031B33),
     action = Color(0xFF00ACFE),
     onAction = Color(0xFF031B33),
     milkGlass = Color(0xE00B2A4A), // navy glass @ 88%

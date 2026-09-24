@@ -44,6 +44,10 @@ adb shell am start -W -n "$PKG/com.v2ray.ang.ui.AboutActivity" >/dev/null
 shot about
 alive "opening About"
 
+# Scroll by most of the screen height, whatever the emulator's resolution.
+read -r W H < <(adb shell wm size | tr -d '\r' | tail -1 | sed -E 's/.*: ([0-9]+)x([0-9]+).*/\1 \2/')
+scroll() { adb shell input swipe $((W / 2)) $((H * 8 / 10)) $((W / 2)) $((H * 2 / 10)) 400; }
+
 # Debug builds carry the component catalog; shoot it in both themes.
 CATALOG="$PKG/com.geekvpn.ui.catalog.CatalogActivity"
 if adb shell cmd package resolve-activity --brief -n "$CATALOG" 2>/dev/null | grep -q catalog \
@@ -51,14 +55,14 @@ if adb shell cmd package resolve-activity --brief -n "$CATALOG" 2>/dev/null | gr
     adb shell am start -W -n "$CATALOG" --ez dark false >/dev/null
     shot catalog-light
     alive "opening the catalog"
-    adb shell input swipe 500 1500 500 400 300
-    shot catalog-light-2 2
+    scroll; shot catalog-light-2 2
+    scroll; shot catalog-light-3 2
     adb shell am force-stop "$PKG"
     adb shell am start -W -n "$CATALOG" --ez dark true >/dev/null
     shot catalog-dark
     alive "opening the catalog in dark"
-    adb shell input swipe 500 1500 500 400 300
-    shot catalog-dark-2 2
+    scroll; shot catalog-dark-2 2
+    scroll; shot catalog-dark-3 2
 fi
 
 adb logcat -d > "$OUT/logcat.txt"

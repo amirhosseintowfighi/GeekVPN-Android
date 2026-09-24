@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.geekvpn.ui.components.CountryBadge
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
@@ -114,19 +115,28 @@ private fun CatalogScreen(dark: Boolean, onDarkChange: (Boolean) -> Unit) {
                         colors.background, colors.logoBlue, colors.action, colors.milkGlass, colors.soft,
                         colors.onGlassMuted, colors.success, colors.warning, colors.danger,
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        swatches.forEach { swatch ->
-                            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Box(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(34.dp)
-                                        .clip(Geek.shapes.badge)
-                                        .background(swatch)
-                                        .border(1.dp, colors.track, Geek.shapes.badge),
-                                )
-                                Text(swatch.hex(), style = Geek.type.numberSmall.copy(fontSize = Geek.type.micro.fontSize), color = colors.onGlassMuted)
+                    swatches.chunked(5).forEach { row ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            row.forEach { swatch ->
+                                Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .height(34.dp)
+                                            .clip(Geek.shapes.badge)
+                                            .background(swatch)
+                                            .border(1.dp, colors.track, Geek.shapes.badge),
+                                    )
+                                    Text(
+                                        swatch.hex(),
+                                        style = Geek.type.numberSmall.copy(fontSize = 10.sp),
+                                        color = colors.onGlassMuted,
+                                        maxLines = 1,
+                                    )
+                                }
                             }
+                            // Keep the last, shorter row's swatches the same width.
+                            repeat(5 - row.size) { Box(Modifier.weight(1f)) }
                         }
                     }
                     Text(stringResource(R.string.geek_catalog_type_page), style = Geek.type.pageTitle, color = colors.onGlass)

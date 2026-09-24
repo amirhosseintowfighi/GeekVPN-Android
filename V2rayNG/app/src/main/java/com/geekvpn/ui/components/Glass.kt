@@ -54,7 +54,14 @@ fun GlassSurface(
     val fill = if (kind == GlassKind.Milk) colors.milkGlass else colors.clearGlass
     val border = if (kind == GlassKind.Milk) colors.milkGlassBorder else colors.clearGlassBorder
     val highlight = if (kind == GlassKind.Milk) colors.milkGlassHighlight else colors.clearGlassHighlight
-    val elevation: Dp = if (kind == GlassKind.Milk) 12.dp else 8.dp
+    // Below Android 9 shadows ignore spotColor and draw near-black, and through a 13% fill
+    // that shows as a dark square inside the tile. Clear glass goes without one there;
+    // drop this branch when minSdk reaches 28.
+    val elevation: Dp = when {
+        kind == GlassKind.Milk -> 12.dp
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> 8.dp
+        else -> 0.dp
+    }
     val blurRadius: Dp = if (kind == GlassKind.Milk) 24.dp else 18.dp
 
     Box(

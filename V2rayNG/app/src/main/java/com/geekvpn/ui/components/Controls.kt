@@ -42,7 +42,7 @@ fun GeekSwitch(
 ) {
     val colors = Geek.colors
     val track by animateColorAsState(if (checked) colors.action else colors.track, label = "track")
-    val knob by animateColorAsState(if (checked) colors.logoBlue else colors.onAction, label = "knob")
+    val knob by animateColorAsState(if (checked) colors.switchKnobOn else colors.onAction, label = "knob")
     val bias by animateFloatAsState(if (checked) 1f else -1f, label = "bias")
     val toggle = if (onCheckedChange != null) {
         Modifier
