@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,7 +9,7 @@ plugins {
 
 // GeekVPN: deployment values come from -P, the environment or local.properties,
 // never from this file, so no endpoint is committed. See docs/geekvpn.md.
-val geekLocalProperties = java.util.Properties().apply {
+val geekLocalProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
 
