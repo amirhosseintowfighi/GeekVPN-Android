@@ -1,0 +1,353 @@
+--------- beginning of main
+09-24 21:48:12.670  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.672  1646  1646 I GnssLocationProvider: WakeLock acquired by sendMessage(3, 0, com.android.server.location.GnssLocationProvider$GpsRequest@ad94463)
+09-24 21:48:12.678  4174  4327 I MS_RegisterService: RegisterService intent:Intent { act=register_intent_action flg=0x14 cmp=com.google.android.talk/com.google.android.libraries.matchstick.net.SilentRegisterService (has extras) } isPeriodic:false
+09-24 21:48:12.679  4328  4328 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-24 21:48:12.682  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.686  4174  4327 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-24 21:48:12.686  4174  4327 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-24 21:48:12.693  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.697  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.701  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.706  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.710  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.716  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.722  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.725  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.740  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: Unable to load native code from existing library /system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at java.lang.Runtime.load0(Runtime.java:897)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at java.lang.System.load(System.java:1505)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):42)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at com.google.android.libraries.matchstick.net.SilentRegisterService.onHandleIntent(SourceFile:216)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at android.app.IntentService$ServiceHandler.handleMessage(IntentService.java:68)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-24 21:48:12.741  4174  4327 W GmsNativeLibraryLoader: 	at android.os.HandlerThread.run(HandlerThread.java:61)
+09-24 21:48:12.745  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:12.747  1953  1953 D CarrierConfigLoader: mHandler: 9 phoneId: 0
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: Unable to load native code from existing library /data/user_de/0/com.google.android.gms/app_extracted_libs/x86_64/libconscrypt_gmscore_jni.so
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/data/user_de/0/com.google.android.gms/app_extracted_libs/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at java.lang.Runtime.load0(Runtime.java:897)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at java.lang.System.load(System.java:1505)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):56)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at com.google.android.libraries.matchstick.net.SilentRegisterService.onHandleIntent(SourceFile:216)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at android.app.IntentService$ServiceHandler.handleMessage(IntentService.java:68)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-24 21:48:12.761  4174  4327 W GmsNativeLibraryLoader: 	at android.os.HandlerThread.run(HandlerThread.java:61)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: Unable to locate conscrypt_gmscore_jni in dalvik.system.PathClassLoader[DexPathList[[zip file "/system/framework/com.android.location.provider.jar", zip file "/system/framework/com.android.media.remotedisplay.jar", zip file "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk"],nativeLibraryDirectories=[/system/priv-app/PrebuiltGmsCore/lib/x86_64, /system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64, /system/lib, /vendor/lib, /system/lib, /vendor/lib]]]
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at java.lang.Runtime.loadLibrary0(Runtime.java:977)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at java.lang.System.loadLibrary(System.java:1530)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):63)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at com.google.android.libraries.matchstick.net.SilentRegisterService.onHandleIntent(SourceFile:216)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at android.app.IntentService$ServiceHandler.handleMessage(IntentService.java:68)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-24 21:48:12.764  4174  4327 E GmsNativeLibraryLoader: 	at android.os.HandlerThread.run(HandlerThread.java:61)
+09-24 21:48:12.764  4174  4327 E ProviderInstaller: Failed to install provider: null
+09-24 21:48:12.764  4174  4327 E MS_RegisterService: Google play services not available
+09-24 21:48:12.764  4174  4327 E MS_RegisterService: fux
+09-24 21:48:12.764  4174  4327 E MS_RegisterService: 	at hnk.a(Unknown Source)
+09-24 21:48:12.764  4174  4327 E MS_RegisterService: 	at com.google.android.libraries.matchstick.net.SilentRegisterService.onHandleIntent(SourceFile:216)
+09-24 21:48:12.764  4174  4327 E MS_RegisterService: 	at android.app.IntentService$ServiceHandler.handleMessage(IntentService.java:68)
+09-24 21:48:12.764  4174  4327 E MS_RegisterService: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-24 21:48:12.764  4174  4327 E MS_RegisterService: 	at android.os.Looper.loop(Looper.java:154)
+09-24 21:48:12.764  4174  4327 E MS_RegisterService: 	at android.os.HandlerThread.run(HandlerThread.java:61)
+09-24 21:48:12.768  4174  4327 W MS_WakeLockHelper: Call to release wakelock: register_service_start_wakelock, but not held.
+09-24 21:48:12.784  2309  2320 W art     : Suspending all threads took: 192.200ms
+09-24 21:48:12.797  2309  2320 I art     : Background sticky concurrent mark sweep GC freed 61876(3MB) AllocSpace objects, 2(40KB) LOS objects, 20% free, 13MB/17MB, paused 194.482ms total 255.191ms
+09-24 21:48:12.822  2309  4315 I Authzen : [DeviceStateSyncManager] Device state updated successfully.
+09-24 21:48:12.839  1646  1646 I FusedLocation: engine stopped (com.android.location.fused)
+--------- beginning of system
+09-24 21:48:12.841  1646  1646 V BackupManagerService: Connected to transport ComponentInfo{com.google.android.gms/com.google.android.gms.backup.BackupTransportService}
+09-24 21:48:12.841  1646  1646 V BackupManagerService: Registering transport com.google.android.gms/.backup.BackupTransportService::com.google.android.gms/.backup.BackupTransportService = com.android.internal.backup.IBackupTransport$Stub$Proxy@941f817
+09-24 21:48:12.845  1646  1659 W InputMethodInfo: Duplicated subtype definition found: , voice
+09-24 21:48:12.858  1646  1659 W InputMethodInfo: Duplicated subtype definition found: , voice
+09-24 21:48:12.864  1646  1659 W InputMethodInfo: Duplicated subtype definition found: , voice
+09-24 21:48:12.877  2255  4325 I UpdateIcingCorporaServi: UpdateCorporaTask done [took 230 ms] updated apps [took 159 ms] 
+09-24 21:48:12.889  1764  1764 D Backup  : [BackupScheduler] Setting backup scheduler enabled=true due to desired state 1
+09-24 21:48:12.890  1764  1764 V Backup  : [BackupTransportCS] no backup now
+09-24 21:48:12.890  1764  1764 D Backup  : [BackupScheduler] Setting backup scheduler enabled=true due to desired state 1
+09-24 21:48:12.890  1764  1764 V Backup  : [BackupTransportCS] no backup now
+09-24 21:48:12.890  1764  1764 V Backup  : [BackupTransportCS] Accounts changed
+09-24 21:48:12.891  1764  1764 I Backup  : [GmsBackupAccountManager] Backup account not found in gmscore.
+09-24 21:48:12.932  2309  2810 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=AppsCorpus serviceId=36
+09-24 21:48:12.987  1764  4314 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package:com.google.android.youtube flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+09-24 21:48:12.987  1764  4313 V Backup  : [BackupAccountNotifier] Handling new intent. Show notification: true
+09-24 21:48:12.995  1764  4313 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+09-24 21:48:13.022  2255  4359 I UpdateIcingCorporaServi: Updating corpora: APPS=com.google.android.youtube, CONTACTS=MAYBE
+09-24 21:48:13.067  3143  4351 W art     : Long monitor contention with owner BackgroundTask #1 (3885) at void hjg.b()(PG:55) waiters=0 in void hjg.b() for 168ms
+09-24 21:48:13.068  2255  4359 I UpdateIcingCorporaServi: UpdateCorporaTask done [took 46 ms] updated apps [took 46 ms] 
+09-24 21:48:13.077  2309  2808 W Icing   : No valid account for uploading user actions
+09-24 21:48:13.131  1646  1659 W InputMethodInfo: Duplicated subtype definition found: , voice
+09-24 21:48:13.146  1764  4357 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package:com.google.android.videos flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+09-24 21:48:13.149  1764  4357 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+09-24 21:48:13.157  2309  2618 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30
+09-24 21:48:13.166  1646  1659 I GnssLocationProvider: WakeLock released by handleMessage(3, 0, com.android.server.location.GnssLocationProvider$GpsRequest@ad94463)
+09-24 21:48:13.172  1646  3571 W BackupManagerService: dataChanged but no participant pkg='com.android.launcher3' uid=10020
+09-24 21:48:13.201  2255  4366 I UpdateIcingCorporaServi: Updating corpora: APPS=com.google.android.videos, CONTACTS=MAYBE
+09-24 21:48:13.245  1646  3570 W BackupManagerService: dataChanged but no participant pkg='com.android.launcher3' uid=10020
+09-24 21:48:13.257  1646  1740 W BackupManagerService: dataChanged but no participant pkg='com.android.launcher3' uid=10020
+09-24 21:48:13.281  1764  4357 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package:com.android.vending flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+09-24 21:48:13.287  1764  4357 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+09-24 21:48:13.321  1646  2446 W BackupManagerService: dataChanged but no participant pkg='com.android.launcher3' uid=10020
+09-24 21:48:13.333  2255  4366 I UpdateIcingCorporaServi: UpdateCorporaTask done [took 131 ms] updated apps [took 131 ms] 
+09-24 21:48:13.334  2255  4366 I UpdateIcingCorporaServi: Updating corpora: APPS=com.android.vending, CONTACTS=MAYBE
+09-24 21:48:13.345  2309  2808 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+09-24 21:48:13.347  1764  2732 W Nearby  : Failed attempt #3 out of 3 for RestoreDeviceName [CONTEXT service_id=49 ]
+09-24 21:48:13.347  1764  2732 W Nearby  : java.lang.IllegalStateException: BluetoothAdapter not ready yet!
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at ajpy.d(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at ajpx.run(Unknown Source)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at bwuj.call(Unknown Source)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at bwuo.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at bwuo.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):9)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at ajpw.run(Unknown Source)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at java.lang.Thread.run(Thread.java:761)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at sow.run(Unknown Source)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1133)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:607)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at sux.run(:com.google.android.gms@202414023@20.24.14 (040800-319035315):0)
+09-24 21:48:13.347  1764  2732 W Nearby  : 	at java.lang.Thread.run(Thread.java:761)
+09-24 21:48:13.350  4343  4343 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-24 21:48:13.364  4343  4343 D AndroidRuntime: CheckJNI is OFF
+09-24 21:48:13.398  2309  4317 I Auth    : [SupervisedAccountIntentOperation] onHandleIntent(): android.intent.action.PACKAGE_ADDED
+09-24 21:48:13.402  2309  4317 I Auth    : [SupervisedAccountIntentOperation] This operation is disabled
+09-24 21:48:13.403  2309  4317 I ChromeSync: [Sync,SyncIntentOperation] Handling the intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.geekvpn.app flg=0x4000010 cmp=com.google.android.gms/.chimera.GmsIntentOperationService (has extras) }.
+09-24 21:48:13.403  1646  2068 W ActivityManager: Unable to start service Intent { act=com.google.android.gms.auth.key.retrieval.service.START pkg=com.google.android.gms } U=0: not found
+09-24 21:48:13.407  1764  4358 W GCM     : Unexpected forwarded intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.geekvpn.app flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) }
+09-24 21:48:13.408  2309  4320 I FontLog : Package com.geekvpn.app has no metadata [CONTEXT service_id=132 ]
+09-24 21:48:13.410  1646  2245 W ActivityManager: Unbind failed: could not find connection for android.os.BinderProxy@3f4b3d8
+09-24 21:48:13.410  2309  2568 E GmsClient: unable to connect to service: com.google.android.gms.auth.key.retrieval.service.START on com.google.android.gms
+09-24 21:48:13.414  2255  4366 I UpdateIcingCorporaServi: UpdateCorporaTask done [took 80 ms] updated apps [took 79 ms] 
+09-24 21:48:13.417  1764  4358 W GCM     : Unexpected forwarded intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.geekvpn.app flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) }
+09-24 21:48:13.445  1764  1782 I art     : Background sticky concurrent mark sweep GC freed 9897(744KB) AllocSpace objects, 3(84KB) LOS objects, 6% free, 15MB/16MB, paused 5.011ms total 21.462ms
+09-24 21:48:13.446  2309  4317 I ChromeSync: [Persistence,AffiliationManager] One of affiliation or grouping data for android://AFVsqtY4W9u6DxBSmEob-6LPADV_zESEIz6NFEYUwl38SnEosvFNfXBTT0Pmwe2_GDQ99qdwoP29dI4SwPA0dw==@com.geekvpn.app/ was not found. Marking affiliation data as stale...
+09-24 21:48:13.482  2255  2266 W art     : Suspending all threads took: 60.363ms
+09-24 21:48:13.484  4343  4343 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-24 21:48:13.500  4343  4343 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-24 21:48:13.513  2309  2808 I Icing   : updateResources: need to parse acek{com.google.android.videos}
+09-24 21:48:13.574  2255  4375 I UpdateIcingCorporaServi: Updating corpora: APPS=com.geekvpn.app, CONTACTS=MAYBE
+09-24 21:48:13.594  4343  4343 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-24 21:48:13.594  4343  4343 E android.os.Debug: failed to load memtrack module: -2
+09-24 21:48:13.595  4343  4343 I Radio-JNI: register_android_hardware_Radio DONE
+09-24 21:48:13.613  2309  4372 I Vision  : Requesting optional module download of ocr.
+09-24 21:48:13.617  2309  4372 I Vision  : Exceeded maximum feature download tries for ocr
+09-24 21:48:13.617  2309  4372 W Vision  : Request of optional module download of ocr failed.
+09-24 21:48:13.627  2309  4372 I Vision  : Checking for download completion for 88791 -- ocr
+09-24 21:48:13.642  4343  4343 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+09-24 21:48:13.691  1646  1660 W BroadcastQueue: Skipping deliver [background] BroadcastRecord{2417769 u-1 android.net.conn.CONNECTIVITY_CHANGE} to ReceiverList{c7805ee 4343 (unknown name)/0/u-1 remote:c7bee33}: process crashing
+09-24 21:48:13.693  2309  2320 I art     : Background partial concurrent mark sweep GC freed 43992(3MB) AllocSpace objects, 13(260KB) LOS objects, 22% free, 13MB/17MB, paused 5.364ms total 76.058ms
+09-24 21:48:13.694  2309  2318 W SQLiteConnectionPool: A SQLiteConnection object for database '/data/user/0/com.google.android.gms/databases/lighter_registration.db' was leaked!  Please fix your application to end transactions in progress properly and to close the database when it is no longer needed.
+09-24 21:48:13.716  2309  2631 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.googlequicksearchbox componentName=null serviceId=36
+09-24 21:48:13.718  1646  1740 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity} from uid 0 on display 0
+09-24 21:48:13.728  1646  1669 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-24 21:48:13.754  4343  4343 I art     : System.exit called, status: 0
+09-24 21:48:13.754  4343  4343 I AndroidRuntime: VM exiting with result code 0.
+09-24 21:48:13.758  1646  1814 I ActivityManager: Start proc 4387:com.geekvpn.app/u0a78 for activity com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity
+09-24 21:48:13.763  4387  4387 I art     : Late-enabling -Xcheck:jni
+09-24 21:48:13.789  4387  4387 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-24 21:48:13.808  1312  1326 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-24 21:48:13.849  2337  2455 D EGL_emulation: eglMakeCurrent: 0x752ad3298440: ver 3 0 (tinfo 0x752ad32ee5e0)
+09-24 21:48:13.988  4387  4387 I MMKV    : Enable checkProcessMode()
+09-24 21:48:13.995  4387  4387 I MMKV    : current API level = 24, libc++_shared=0
+09-24 21:48:13.995  4387  4387 I MMKV    : <MMKV.cpp:166::initialize> version v1.3.15, page size 4096, arch x86_64
+09-24 21:48:13.995  4387  4387 I MMKV    : <MMKV.cpp:225::initializeMMKV> root dir: /data/user/0/com.geekvpn.app/files/mmkv
+09-24 21:48:13.997  2309  2808 W Icing   : No valid account for uploading user actions
+09-24 21:48:14.000  4387  4387 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x21], /data/user/0/com.geekvpn.app/files/mmkv/SETTING
+09-24 21:48:14.001  4387  4387 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x752aeddb4000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING]
+09-24 21:48:14.001  4387  4387 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x24], /data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc
+09-24 21:48:14.001  4387  4387 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x752aedd3d000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc]
+09-24 21:48:14.001  4387  4387 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SETTING] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-24 21:48:14.001  4387  4387 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SETTING] with 0 key-values
+09-24 21:48:14.043  2309  2808 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+09-24 21:48:14.057  2309  2808 I Icing   : Not indexing corpus from package com.google.android.videos as it has never connected
+09-24 21:48:14.057  2309  2808 E Icing   : Aborting indexing of corpus movies
+09-24 21:48:14.061  2309  2808 W Icing   : No valid account for uploading user actions
+09-24 21:48:14.122  2309  2808 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+09-24 21:48:14.122  2309  2808 I Icing   : Not indexing corpus from package com.google.android.videos as it has never connected
+09-24 21:48:14.122  2309  2808 E Icing   : Aborting indexing of corpus shows
+09-24 21:48:14.123  2255  4375 I UpdateIcingCorporaServi: UpdateCorporaTask done [took 550 ms] updated apps [took 550 ms] 
+09-24 21:48:14.148  4387  4387 D WM-PackageManagerHelper: androidx.work.impl.background.systemjob.SystemJobService enabled
+09-24 21:48:14.148  4387  4387 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+09-24 21:48:14.187  4387  4406 D WM-ForceStopRunnable: Is default app process = false
+09-24 21:48:14.207  4387  4387 I MMKV    : <MMKV_IO.cpp:522::writeActualSize> [SETTING] increase sequence to 1, crc 450583947, actualSize 4
+09-24 21:48:14.250  4387  4387 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x25], /data/user/0/com.geekvpn.app/files/mmkv/SUB
+09-24 21:48:14.250  4387  4387 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x752aedcf3000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SUB]
+09-24 21:48:14.250  4387  4387 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x26], /data/user/0/com.geekvpn.app/files/mmkv/SUB.crc
+09-24 21:48:14.250  4387  4387 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x752ae9c00000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SUB.crc]
+09-24 21:48:14.250  4387  4387 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SUB] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-24 21:48:14.250  4387  4387 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SUB] with 0 key-values
+09-24 21:48:14.251  4387  4387 I MMKV    : <MMKV_IO.cpp:522::writeActualSize> [SUB] increase sequence to 1, crc 450583947, actualSize 4
+09-24 21:48:14.251  4387  4387 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x27], /data/user/0/com.geekvpn.app/files/mmkv/MAIN
+09-24 21:48:14.251  4387  4387 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x752ae890c000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/MAIN]
+09-24 21:48:14.251  4387  4387 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x28], /data/user/0/com.geekvpn.app/files/mmkv/MAIN.crc
+09-24 21:48:14.251  4387  4387 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x752ae0867000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/MAIN.crc]
+09-24 21:48:14.251  4387  4387 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [MAIN] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-24 21:48:14.251  4387  4387 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [MAIN] with 0 key-values
+09-24 21:48:14.251  4387  4387 I MMKV    : <MMKV_IO.cpp:522::writeActualSize> [MAIN] increase sequence to 1, crc 450583947, actualSize 4
+09-24 21:48:14.342  4387  4387 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-24 21:48:14.359  2309  2597 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+09-24 21:48:14.363  4387  4387 W art     : Before Android 4.1, method android.graphics.PorterDuffColorFilter androidx.vectordrawable.graphics.drawable.VectorDrawableCompat.updateTintFilter(android.graphics.PorterDuffColorFilter, android.content.res.ColorStateList, android.graphics.PorterDuff$Mode) would have incorrectly overridden the package-private method in android.graphics.drawable.Drawable
+09-24 21:48:14.389  4387  4387 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-24 21:48:14.418  2309  2597 I Icing   : Indexing done com.google.android.gms-apps
+09-24 21:48:14.500  1312  1748 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-24 21:48:14.505  2309  2597 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+09-24 21:48:14.517  4387  4387 D         : HostConnection::get() New Host Connection established 0x752ae0563640, tid 4387
+09-24 21:48:14.521  4387  4387 I Choreographer: Skipped 36 frames!  The application may be doing too much work on its main thread.
+09-24 21:48:14.525  2309  2597 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+09-24 21:48:14.842  4387  4392 I art     : Do partial code cache collection, code=28KB, data=30KB
+09-24 21:48:14.843  4387  4392 I art     : After code cache collection, code=28KB, data=30KB
+09-24 21:48:14.843  4387  4392 I art     : Increasing code cache capacity to 128KB
+09-24 21:48:14.896  4387  4392 I art     : Do partial code cache collection, code=55KB, data=60KB
+09-24 21:48:14.896  4387  4392 I art     : After code cache collection, code=55KB, data=60KB
+09-24 21:48:14.896  4387  4392 I art     : Increasing code cache capacity to 256KB
+09-24 21:48:14.953  4387  4392 I art     : Do full code cache collection, code=102KB, data=118KB
+09-24 21:48:14.954  4387  4392 I art     : After code cache collection, code=88KB, data=78KB
+09-24 21:48:15.015  4387  4392 I art     : Do partial code cache collection, code=117KB, data=113KB
+09-24 21:48:15.016  4387  4392 I art     : After code cache collection, code=101KB, data=100KB
+09-24 21:48:15.016  4387  4392 I art     : Increasing code cache capacity to 512KB
+09-24 21:48:15.055  4387  4412 D         : HostConnection::get() New Host Connection established 0x752ae2e128a0, tid 4412
+09-24 21:48:15.058  2309  2597 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+09-24 21:48:15.060  2309  2597 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+09-24 21:48:15.061  2309  2597 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+09-24 21:48:15.061  2309  2597 I Icing   : Indexing done com.google.android.gms-apps
+09-24 21:48:15.062  2309  2597 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+09-24 21:48:15.063  2309  2597 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+09-24 21:48:15.066  4387  4412 I OpenGLRenderer: Initialized EGL, version 1.4
+09-24 21:48:15.066  4387  4412 D OpenGLRenderer: Swap behavior 1
+09-24 21:48:15.067  4387  4412 D EGL_emulation: eglCreateContext: 0x752ae2e498c0: maj 3 min 0 rcv 3
+09-24 21:48:15.068  4387  4412 D EGL_emulation: eglMakeCurrent: 0x752ae2e498c0: ver 3 0 (tinfo 0x752ae2e0c8c0)
+09-24 21:48:15.069  4387  4412 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008cdf
+09-24 21:48:15.069  4387  4412 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008824
+09-24 21:48:15.113  4387  4387 I Choreographer: Skipped 30 frames!  The application may be doing too much work on its main thread.
+09-24 21:48:15.127  2309  2597 I Icing   : Indexing com.google.android.googlequicksearchbox-applications_uri from com.google.android.googlequicksearchbox
+09-24 21:48:15.141  4387  4412 D EGL_emulation: eglMakeCurrent: 0x752ae2e498c0: ver 3 0 (tinfo 0x752ae2e0c8c0)
+09-24 21:48:15.171  2309  2597 I Icing   : Indexing done com.google.android.googlequicksearchbox-applications_uri
+09-24 21:48:15.177  2309  2597 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+09-24 21:48:15.177  2309  2597 I Icing   : Indexing done com.google.android.gms-apps
+09-24 21:48:15.190  4387  4392 I art     : Compiler allocated 5MB to compile boolean androidx.compose.runtime.snapshots.SnapshotStateObserver$ObservedScopeMap.recordInvalidation(java.util.Set)
+09-24 21:48:15.199  4387  4392 I art     : Do full code cache collection, code=250KB, data=247KB
+09-24 21:48:15.199  4387  4392 I art     : After code cache collection, code=203KB, data=166KB
+09-24 21:48:15.583  1646  1669 I ActivityManager: Displayed com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity: +1s836ms
+09-24 21:48:15.609  1646  1669 I WindowManager: Destroying surface Surface(name=Starting com.geekvpn.app) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.AppWindowToken.destroySurfaces:363 com.android.server.wm.WindowStateAnimator.finishExit:565 com.android.server.wm.WindowStateAnimator.stepAnimationLocked:491 com.android.server.wm.WindowAnimator.updateWindowsLocked:303 com.android.server.wm.WindowAnimator.animateLocked:704 
+09-24 21:48:15.624  1646  3570 I WindowManager: Destroying surface Surface(name=com.android.launcher3/com.android.launcher3.Launcher) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.AppWindowToken.destroySurfaces:363 com.android.server.wm.AppWindowToken.notifyAppStopped:389 com.android.server.wm.WindowManagerService.notifyAppStopped:4463 com.android.server.am.ActivityStack.activityStoppedLocked:1252 com.android.server.am.ActivityManagerService.activityStopped:6903 
+09-24 21:48:16.728  1646  1753 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+09-24 21:48:19.467  1764  2684 W Nearby  : Failed attempt #3 out of 3 for RestoreDeviceName [CONTEXT service_id=49 ]
+09-24 21:48:19.467  1764  2684 W Nearby  : java.lang.IllegalStateException: BluetoothAdapter not ready yet!
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at ajpy.d(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at ajpx.run(Unknown Source)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at bwuj.call(Unknown Source)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at bwuo.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at bwuo.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):9)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at ajpw.run(Unknown Source)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at java.lang.Thread.run(Thread.java:761)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at sow.run(Unknown Source)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1133)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:607)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at sux.run(:com.google.android.gms@202414023@20.24.14 (040800-319035315):0)
+09-24 21:48:19.467  1764  2684 W Nearby  : 	at java.lang.Thread.run(Thread.java:761)
+09-24 21:48:20.011  4387  4417 D ProfileInstaller: Installing profile for com.geekvpn.app
+09-24 21:48:21.367  1764  2581 W Nearby  : Failed attempt #3 out of 3 for RestoreDeviceName [CONTEXT service_id=49 ]
+09-24 21:48:21.367  1764  2581 W Nearby  : java.lang.IllegalStateException: BluetoothAdapter not ready yet!
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at ajpy.d(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at ajpx.run(Unknown Source)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at bwuj.call(Unknown Source)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at bwuo.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at bwuo.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):9)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at ajpw.run(Unknown Source)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at java.lang.Thread.run(Thread.java:761)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at sow.run(Unknown Source)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1133)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:607)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at sux.run(:com.google.android.gms@202414023@20.24.14 (040800-319035315):0)
+09-24 21:48:21.367  1764  2581 W Nearby  : 	at java.lang.Thread.run(Thread.java:761)
+09-24 21:48:21.587  1764  2734 W Nearby  : Failed attempt #3 out of 3 for RestoreDeviceName [CONTEXT service_id=49 ]
+09-24 21:48:21.587  1764  2734 W Nearby  : java.lang.IllegalStateException: BluetoothAdapter not ready yet!
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at ajpy.d(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at ajpx.run(Unknown Source)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at bwuj.call(Unknown Source)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at bwuo.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at bwuo.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):9)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at ajpw.run(Unknown Source)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at java.lang.Thread.run(Thread.java:761)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at sow.run(Unknown Source)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1133)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:607)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at sux.run(:com.google.android.gms@202414023@20.24.14 (040800-319035315):0)
+09-24 21:48:21.587  1764  2734 W Nearby  : 	at java.lang.Thread.run(Thread.java:761)
+09-24 21:48:22.468  1646  1688 I InputReader: Reconfiguring input devices.  changes=0x00000010
+09-24 21:48:22.468  1646  1688 I InputReader: Reconfiguring input devices.  changes=0x00000010
+09-24 21:48:22.476  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:22.483  1953  1953 D CarrierSvcBindHelper: No carrier app for: 0
+09-24 21:48:23.631  2309  4419 I Vision  : Requesting optional module download of ocr.
+09-24 21:48:23.635  2309  4419 I Vision  : Checking for download completion for 98798 -- ocr
+09-24 21:48:23.794  1312  1748 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-24 21:48:23.795  1312  1326 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-24 21:48:23.798  4422  4422 D         : HostConnection::get() New Host Connection established 0x794b7a22d4e0, tid 4422
+09-24 21:48:23.932  4427  4427 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-24 21:48:23.933  4427  4427 D AndroidRuntime: CheckJNI is OFF
+09-24 21:48:23.954  4427  4427 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-24 21:48:23.959  4427  4427 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-24 21:48:23.984  4427  4427 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-24 21:48:23.984  4427  4427 E android.os.Debug: failed to load memtrack module: -2
+09-24 21:48:23.984  4427  4427 I Radio-JNI: register_android_hardware_Radio DONE
+09-24 21:48:23.993  4427  4427 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-24 21:48:25.154  4427  4427 W AccessibilityNodeInfoDumper: Fetch time: 2ms
+09-24 21:48:25.156  1646  2128 W WindowManager: Attempted to remove non-existing token: android.os.Binder@e5fc6be
+09-24 21:48:25.161  4427  4427 D AndroidRuntime: Shutting down VM
+09-24 21:48:25.185  4387  4392 I art     : Do partial code cache collection, code=229KB, data=207KB
+09-24 21:48:25.185  4387  4392 I art     : After code cache collection, code=228KB, data=206KB
+09-24 21:48:25.185  4387  4392 I art     : Increasing code cache capacity to 1024KB
+09-24 21:48:25.187  4387  4392 I art     : Compiler allocated 10MB to compile void androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.populateAccessibilityNodeInfoProperties(int, androidx.core.view.accessibility.AccessibilityNodeInfoCompat, androidx.compose.ui.semantics.SemanticsNode)
+09-24 21:48:25.286  4029  4054 W Babel   : bcq TOOK TOO LONG! (15029ms > 10000ms)
+09-24 21:48:25.336  4439  4439 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-24 21:48:25.337  4439  4439 D AndroidRuntime: CheckJNI is OFF
+09-24 21:48:25.351  4439  4439 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-24 21:48:25.353  4439  4439 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-24 21:48:25.365  4439  4439 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-24 21:48:25.365  4439  4439 E android.os.Debug: failed to load memtrack module: -2
+09-24 21:48:25.365  4439  4439 I Radio-JNI: register_android_hardware_Radio DONE
+09-24 21:48:25.369  4439  4439 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-24 21:48:25.373  1646  2126 I ActivityManager: START u0 {flg=0x10000000 cmp=com.geekvpn.app/com.v2ray.ang.ui.AboutActivity} from uid 0 on display 0
+09-24 21:48:25.383  4387  4387 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-24 21:48:25.385  4387  4387 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-24 21:48:25.778  4387  4412 D EGL_emulation: eglMakeCurrent: 0x752ae2e498c0: ver 3 0 (tinfo 0x752ae2e0c8c0)
+09-24 21:48:25.938  1646  1669 I ActivityManager: Displayed com.geekvpn.app/com.v2ray.ang.ui.AboutActivity: +559ms
+09-24 21:48:25.940  4439  4439 D AndroidRuntime: Shutting down VM
+09-24 21:48:25.958  1646  2247 I WindowManager: Destroying surface Surface(name=com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.WindowManagerService.tryStartExitingAnimation:3024 com.android.server.wm.WindowManagerService.relayoutWindow:2904 com.android.server.wm.Session.relayout:224 android.view.IWindowSession$Stub.onTransact:286 com.android.server.wm.Session.onTransact:145 
+09-24 21:48:28.378  1646  1753 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+09-24 21:48:31.140  2309  3359 W ChimeraConfigurator: Error syncing flags: qoq: COMMIT_TIMEOUT
+09-24 21:48:31.140  2309  3359 I ChmraDebugLogger: [79] COMMIT_TIMEOUT
+09-24 21:48:31.145  2309  3359 I ChmraDebugLogger: [52] null
+09-24 21:48:31.156  2309  3359 I ChimeraConfigService: Scheduling checkin for one-off execution between [3300,43200] seconds from now (1790286511153)
+09-24 21:48:31.161  2309  3359 I ChimeraConfigurator: Starting update, reason: 4 urgentFeatures: vision.ocr:-1
+09-24 21:48:31.973  1312  1324 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-24 21:48:31.974  1312  1326 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-24 21:48:31.975  4469  4469 D         : HostConnection::get() New Host Connection established 0x75c4d6a2d4e0, tid 4469
+09-24 21:48:32.112  4474  4474 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-24 21:48:32.114  4474  4474 D AndroidRuntime: CheckJNI is OFF
+09-24 21:48:32.131  4474  4474 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-24 21:48:32.134  4474  4474 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-24 21:48:32.160  4474  4474 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-24 21:48:32.160  4474  4474 E android.os.Debug: failed to load memtrack module: -2
+09-24 21:48:32.161  4474  4474 I Radio-JNI: register_android_hardware_Radio DONE
+09-24 21:48:32.165  4474  4474 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-24 21:48:33.297  2309  4466 I GmscoreIpa: how are you::
+09-24 21:48:33.298  4474  4474 W AccessibilityNodeInfoDumper: Fetch time: 11ms
+09-24 21:48:33.298  1646  1814 W WindowManager: Attempted to remove non-existing token: android.os.Binder@3e5e4d2
+09-24 21:48:33.301  4474  4474 D AndroidRuntime: Shutting down VM
