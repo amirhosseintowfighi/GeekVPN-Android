@@ -36,9 +36,17 @@ alive() {
     fi
 }
 
-adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null
+# By component: debug builds have a second launcher entry (the catalog).
+adb shell am start -W -n "$PKG/com.v2ray.ang.ui.main.MainActivity" >/dev/null
 shot main 10
 alive "launch"
+
+# A fresh install must start in Persian (AppLocaleManager's default).
+adb shell cmd locale get-app-locales "$PKG" > "$OUT/app-locales.txt" 2>&1 || true
+if ! grep -q "متصل نیست" "$OUT/main.xml"; then
+    echo "::error::fresh install did not start in Persian; app locales: $(cat "$OUT/app-locales.txt")"
+    LOCALE_FAILED=1
+fi
 
 adb shell am start -W -n "$PKG/com.v2ray.ang.ui.AboutActivity" >/dev/null
 shot about
@@ -77,6 +85,10 @@ fi
 # scanner is missing from libv2ray.aar.
 if ! grep -Eo 'cfscan [0-9]+\.[0-9]+\.[0-9]+' "$OUT/about.xml"; then
     echo "::error::About screen does not show a cfscan version"
+    exit 1
+fi
+
+if [[ -n "${LOCALE_FAILED:-}" ]]; then
     exit 1
 fi
 
