@@ -42,7 +42,7 @@ jobs:
 
     - name: Setup Golang
       if: steps.cache-libv2ray.outputs.cache-hit != 'true'
-      uses: actions/setup-go@v6
+      uses: actions/setup-go@v7
       with:
         go-version-file: 'AndroidLibXrayLite/go.mod'
         cache-dependency-path: 'AndroidLibXrayLite/go.sum'
