@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.geekvpn.scanner.CfScanNative
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
@@ -64,7 +65,7 @@ fun AboutScreen(
     var showOssDialog by remember { mutableStateOf(false) }
 
     val libVersion = CoreNativeManager.getLibVersion()
-    val versionText = "v${BuildConfig.VERSION_NAME} ($libVersion)"
+    val versionText = "v${BuildConfig.VERSION_NAME} ($libVersion, cfscan ${CfScanNative.version()})"
     val appIdText = BuildConfig.APPLICATION_ID
 
     Scaffold(

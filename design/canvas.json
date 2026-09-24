@@ -1,0 +1,168 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Account.dc.html": {
+      "h": 1180,
+      "is_interactive": true,
+      "title": "حساب",
+      "w": 390,
+      "x": 940,
+      "y": 2364
+    },
+    "Deposit.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "واریز کارت به کارت",
+      "w": 390,
+      "x": 1880,
+      "y": 2364
+    },
+    "Desktop-Connections.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "دسکتاپ — اتصالات",
+      "w": 1280,
+      "x": 1360,
+      "y": 3948
+    },
+    "Desktop-Home.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "دسکتاپ — خانه",
+      "w": 1280,
+      "x": 0,
+      "y": 3948
+    },
+    "Foundations.dc.html": {
+      "h": 800,
+      "title": "فاندیشن‌ها",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "Home-Off.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "خانه — قطع",
+      "w": 390,
+      "x": 470,
+      "y": 1180
+    },
+    "Home-On.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "خانه — متصل",
+      "w": 390,
+      "x": 940,
+      "y": 1180
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "ورود",
+      "w": 390,
+      "x": 0,
+      "y": 1180
+    },
+    "Route.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "مسیر ترافیک",
+      "w": 390,
+      "x": 1880,
+      "y": 1180
+    },
+    "Servers.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "سرورها",
+      "w": 390,
+      "x": 1410,
+      "y": 1180
+    },
+    "Services.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "سرویس‌های من",
+      "w": 390,
+      "x": 0,
+      "y": 2364
+    },
+    "Shop.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "فروشگاه",
+      "w": 390,
+      "x": 470,
+      "y": 2364
+    },
+    "Wallet.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "شارژ کیف پول",
+      "w": 390,
+      "x": 1410,
+      "y": 2364
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-24T07:34:45Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t0": {
+      "kind": "title1",
+      "maxW": 1280,
+      "text": "GeekVPN — Foundations",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 2270,
+      "text": "موبایل — ورود و خانه",
+      "w": 240,
+      "x": 0,
+      "y": 880
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 2270,
+      "text": "موبایل — سرویس، فروشگاه، حساب",
+      "w": 240,
+      "x": 0,
+      "y": 2064
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 2640,
+      "text": "دسکتاپ — Windows · macOS · Linux",
+      "w": 240,
+      "x": 0,
+      "y": 3648
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Home-Off.dc.html",
+    "Home-On.dc.html",
+    "Servers.dc.html",
+    "Route.dc.html",
+    "Services.dc.html",
+    "Shop.dc.html",
+    "Account.dc.html",
+    "Wallet.dc.html",
+    "Deposit.dc.html",
+    "Desktop-Home.dc.html",
+    "Desktop-Connections.dc.html",
+    "Foundations.dc.html"
+  ],
+  "pages": [],
+  "title": "GeekVPN Client"
+}

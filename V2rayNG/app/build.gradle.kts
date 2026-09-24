@@ -5,16 +5,40 @@ plugins {
     id("com.jaredsburrows.license")
 }
 
+// GeekVPN: deployment values come from -P, the environment or local.properties,
+// never from this file, so no endpoint is committed. See docs/geekvpn.md.
+val geekLocalProperties = java.util.Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+
+// Blank counts as unset: CI passes an unset secret through as an empty string.
+fun geekProperty(name: String, default: String): String =
+    sequenceOf(
+        providers.gradleProperty(name).orNull,
+        System.getenv(name),
+        geekLocalProperties.getProperty(name),
+    ).firstOrNull { !it.isNullOrBlank() } ?: default
+
+// A plain-http API base would put the login tokens on the wire, so refuse to build one.
+fun geekHttpsUrl(name: String, default: String): String {
+    val url = geekProperty(name, default).trim().trimEnd('/')
+    require(url.startsWith("https://")) { "$name must be an https:// URL, got '$url'" }
+    return url
+}
+
 android {
+    // The namespace stays upstream's so v2rayNG merges keep applying cleanly;
+    // only the installed identity is GeekVPN's.
     namespace = "com.v2ray.ang"
     compileSdk = 37
+    providers.gradleProperty("ndkVersion").orNull?.let { ndkVersion = it }
 
     defaultConfig {
-        applicationId = "com.v2ray.ang"
+        applicationId = "com.geekvpn.app"
         minSdk = 24
         targetSdk = 37
-        versionCode = 749
-        versionName = "2.3.9"
+        versionCode = 1
+        versionName = "0.1.0"
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {
@@ -49,6 +73,7 @@ android {
     }
 
     flavorDimensions.add("distribution")
+    flavorDimensions.add("env")
     productFlavors {
         create("fdroid") {
             dimension = "distribution"
@@ -58,6 +83,24 @@ android {
         create("playstore") {
             dimension = "distribution"
             buildConfigField("String", "DISTRIBUTION", "\"Play Store\"")
+        }
+
+        // GeekVPN: which backend the build talks to. Staging installs beside prod.
+        create("staging") {
+            dimension = "env"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            buildConfigField(
+                "String", "API_BASE",
+                "\"${geekHttpsUrl("GEEK_API_BASE_STAGING", "https://staging-api.geekvpn.invalid")}\""
+            )
+        }
+        create("prod") {
+            dimension = "env"
+            buildConfigField(
+                "String", "API_BASE",
+                "\"${geekHttpsUrl("GEEK_API_BASE_PROD", "https://api.geekvpn.invalid")}\""
+            )
         }
     }
 
@@ -112,7 +155,7 @@ android {
                     else
                         "universal"
 
-                    output.outputFileName = "v2rayNG_${variant.versionName}_${abi}.apk"
+                    output.outputFileName = "GeekVPN_${variant.versionName}_${abi}.apk"
                     if (versionCodes.containsKey(abi)) {
                         output.versionCodeOverride =
                             (1000000 * versionCodes[abi]!!).plus(variant.versionCode)
@@ -149,6 +192,12 @@ android {
         }
     }
 
+}
+
+// GeekVPN is not published to F-Droid; the upstream flavor stays declared so
+// upstream merges apply, but its variants are not built.
+androidComponents {
+    beforeVariants(selector().withFlavor("distribution" to "fdroid")) { it.enable = false }
 }
 
 dependencies {

@@ -59,4 +59,12 @@ class UtilsTest {
         assertFalse(Utils.isIpInCidr("192.168.1.1", "invalid-cidr"))
     }
 
+    @Test
+    fun geekvpn_builds_keep_the_xray_inbound_layout() {
+        // Every GeekVPN variant runs the Xray core, so it must not fall back to
+        // the extra HTTP inbound that non-Xray package ids get.
+        assertTrue(BuildConfig.APPLICATION_ID.startsWith("com.geekvpn.app"))
+        assertTrue(Utils.isXray())
+    }
+
 }
