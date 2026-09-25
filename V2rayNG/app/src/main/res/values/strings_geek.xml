@@ -261,10 +261,7 @@
     <string name="geek_deposit_sent">Receipt sent. You will see the result in Telegram and here once it is reviewed.</string>
     <string name="geek_deposit_err_image">That image could not be read. Pick another one.</string>
     <string name="geek_services_renew_description">Renew service</string>
-    <plurals name="geek_shop_days_unit">
-        <item quantity="one">day</item>
-        <item quantity="other">days</item>
-    </plurals>
+    <string name="geek_shop_days_unit">days</string>
     <plurals name="geek_shop_days">
         <item quantity="one">%1$s day</item>
         <item quantity="other">%1$s days</item>

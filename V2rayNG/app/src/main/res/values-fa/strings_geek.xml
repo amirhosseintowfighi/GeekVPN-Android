@@ -257,10 +257,7 @@
     <string name="geek_deposit_sent">رسید ارسال شد. بعد از بررسی نتیجه را در تلگرام و اپ می‌بینی.</string>
     <string name="geek_deposit_err_image">این عکس خوانده نشد. عکس دیگری انتخاب کن.</string>
     <string name="geek_services_renew_description">تمدید سرویس</string>
-    <plurals name="geek_shop_days_unit">
-        <item quantity="one">روزه</item>
-        <item quantity="other">روزه</item>
-    </plurals>
+    <string name="geek_shop_days_unit">روزه</string>
     <plurals name="geek_shop_days">
         <item quantity="one">%1$s روز</item>
         <item quantity="other">%1$s روز</item>

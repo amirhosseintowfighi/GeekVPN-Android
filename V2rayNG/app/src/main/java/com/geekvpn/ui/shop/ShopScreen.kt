@@ -278,7 +278,7 @@ private fun DurationChip(days: Int, selected: Boolean, locale: Locale, onClick: 
     val unit = if (label.months) {
         stringResource(R.string.geek_shop_months_unit)
     } else {
-        pluralStringResource(R.plurals.geek_shop_days_unit, label.count)
+        stringResource(R.string.geek_shop_days_unit)
     }
     Column(
         modifier = modifier
