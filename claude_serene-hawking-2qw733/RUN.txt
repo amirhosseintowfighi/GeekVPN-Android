@@ -1,4 +1,4 @@
 source=claude/serene-hawking-2qw733
-sha=5120353f7bb951d28658f0b35d95562b52ad456e
-run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/36083533203
-smoke=success
+sha=7a0563a3f96dd2cd20eb447ad7208a0fb22a6043
+run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/36085500782
+smoke=cancelled
