@@ -49,6 +49,20 @@ data class TokenPair(
 
 data class RefreshRequest(val refreshToken: String)
 
+/** Username and password the customer set in the bot (backend `AppPasswordLogin`). */
+data class PasswordLoginRequest(
+    val username: String,
+    val password: String,
+    val deviceName: String,
+    val platform: String,
+    val appVersion: String,
+)
+
+data class PasswordLoginResponse(
+    val tokens: TokenPair?,
+    val user: AppUser?,
+)
+
 data class AppUser(
     val id: String?,
     val telegramId: Long?,

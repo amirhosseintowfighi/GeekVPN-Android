@@ -6,6 +6,8 @@ import com.geekvpn.api.LinkApi
 import com.geekvpn.api.LinkPollResponse
 import com.geekvpn.api.LinkStartRequest
 import com.geekvpn.api.LinkStartResponse
+import com.geekvpn.api.PasswordLoginRequest
+import com.geekvpn.api.PasswordLoginResponse
 import com.geekvpn.api.TokenPair
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -24,6 +26,7 @@ class LinkLoginTest {
     private class FakeApi(
         private val start: LinkStartResponse = LinkStartResponse("r1", "poll-token", "https://t.me/GeekVPNBot?start=applogin_abc", 300),
         private val script: MutableList<Any> = mutableListOf(),
+        private val password: PasswordLoginResponse = PasswordLoginResponse(null, null),
     ) : LinkApi {
         var polls = 0
         override suspend fun startLink(request: LinkStartRequest) = start
@@ -33,6 +36,8 @@ class LinkLoginTest {
             if (next is Throwable) throw next
             return next as LinkPollResponse
         }
+
+        override suspend fun passwordLogin(request: PasswordLoginRequest) = password
     }
 
     /**
@@ -162,5 +167,19 @@ class LinkLoginTest {
         assertNull(TelegramLink.appUri("not a url"))
         // A parameter Telegram would reject is dropped rather than passed on.
         assertEquals("tg://resolve?domain=GeekVPNBot", TelegramLink.appUri("https://t.me/GeekVPNBot?start=a%20b"))
+    }
+
+    private val passwordRequest = PasswordLoginRequest("ali_92", "correct horse", "Pixel 6", "android", "0.1.0")
+
+    @Test
+    fun a_password_login_with_a_full_session_is_approved() = runTest {
+        val api = FakeApi(password = PasswordLoginResponse(tokens, user))
+        assertEquals(LinkOutcome.Approved(tokens, user), login(api).password(passwordRequest))
+    }
+
+    @Test(expected = ApiException::class)
+    fun a_password_login_without_tokens_is_an_error() = runTest {
+        val api = FakeApi(password = PasswordLoginResponse(TokenPair(null, "r", null, null, null, null), user))
+        login(api).password(passwordRequest)
     }
 }

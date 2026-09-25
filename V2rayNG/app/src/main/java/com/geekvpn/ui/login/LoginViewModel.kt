@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.geekvpn.GeekGraph
 import com.geekvpn.api.ApiException
 import com.geekvpn.api.LinkStartRequest
+import com.geekvpn.api.PasswordLoginRequest
 import com.geekvpn.auth.LinkOutcome
 import com.geekvpn.auth.LinkStarted
 import com.v2ray.ang.AppConfig
@@ -36,6 +37,9 @@ sealed interface LoginUiState {
         val expiresAt: Long,
     ) : LoginUiState
     data object Syncing : LoginUiState
+
+    /** The username and password form; [busy] while the server checks them. */
+    data class Username(val busy: Boolean = false) : LoginUiState
 }
 
 sealed interface LoginEvent {
@@ -50,6 +54,9 @@ sealed interface LoginEvent {
 interface LoginBackend {
     suspend fun start(): LinkStarted
     suspend fun await(pollToken: String, deadlineMillis: Long): LinkOutcome
+
+    /** Throws `ApiException`: 401 wrong username or password, 429 too many tries. */
+    suspend fun passwordLogin(username: String, password: String): LinkOutcome.Approved
 
     /** False when the session could not be stored. */
     fun signIn(approved: LinkOutcome.Approved): Boolean
@@ -74,6 +81,17 @@ object GeekLoginBackend : LoginBackend {
 
     override suspend fun await(pollToken: String, deadlineMillis: Long) =
         GeekGraph.linkLogin.await(pollToken, deadlineMillis)
+
+    override suspend fun passwordLogin(username: String, password: String) =
+        GeekGraph.linkLogin.password(
+            PasswordLoginRequest(
+                username = username,
+                password = password,
+                deviceName = deviceName(),
+                platform = "android",
+                appVersion = BuildConfig.VERSION_NAME,
+            )
+        )
 
     override fun signIn(approved: LinkOutcome.Approved) =
         GeekGraph.session.signIn(approved.tokens, approved.user)
@@ -153,7 +171,10 @@ class LoginViewModel : ViewModel {
         eventChannel.trySend(LoginEvent.OpenTelegram(waiting.deepLink))
     }
 
-    /** Back on the waiting screen. The server-side request simply expires. */
+    /**
+     * Back to the choice screen, from the waiting screen or the username form.
+     * A waiting request simply expires server-side.
+     */
     fun cancel() {
         flow?.cancel()
         flow = null
@@ -165,8 +186,30 @@ class LoginViewModel : ViewModel {
         eventChannel.trySend(LoginEvent.Done)
     }
 
+    /** "نام کاربری" on the login screen: the form for the login set in the bot. */
     fun username() {
-        eventChannel.trySend(LoginEvent.Message(R.string.geek_login_username_soon))
+        if (flow?.isActive == true) return
+        state.value = LoginUiState.Username()
+    }
+
+    fun submitPassword(username: String, password: String) {
+        if (flow?.isActive == true) return
+        if (username.isBlank() || password.isEmpty()) {
+            eventChannel.trySend(LoginEvent.Message(R.string.geek_login_err_fields))
+            return
+        }
+        flow = viewModelScope.launch {
+            state.value = LoginUiState.Username(busy = true)
+            val approved = try {
+                backend.passwordLogin(username.trim(), password)
+            } catch (e: ApiException) {
+                backend.logFailure("Login: password sign-in failed (status=${e.status})", e)
+                state.value = LoginUiState.Username()
+                eventChannel.send(LoginEvent.Message(passwordMessageFor(e)))
+                return@launch
+            }
+            finishSignIn(approved)
+        }
     }
 
     private suspend fun finishSignIn(approved: LinkOutcome.Approved) {
@@ -188,6 +231,12 @@ class LoginViewModel : ViewModel {
     private suspend fun fail(@StringRes message: Int) {
         state.value = LoginUiState.Choose
         eventChannel.send(LoginEvent.Message(message))
+    }
+
+    @StringRes
+    private fun passwordMessageFor(e: ApiException): Int = when (e.status) {
+        401 -> R.string.geek_login_err_wrong
+        else -> messageFor(e)
     }
 
     @StringRes

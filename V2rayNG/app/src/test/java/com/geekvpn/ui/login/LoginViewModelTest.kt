@@ -37,6 +37,10 @@ class LoginViewModelTest {
         var synced = false
         var guest = false
         var awaitedDeadline = 0L
+        var passwordError: ApiException? = null
+        /** When set, the password check waits for it: the "server is thinking" moment. */
+        var passwordGate: CompletableDeferred<Unit>? = null
+        val passwordCalls = mutableListOf<Pair<String, String>>()
 
         override suspend fun start(): LinkStarted {
             startError?.let { throw it }
@@ -46,6 +50,16 @@ class LoginViewModelTest {
         override suspend fun await(pollToken: String, deadlineMillis: Long): LinkOutcome {
             awaitedDeadline = deadlineMillis
             return outcome.await()
+        }
+
+        override suspend fun passwordLogin(username: String, password: String): LinkOutcome.Approved {
+            passwordCalls += username to password
+            passwordGate?.await()
+            passwordError?.let { throw it }
+            return LinkOutcome.Approved(
+                TokenPair("a", "r", "Bearer", null, null, "s"),
+                AppUser("u1", 555, "Amir", null, "fa", "R555", null),
+            )
         }
 
         override fun signIn(approved: LinkOutcome.Approved): Boolean {
@@ -233,12 +247,81 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun username_sign_in_says_it_is_not_available_yet() = runTest {
+    fun username_opens_the_form_and_back_returns_to_the_choice() = runTest {
         val h = Harness(this)
         h.viewModel.username()
+        assertEquals(LoginUiState.Username(), h.viewModel.uiState.value)
+
+        h.viewModel.cancel()
+        assertEquals(LoginUiState.Choose, h.viewModel.uiState.value)
+    }
+
+    @Test
+    fun the_right_password_signs_in_syncs_and_finishes() = runTest {
+        val h = Harness(this)
+        h.viewModel.username()
+        h.viewModel.submitPassword("  ali_92 ", "correct horse")
         testScheduler.advanceUntilIdle()
 
-        assertEquals(listOf<LoginEvent>(LoginEvent.Message(R.string.geek_login_username_soon)), h.events)
-        assertEquals(LoginUiState.Choose, h.viewModel.uiState.value)
+        assertEquals(listOf("ali_92" to "correct horse"), h.backend.passwordCalls)
+        assertTrue(h.backend.signedIn)
+        assertTrue(h.backend.synced)
+        assertEquals(listOf<LoginEvent>(LoginEvent.Done), h.events)
+    }
+
+    @Test
+    fun empty_fields_are_not_sent() = runTest {
+        val h = Harness(this)
+        h.viewModel.username()
+        h.viewModel.submitPassword(" ", "x")
+        h.viewModel.submitPassword("ali_92", "")
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(emptyList<Pair<String, String>>(), h.backend.passwordCalls)
+        assertEquals(
+            listOf<LoginEvent>(
+                LoginEvent.Message(R.string.geek_login_err_fields),
+                LoginEvent.Message(R.string.geek_login_err_fields),
+            ),
+            h.events,
+        )
+        assertEquals(LoginUiState.Username(), h.viewModel.uiState.value)
+    }
+
+    @Test
+    fun password_failures_keep_the_form_and_say_why() = runTest {
+        for ((status, message) in listOf(
+            401 to R.string.geek_login_err_wrong,
+            429 to R.string.geek_login_err_rate,
+            null to R.string.geek_login_err_network,
+        )) {
+            val h = Harness(this)
+            h.backend.passwordError = ApiException(status, "failed")
+            h.viewModel.username()
+            h.viewModel.submitPassword("ali_92", "wrong one")
+            testScheduler.advanceUntilIdle()
+
+            assertEquals(LoginUiState.Username(), h.viewModel.uiState.value)
+            assertEquals(listOf<LoginEvent>(LoginEvent.Message(message)), h.events)
+            assertFalse(h.backend.signedIn)
+        }
+    }
+
+    @Test
+    fun the_form_is_busy_while_the_server_checks_and_a_second_tap_is_ignored() = runTest {
+        val h = Harness(this)
+        h.backend.passwordGate = CompletableDeferred()
+        h.viewModel.username()
+        h.viewModel.submitPassword("ali_92", "correct horse")
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(LoginUiState.Username(busy = true), h.viewModel.uiState.value)
+        h.viewModel.submitPassword("ali_92", "correct horse")
+        testScheduler.advanceUntilIdle()
+        assertEquals(1, h.backend.passwordCalls.size)
+
+        h.backend.passwordGate?.complete(Unit)
+        testScheduler.advanceUntilIdle()
+        assertEquals(listOf<LoginEvent>(LoginEvent.Done), h.events)
     }
 }

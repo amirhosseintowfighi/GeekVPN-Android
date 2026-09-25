@@ -4,6 +4,7 @@ import com.geekvpn.api.ApiException
 import com.geekvpn.api.AppUser
 import com.geekvpn.api.LinkApi
 import com.geekvpn.api.LinkStartRequest
+import com.geekvpn.api.PasswordLoginRequest
 import com.geekvpn.api.TokenPair
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.LogUtil
@@ -76,6 +77,20 @@ class LinkLogin(
             }
             if (now() > deadlineMillis) return LinkOutcome.Expired
         }
+    }
+
+    /**
+     * Sign in with the username and password set in the bot. [LinkOutcome.Approved]
+     * or an [ApiException]: 401 wrong username or password, 429 too many tries.
+     */
+    suspend fun password(request: PasswordLoginRequest): LinkOutcome.Approved {
+        val response = api.passwordLogin(request)
+        val tokens = response.tokens
+        val user = response.user
+        if (tokens == null || tokens.accessToken.isNullOrEmpty() || tokens.refreshToken.isNullOrEmpty() || user == null) {
+            throw ApiException(null, "password login answered without a session")
+        }
+        return LinkOutcome.Approved(tokens, user)
     }
 
     private companion object {

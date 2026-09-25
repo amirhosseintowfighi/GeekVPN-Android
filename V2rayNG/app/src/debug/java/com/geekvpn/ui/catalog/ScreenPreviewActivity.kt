@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.geekvpn.ui.login.LinkPurpose
 import com.geekvpn.ui.login.SyncingScreen
+import com.geekvpn.ui.login.UsernameScreen
 import com.geekvpn.ui.login.WaitingScreen
 import com.geekvpn.ui.theme.GeekTheme
 import com.v2ray.ang.ui.base.BaseComponentActivity
@@ -26,6 +27,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         GeekTheme(darkTheme = dark) {
             when (intent.getStringExtra(EXTRA_SCREEN)) {
                 SCREEN_SYNCING -> SyncingScreen()
+                SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
                 else -> WaitingScreen(LinkPurpose.SignIn, expiresAt, onReopen = {}, onCancel = {})
             }
@@ -36,5 +38,6 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val EXTRA_SCREEN = "screen"
         const val SCREEN_CREATE = "create"
         const val SCREEN_SYNCING = "syncing"
+        const val SCREEN_USERNAME = "username"
     }
 }

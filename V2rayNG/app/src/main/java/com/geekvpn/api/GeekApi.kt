@@ -38,10 +38,13 @@ interface TokenHolder {
     fun onSessionLost()
 }
 
-/** The two sign-in calls, apart so the polling logic can be tested without HTTP. */
+/** The sign-in calls, apart so the sign-in logic can be tested without HTTP. */
 interface LinkApi {
     suspend fun startLink(request: LinkStartRequest): LinkStartResponse
     suspend fun pollLink(pollToken: String, wait: Boolean): LinkPollResponse
+
+    /** 401 for any wrong username or password; the server does not say which. */
+    suspend fun passwordLogin(request: PasswordLoginRequest): PasswordLoginResponse
 }
 
 /**
@@ -87,6 +90,9 @@ class GeekApi(
 
     override suspend fun pollLink(pollToken: String, wait: Boolean): LinkPollResponse =
         post(anonymous, "/api/app/auth/link/poll", LinkPollRequest(pollToken, wait))
+
+    override suspend fun passwordLogin(request: PasswordLoginRequest): PasswordLoginResponse =
+        post(anonymous, "/api/app/auth/password", request)
 
     suspend fun subscriptions(): List<SubscriptionCard> =
         get(authorized, "/api/miniapp/subscriptions", object : TypeToken<List<SubscriptionCard>>() {})

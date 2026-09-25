@@ -20,7 +20,6 @@
     <string name="geek_login_username">Username</string>
     <string name="geek_login_create">Create account</string>
     <string name="geek_login_guest">Quick start without an account</string>
-    <string name="geek_login_username_soon">Username sign-in is coming soon. Please sign in with Telegram for now.</string>
 
     <string name="geek_wait_title">Waiting for approval in Telegram</string>
     <string name="geek_wait_title_create">Create your account in Telegram</string>
@@ -41,4 +40,17 @@
     <string name="geek_login_err_storage">Could not save the sign-in on this phone.</string>
     <string name="geek_login_err_no_telegram">No app found to open the Telegram link.</string>
     <string name="geek_login_sync_failed">You are signed in, but your services could not be fetched. It will retry the next time you open the app.</string>
+
+    <string name="geek_username_title">Sign in with a username</string>
+    <string name="geek_username_hint">You create the username and password in the GeekVPN bot: Profile → “Sign in to the app with a username”.</string>
+    <string name="geek_username_field">Username</string>
+    <string name="geek_password_field">Password</string>
+    <string name="geek_password_show">Show</string>
+    <string name="geek_password_hide">Hide</string>
+    <string name="geek_password_show_description">Show password</string>
+    <string name="geek_password_hide_description">Hide password</string>
+    <string name="geek_username_submit">Sign in</string>
+    <string name="geek_username_back">Back</string>
+    <string name="geek_login_err_fields">Enter your username and password.</string>
+    <string name="geek_login_err_wrong">Wrong username or password.</string>
 </resources>

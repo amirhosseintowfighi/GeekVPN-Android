@@ -16,7 +16,6 @@
     <string name="geek_login_username">نام کاربری</string>
     <string name="geek_login_create">ساخت حساب</string>
     <string name="geek_login_guest">شروع سریع بدون ثبت‌نام</string>
-    <string name="geek_login_username_soon">ورود با نام کاربری به‌زودی فعال می‌شود. فعلاً با تلگرام وارد شو.</string>
 
     <string name="geek_wait_title">در انتظار تأیید در تلگرام</string>
     <string name="geek_wait_title_create">ساخت حساب در تلگرام</string>
@@ -37,4 +36,17 @@
     <string name="geek_login_err_storage">ذخیره‌ی ورود روی این گوشی ممکن نشد.</string>
     <string name="geek_login_err_no_telegram">برنامه‌ای برای باز کردن لینک تلگرام پیدا نشد.</string>
     <string name="geek_login_sync_failed">وارد شدی، ولی دریافت سرویس‌ها ممکن نشد. دفعه‌ی بعد که اپ را باز کنی دوباره امتحان می‌شود.</string>
+
+    <string name="geek_username_title">ورود با نام کاربری</string>
+    <string name="geek_username_hint">نام کاربری و رمز را در ربات GeekVPN می‌سازی: پروفایل ← «ورود به اپ با نام کاربری».</string>
+    <string name="geek_username_field">نام کاربری</string>
+    <string name="geek_password_field">رمز</string>
+    <string name="geek_password_show">نمایش</string>
+    <string name="geek_password_hide">پنهان</string>
+    <string name="geek_password_show_description">نمایش رمز</string>
+    <string name="geek_password_hide_description">پنهان کردن رمز</string>
+    <string name="geek_username_submit">ورود</string>
+    <string name="geek_username_back">بازگشت</string>
+    <string name="geek_login_err_fields">نام کاربری و رمز را وارد کن.</string>
+    <string name="geek_login_err_wrong">نام کاربری یا رمز اشتباه است.</string>
 </resources>

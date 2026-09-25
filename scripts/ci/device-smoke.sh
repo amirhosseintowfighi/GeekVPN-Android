@@ -107,7 +107,7 @@ adb shell am force-stop "$PKG"
 # flow above only gets there when this emulator can reach the API.
 PREVIEW="$PKG/com.geekvpn.ui.catalog.ScreenPreviewActivity"
 if adb shell pm dump "$PKG" | grep -q "com.geekvpn.ui.catalog.ScreenPreviewActivity"; then
-    for screen in waiting create syncing; do
+    for screen in waiting create syncing username; do
         for dark in false true; do
             name="preview-$screen"; [[ "$dark" == true ]] && name="$name-dark"
             adb shell am start -W -n "$PREVIEW" --es screen "$screen" --ez dark "$dark" >/dev/null

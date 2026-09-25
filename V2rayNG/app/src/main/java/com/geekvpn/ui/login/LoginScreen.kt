@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -122,7 +123,9 @@ internal fun LoginScaffold(
     sheet: @Composable ColumnScope.() -> Unit,
 ) {
     GeekBackdrop(layout = BackdropLayout.Hero) {
-        Column(Modifier.fillMaxSize()) {
+        // imePadding: the sheet (and any field in it) rides above the keyboard,
+        // and the hero, which scrolls, gives up the space.
+        Column(Modifier.fillMaxSize().imePadding()) {
             Column(
                 modifier = Modifier
                     .weight(1f)

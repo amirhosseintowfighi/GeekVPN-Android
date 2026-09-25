@@ -50,7 +50,9 @@ class LaunchActivity : BaseComponentActivity() {
     override fun ScreenContent() {
         GeekTheme {
             val state by viewModel.uiState.collectAsStateWithLifecycle()
-            BackHandler(enabled = state is LoginUiState.Waiting) { viewModel.cancel() }
+            BackHandler(enabled = state is LoginUiState.Waiting || state is LoginUiState.Username) {
+                viewModel.cancel()
+            }
             when (val current = state) {
                 LoginUiState.Choose, LoginUiState.Starting -> LoginScreen(
                     busy = current == LoginUiState.Starting,
@@ -66,6 +68,11 @@ class LaunchActivity : BaseComponentActivity() {
                     onCancel = viewModel::cancel,
                 )
                 LoginUiState.Syncing -> SyncingScreen()
+                is LoginUiState.Username -> UsernameScreen(
+                    busy = current.busy,
+                    onSubmit = viewModel::submitPassword,
+                    onBack = viewModel::cancel,
+                )
             }
         }
     }
