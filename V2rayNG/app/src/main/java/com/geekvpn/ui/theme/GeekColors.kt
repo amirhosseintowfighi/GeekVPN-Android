@@ -51,12 +51,16 @@ data class GeekColors(
     val checkboxBorder: Color,
     val success: Color,
     val successSoft: Color,
+    /** The "connected" dot on the blue backdrop (Home-On.html), brighter than [success]. */
+    val successBright: Color,
     val warning: Color,
     val warningSoft: Color,
     val danger: Color,
     val dangerSoft: Color,
     val dangerBorder: Color,
     val shadow: Color,
+    /** Behind a sheet (Route.html): the screen dims to navy. */
+    val scrim: Color,
     val actionShadow: Color,
 )
 
@@ -90,10 +94,12 @@ internal val LightGeekColors = GeekColors(
     successSoft = Color(0xFFE3F6EE),
     warning = Color(0xFFC77700),
     warningSoft = Color(0xFFFFF4E0),
+    successBright = Color(0xFF7DFFCB),
     danger = Color(0xFFD93F48),
     dangerSoft = Color(0xFFFFF1F2),
     dangerBorder = Color(0xFFF7C9CD),
     shadow = Color(0x47022454), // rgba(2,36,84,.28)
+    scrim = Color(0x99031B33),
     actionShadow = Color(0x59021838), // rgba(2,24,56,.35)
 )
 
@@ -133,10 +139,12 @@ internal val DarkGeekColors = GeekColors(
     successSoft = Color(0xFF0E3B33),
     warning = Color(0xFFF0A63A),
     warningSoft = Color(0xFF3D2E12),
+    successBright = Color(0xFF7DFFCB),
     danger = Color(0xFFF26B73),
     dangerSoft = Color(0xFF40202A),
     dangerBorder = Color(0xFF6B2E3A),
     shadow = Color(0x66000814),
+    scrim = Color(0xB3000814),
     actionShadow = Color(0x4D00ACFE),
 )
 

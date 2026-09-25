@@ -1,10 +1,12 @@
 package com.geekvpn
 
+import com.geekvpn.account.AccountStore
 import com.geekvpn.account.AccountSync
 import com.geekvpn.api.GeekApi
 import com.geekvpn.api.TokenHolder
 import com.geekvpn.api.TokenPair
 import com.geekvpn.auth.LinkLogin
+import com.geekvpn.connection.ConnectionPrefs
 import com.geekvpn.auth.SecureStore
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.SessionStore
@@ -19,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
 /**
@@ -63,7 +67,11 @@ object GeekGraph {
 
     val linkLogin: LinkLogin by lazy { LinkLogin(api) }
 
-    val accountSync: AccountSync by lazy { AccountSync(api) }
+    val accountStore: AccountStore by lazy { AccountStore(storage(ID_ACCOUNT)) }
+
+    val connectionPrefs: ConnectionPrefs by lazy { ConnectionPrefs(storage(ID_CONNECTION)) }
+
+    val accountSync: AccountSync by lazy { AccountSync(api, accountStore) }
 
     /**
      * Owns the background refresh started when the app opens. Process-wide
@@ -75,7 +83,7 @@ object GeekGraph {
     private var lastLaunchSyncAt = 0L
 
     fun syncOnLaunch() {
-        if (session.session.value !is Session.SignedIn) return
+        if (session.session.value !is Session.SignedIn || !connectionPrefs.autoUpdate) return
         if (launchJob?.isActive == true) return
         if (System.currentTimeMillis() - lastLaunchSyncAt < LAUNCH_SYNC_INTERVAL_MS) return
         launchJob = launchScope.launch {
@@ -89,7 +97,32 @@ object GeekGraph {
         }
     }
 
+    /**
+     * Sign out on this device: tell the server (best effort, in the
+     * background), drop the account's services, then the session.
+     */
+    fun signOut() {
+        if (session.session.value is Session.SignedIn) {
+            launchScope.launch {
+                // Bounded: a phone offline must still be able to sign out.
+                withTimeoutOrNull(LOGOUT_TIMEOUT_MS) {
+                    try {
+                        api.logout()
+                    } catch (e: java.io.IOException) {
+                        LogUtil.w(AppConfig.TAG, "GeekGraph: server logout failed; the session expires on its own", e)
+                    }
+                }
+                withContext(Dispatchers.IO) { accountSync.removeAllNow() }
+                session.signOut()
+            }
+        } else {
+            session.signOut()
+        }
+    }
+
+    private const val LOGOUT_TIMEOUT_MS = 5_000L
     private const val ID_ACCOUNT = "GEEK_ACCOUNT"
     private const val ID_SECURE = "GEEK_SECURE"
+    private const val ID_CONNECTION = "GEEK_CONNECTION"
     private const val LAUNCH_SYNC_INTERVAL_MS = 10 * 60 * 1000L
 }

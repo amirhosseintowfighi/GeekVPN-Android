@@ -88,3 +88,8 @@ data class SubscriptionCard(
     /** direct | tunnel | elite; null for a service adopted from a link. */
     val tier: String?,
 )
+
+/** `/api/miniapp/wallet`. Amounts are whole tomans. */
+data class WalletSnapshot(
+    val balance: Long?,
+)

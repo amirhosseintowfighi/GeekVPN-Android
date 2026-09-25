@@ -62,6 +62,14 @@ android {
         }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // GeekVPN: the Telegram bot, for "support" and wallet links. Not a secret,
+        // but set outside the repo like the API base; empty hides those links.
+        val botUsername = geekProperty("GEEK_BOT_USERNAME", "").trim().removePrefix("@")
+        require(botUsername.isEmpty() || Regex("[A-Za-z0-9_]{5,32}").matches(botUsername)) {
+            "GEEK_BOT_USERNAME must be a Telegram username, got '$botUsername'"
+        }
+        buildConfigField("String", "BOT_USERNAME", "\"$botUsername\"")
     }
 
     buildTypes {

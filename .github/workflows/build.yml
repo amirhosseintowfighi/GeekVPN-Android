@@ -167,6 +167,8 @@ jobs:
         # Unset secrets fall back to placeholder hosts; the build still refuses non-https.
         GEEK_API_BASE_STAGING: ${{ secrets.GEEK_API_BASE_STAGING }}
         GEEK_API_BASE_PROD: ${{ secrets.GEEK_API_BASE_PROD }}
+        # A repository variable, not a secret: the bot's name is public.
+        GEEK_BOT_USERNAME: ${{ vars.GEEK_BOT_USERNAME }}
       run: |
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew

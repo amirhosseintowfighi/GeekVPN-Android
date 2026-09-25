@@ -61,8 +61,9 @@
                 android:value="true" />
         </service>
 
-        <!-- GeekVPN: the launcher entry is the login gate, which opens MainActivity once
-             there is an account or guest choice. MainActivity keeps its other entries. -->
+        <!-- GeekVPN: the launcher entry is the login gate, which opens HomeActivity once
+             there is an account or guest choice. v2rayNG's MainActivity stays as
+             "advanced settings" and keeps its quick-settings entry. -->
         <activity
             android:name="com.geekvpn.ui.login.LaunchActivity"
             android:exported="true">
@@ -77,6 +78,11 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+        <activity
+            android:name="com.geekvpn.ui.home.HomeActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true"

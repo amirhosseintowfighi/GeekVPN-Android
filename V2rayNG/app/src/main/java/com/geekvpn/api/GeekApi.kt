@@ -94,6 +94,14 @@ class GeekApi(
     override suspend fun passwordLogin(request: PasswordLoginRequest): PasswordLoginResponse =
         post(anonymous, "/api/app/auth/password", request)
 
+    /** Ends this device's session on the server. Local sign-out does not wait for it. */
+    suspend fun logout() {
+        post<Any>(authorized, "/api/v1/auth/logout", emptyMap<String, String>())
+    }
+
+    suspend fun wallet(): WalletSnapshot =
+        get(authorized, "/api/miniapp/wallet", object : TypeToken<WalletSnapshot>() {})
+
     suspend fun subscriptions(): List<SubscriptionCard> =
         get(authorized, "/api/miniapp/subscriptions", object : TypeToken<List<SubscriptionCard>>() {})
 

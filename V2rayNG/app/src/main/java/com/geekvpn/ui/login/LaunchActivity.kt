@@ -16,16 +16,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
+import com.geekvpn.ui.home.HomeActivity
 import com.geekvpn.ui.theme.GeekTheme
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.ui.base.BaseComponentActivity
-import com.v2ray.ang.ui.main.MainActivity
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.launch
 
 /**
- * The launcher entry. Signed in or guest: straight on to the main screen (and
+ * The launcher entry. Signed in or guest: straight on to [HomeActivity] (and
  * a background refresh of the account's services). Otherwise the login
  * screens, until the customer signs in or picks guest mode.
  */
@@ -100,7 +100,7 @@ class LaunchActivity : BaseComponentActivity() {
     }
 
     private fun openMain() {
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, HomeActivity::class.java))
         finish()
     }
 }

@@ -12,13 +12,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.IOException
 
 /**
  * Mirrors the account's services into v2rayNG subscriptions (see
  * [SubscriptionPlan]) and downloads their servers. From there v2rayNG's own
  * subscription auto-update keeps them fresh.
  */
-class AccountSync(private val api: GeekApi) {
+class AccountSync(
+    private val api: GeekApi,
+    private val store: AccountStore,
+) {
     private val mutex = Mutex()
 
     data class Result(val services: Int, val fetched: Int, val fetchFailures: Int)
@@ -26,6 +30,13 @@ class AccountSync(private val api: GeekApi) {
     /** Throws `ApiException` when the service list cannot be read; local data is then left alone. */
     suspend fun sync(): Result = mutex.withLock {
         val remote = api.subscriptions()
+        store.saveServices(remote)
+        // The balance is extra: a failure here must not undo the services.
+        try {
+            api.wallet().balance?.let(store::saveBalance)
+        } catch (e: IOException) {
+            LogUtil.w(AppConfig.TAG, "AccountSync: wallet read failed", e)
+        }
         withContext(Dispatchers.IO) {
             val local = MmkvManager.decodeSubscriptions().associate { it.guid to it.subscription }
             val plan = SubscriptionPlan.plan(remote, local)
@@ -72,6 +83,7 @@ class AccountSync(private val api: GeekApi) {
      * stay. Blocking, for OkHttp's authenticator thread, which cannot suspend.
      */
     fun removeAllNow() {
+        store.clear()
         MmkvManager.decodeSubscriptions()
             .map { it.guid }
             .filter { SubscriptionPlan.isAccountGuid(it) }

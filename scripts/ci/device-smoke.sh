@@ -110,6 +110,21 @@ if xy=$(center_of "$OUT/login.xml" "ورود با تلگرام"); then
 fi
 adb shell am force-stop "$PKG"
 
+# "شروع سریع بدون ثبت‌نام": guest mode, the real home screen with no account.
+launch
+sleep 6
+adb exec-out uiautomator dump /dev/tty 2>/dev/null > "$OUT/login-again.xml" || true
+if xy=$(center_of "$OUT/login-again.xml" "شروع سریع بدون ثبت‌نام"); then
+    adb shell input tap $xy
+    shot home-guest 6
+    alive "entering guest mode"
+    if ! grep -q "قطع است" "$OUT/home-guest.xml"; then
+        echo "::error::guest mode did not open the home screen"
+        LOGIN_FAILED=1
+    fi
+fi
+adb shell am force-stop "$PKG"
+
 # The waiting and syncing screens with sample data (debug builds): the real
 # flow above only gets there when this emulator can reach the API.
 PREVIEW="$PKG/com.geekvpn.ui.catalog.ScreenPreviewActivity"
@@ -118,14 +133,19 @@ PREVIEW="$PKG/com.geekvpn.ui.catalog.ScreenPreviewActivity"
 probe=$(adb shell am start -W -n "$PREVIEW" 2>&1 || true)
 if [[ "$probe" != *Error* ]]; then
     adb shell am force-stop "$PKG"
-    for screen in waiting create syncing username; do
-        for dark in false true; do
-            name="preview-$screen"; [[ "$dark" == true ]] && name="$name-dark"
-            adb shell am start -W -n "$PREVIEW" --es screen "$screen" --ez dark "$dark" >/dev/null
-            shot "$name" 4
-            alive "previewing $screen"
-            adb shell am force-stop "$PKG"
-        done
+    preview() { # screen, dark
+        local name="preview-$1"; [[ "$2" == true ]] && name="$name-dark"
+        adb shell am start -W -n "$PREVIEW" --es screen "$1" --ez dark "$2" >/dev/null
+        shot "$name" 4
+        alive "previewing $1"
+        adb shell am force-stop "$PKG"
+    }
+    for screen in waiting create syncing username home-off home-on services account; do
+        preview "$screen" false
+        preview "$screen" true
+    done
+    for screen in home-empty servers route shop; do
+        preview "$screen" false
     done
 fi
 

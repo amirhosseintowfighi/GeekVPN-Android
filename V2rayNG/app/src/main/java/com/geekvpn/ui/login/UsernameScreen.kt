@@ -117,7 +117,7 @@ fun UsernameScreen(
             )
             GeekPrimaryButton(
                 text = stringResource(R.string.geek_username_submit),
-                icon = GeekIcons.ArrowForward,
+                icon = GeekIcons.Check,
                 onClick = submit,
                 enabled = !busy,
             )
