@@ -41,6 +41,8 @@ data class GeekColors(
     val onGlass: Color,
     /** "text2": secondary text on milk glass. */
     val onGlassMuted: Color,
+    /** Text links on glass ("شروع سریع بدون ثبت‌نام"). */
+    val link: Color,
     /** "soft": chips, secondary tiles and inputs on milk glass. */
     val soft: Color,
     val softButton: Color,
@@ -79,6 +81,7 @@ internal val LightGeekColors = GeekColors(
     onBackgroundMuted = Color(0xD9FFFFFF),
     onGlass = Color(0xFF062845),
     onGlassMuted = Color(0xFF3F5F7E),
+    link = Color(0xFF0078C8),
     soft = Color(0xFFEAF5FD),
     softButton = Color(0xFFEEF5FB),
     track = Color(0xFFD5E3EF),
@@ -121,6 +124,7 @@ internal val DarkGeekColors = GeekColors(
     onBackgroundMuted = Color(0xC7FFFFFF),
     onGlass = Color(0xFFEAF5FD),
     onGlassMuted = Color(0xFF9DB7CF),
+    link = Color(0xFF00ACFE),
     soft = Color(0xFF11375C),
     softButton = Color(0xFF123B61),
     track = Color(0xFF24496D),

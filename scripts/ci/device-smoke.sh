@@ -4,9 +4,10 @@
 #
 #   scripts/ci/device-smoke.sh <apk> <out-dir>
 #
-# Fails when the app process dies, when the log shows a crash from it, or
-# when the About screen does not report a cfscan version (i.e. the AAR was
-# built without it or its native library failed to load).
+# Fails when the app process dies, when the log shows a crash from it, when
+# a fresh install does not open the Persian login screen, or when the About
+# screen does not report a cfscan version (i.e. the AAR was built without it
+# or its native library failed to load).
 
 set -euo pipefail
 
@@ -56,7 +57,54 @@ alive() {
     fi
 }
 
-# By component: debug builds have a second launcher entry (the catalog).
+# Centre of the first node whose text is exactly $2, from uiautomator dump $1.
+center_of() {
+    local bounds
+    bounds=$(grep -o "text=\"$2\"[^>]*bounds=\"\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]\"" "$1" \
+        | grep -o '\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]' | head -1) || true
+    [[ -n "$bounds" ]] || return 1
+    read -r x1 y1 x2 y2 <<<"$(tr '[],' '   ' <<<"$bounds")"
+    echo "$(((x1 + x2) / 2)) $(((y1 + y2) / 2))"
+}
+
+night() { adb shell cmd uimode night "$1" >/dev/null 2>&1 || true; }
+
+# The launcher entry, the way a launcher starts it: a fresh install has no
+# account, so this is the login screen (Main.html).
+LAUNCH="$PKG/com.geekvpn.ui.login.LaunchActivity"
+launch() {
+    adb shell am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER \
+        -f 0x10200000 -n "$LAUNCH" >/dev/null
+}
+night no
+launch
+shot login 10
+alive "launch"
+if ! grep -q "ورود با تلگرام" "$OUT/login.xml"; then
+    echo "::error::a fresh install did not open the login screen in Persian"
+    LOGIN_FAILED=1
+fi
+night yes
+shot login-dark 4
+night no
+
+# "ورود با تلگرام": asks the API for a link and hands it to Telegram (here, a
+# browser or nothing). Back in the app it is the waiting screen, or the login
+# screen with an error toast when this emulator cannot reach the API.
+if xy=$(center_of "$OUT/login.xml" "ورود با تلگرام"); then
+    adb shell input tap $xy
+    sleep 8
+    launch
+    shot waiting 4
+    night yes
+    shot waiting-dark 4
+    night no
+    alive "starting Telegram sign-in"
+fi
+adb shell am force-stop "$PKG"
+
+# By component: the main screen is behind the login gate, and debug builds
+# have a second launcher entry (the catalog).
 adb shell am start -W -n "$PKG/com.v2ray.ang.ui.main.MainActivity" >/dev/null
 shot main 10
 alive "launch"
@@ -108,7 +156,7 @@ if ! grep -Eo 'cfscan [0-9]+\.[0-9]+\.[0-9]+' "$OUT/about.xml"; then
     exit 1
 fi
 
-if [[ -n "${LOCALE_FAILED:-}" ]]; then
+if [[ -n "${LOCALE_FAILED:-}" || -n "${LOGIN_FAILED:-}" ]]; then
     exit 1
 fi
 

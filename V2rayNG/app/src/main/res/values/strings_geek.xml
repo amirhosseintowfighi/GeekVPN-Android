@@ -10,4 +10,35 @@
 
     <string name="geek_latency_ms">Latency %1$d milliseconds</string>
     <string name="geek_latency_unknown">Latency not measured</string>
+
+    <string name="geek_brand" translatable="false">GeekVPN</string>
+    <string name="geek_login_tagline">Free, fast and secure internet — in one tap.</string>
+    <string name="geek_login_chip_fast">Fast</string>
+    <string name="geek_login_chip_secure">Secure encryption</string>
+    <string name="geek_login_chip_support">Telegram support</string>
+    <string name="geek_login_telegram">Sign in with Telegram</string>
+    <string name="geek_login_username">Username</string>
+    <string name="geek_login_create">Create account</string>
+    <string name="geek_login_guest">Quick start without an account</string>
+    <string name="geek_login_username_soon">Username sign-in is coming soon. Please sign in with Telegram for now.</string>
+
+    <string name="geek_wait_title">Waiting for approval in Telegram</string>
+    <string name="geek_wait_title_create">Create your account in Telegram</string>
+    <string name="geek_wait_step_open">Telegram opens on the GeekVPN bot.</string>
+    <string name="geek_wait_step_start">If you see a “Start” button, tap it.</string>
+    <string name="geek_wait_step_create">No account yet? The bot creates one for you right away.</string>
+    <string name="geek_wait_step_approve">Tap “Approve and connect”; the app continues by itself.</string>
+    <string name="geek_wait_expires">Link valid for %1$s</string>
+    <string name="geek_wait_reopen">Open Telegram again</string>
+    <string name="geek_wait_cancel">Cancel</string>
+    <string name="geek_wait_syncing">Signed in. Fetching your services…</string>
+
+    <string name="geek_login_err_network">Could not reach the server. Check your connection and try again.</string>
+    <string name="geek_login_err_disabled">Telegram sign-in is not available right now.</string>
+    <string name="geek_login_err_rate">Too many attempts. Try again in a few minutes.</string>
+    <string name="geek_login_err_denied">Sign-in was cancelled in Telegram.</string>
+    <string name="geek_login_err_expired">The approval window ran out. Please try again.</string>
+    <string name="geek_login_err_storage">Could not save the sign-in on this phone.</string>
+    <string name="geek_login_err_no_telegram">No app found to open the Telegram link.</string>
+    <string name="geek_login_sync_failed">You are signed in, but your services could not be fetched. It will retry the next time you open the app.</string>
 </resources>

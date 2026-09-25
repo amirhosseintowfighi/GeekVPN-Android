@@ -7,4 +7,34 @@
 
     <string name="geek_latency_ms">تأخیر %1$d میلی‌ثانیه</string>
     <string name="geek_latency_unknown">تأخیر اندازه‌گیری نشده</string>
+
+    <string name="geek_login_tagline">اینترنت آزاد، سریع و امن — فقط با یک لمس.</string>
+    <string name="geek_login_chip_fast">پرسرعت</string>
+    <string name="geek_login_chip_secure">رمزنگاری امن</string>
+    <string name="geek_login_chip_support">پشتیبانی تلگرام</string>
+    <string name="geek_login_telegram">ورود با تلگرام</string>
+    <string name="geek_login_username">نام کاربری</string>
+    <string name="geek_login_create">ساخت حساب</string>
+    <string name="geek_login_guest">شروع سریع بدون ثبت‌نام</string>
+    <string name="geek_login_username_soon">ورود با نام کاربری به‌زودی فعال می‌شود. فعلاً با تلگرام وارد شو.</string>
+
+    <string name="geek_wait_title">در انتظار تأیید در تلگرام</string>
+    <string name="geek_wait_title_create">ساخت حساب در تلگرام</string>
+    <string name="geek_wait_step_open">تلگرام باز می‌شود و ربات GeekVPN را نشان می‌دهد.</string>
+    <string name="geek_wait_step_start">اگر دکمه‌ی «شروع» را دیدی، آن را بزن.</string>
+    <string name="geek_wait_step_create">اگر حساب نداری، ربات همین حالا برایت می‌سازد.</string>
+    <string name="geek_wait_step_approve">روی «تایید و اتصال» بزن؛ اپ خودش ادامه می‌دهد.</string>
+    <string name="geek_wait_expires">اعتبار لینک: %1$s</string>
+    <string name="geek_wait_reopen">باز کردن دوباره‌ی تلگرام</string>
+    <string name="geek_wait_cancel">انصراف</string>
+    <string name="geek_wait_syncing">ورود انجام شد. در حال دریافت سرویس‌ها…</string>
+
+    <string name="geek_login_err_network">به سرور وصل نشدیم. اینترنت را بررسی کن و دوباره امتحان کن.</string>
+    <string name="geek_login_err_disabled">ورود با تلگرام فعلاً در دسترس نیست.</string>
+    <string name="geek_login_err_rate">تلاش‌ها زیاد شد. چند دقیقه‌ی دیگر دوباره امتحان کن.</string>
+    <string name="geek_login_err_denied">ورود در تلگرام لغو شد.</string>
+    <string name="geek_login_err_expired">مهلت تأیید تمام شد. دوباره امتحان کن.</string>
+    <string name="geek_login_err_storage">ذخیره‌ی ورود روی این گوشی ممکن نشد.</string>
+    <string name="geek_login_err_no_telegram">برنامه‌ای برای باز کردن لینک تلگرام پیدا نشد.</string>
+    <string name="geek_login_sync_failed">وارد شدی، ولی دریافت سرویس‌ها ممکن نشد. دفعه‌ی بعد که اپ را باز کنی دوباره امتحان می‌شود.</string>
 </resources>

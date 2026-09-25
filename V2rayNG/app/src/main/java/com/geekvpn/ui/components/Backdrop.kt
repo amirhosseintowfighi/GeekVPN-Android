@@ -56,12 +56,13 @@ internal val LocalBackdrop = staticCompositionLocalOf<BackdropHandle?> { null }
 @Composable
 fun GeekBackdrop(
     modifier: Modifier = Modifier,
+    layout: BackdropLayout = BackdropLayout.Corner,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val colors = Geek.colors
     val logo = painterResource(R.drawable.ic_geek_logo)
-    val handle = remember(colors, logo) {
-        BackdropHandle { size -> drawGeekBackdrop(size, colors, logo) }
+    val handle = remember(colors, logo, layout) {
+        BackdropHandle { size -> drawGeekBackdrop(size, colors, logo, layout) }
     }
     Box(
         modifier = modifier
@@ -82,11 +83,28 @@ fun GeekBackdrop(
 private val RingRadii = listOf(120, 200, 280, 360, 440, 520)
 private val RingAlphas = listOf(0.100f, 0.086f, 0.072f, 0.058f, 0.044f, 0.030f)
 
-internal fun DrawScope.drawGeekBackdrop(size: Size, colors: GeekColors, logo: Painter) {
+/** Where the upper glow and its rings sit. */
+enum class BackdropLayout {
+    /** Top right corner, behind the header (Home-Off.html and the other tab screens). */
+    Corner,
+
+    /** Centred behind a hero logo (Main.html, the login screen). */
+    Hero,
+}
+
+internal fun DrawScope.drawGeekBackdrop(
+    size: Size,
+    colors: GeekColors,
+    logo: Painter,
+    layout: BackdropLayout = BackdropLayout.Corner,
+) {
     val bottomGlow = Offset(size.width * 0.1f, size.height - 67.52.dp.toPx())
     drawCircle(colors.backdropGlow, radius = 260.dp.toPx(), center = bottomGlow)
 
-    val topGlow = Offset(size.width * 0.85f, 160.dp.toPx())
+    val topGlow = when (layout) {
+        BackdropLayout.Corner -> Offset(size.width * 0.85f, 160.dp.toPx())
+        BackdropLayout.Hero -> Offset(size.width * 0.5f, 300.dp.toPx())
+    }
     drawCircle(colors.backdropGlowStrong, radius = 190.dp.toPx(), center = topGlow)
     val hairline = Stroke(width = 1.dp.toPx())
     RingRadii.forEachIndexed { index, radius ->
