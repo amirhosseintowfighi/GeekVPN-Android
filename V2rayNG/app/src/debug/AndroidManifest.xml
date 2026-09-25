@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: the component catalog and single-screen previews with sample data,
+     both started from adb for design review and the CI screenshots. No launcher entry: a
+     second GeekVPN icon on a tester's phone opened the catalog instead of the app. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name="com.geekvpn.ui.catalog.CatalogActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/geek_catalog_title"
+            android:taskAffinity="com.geekvpn.catalog" />
+        <activity
+            android:name="com.geekvpn.ui.catalog.ScreenPreviewActivity"
+            android:exported="true"
+            android:taskAffinity="com.geekvpn.catalog" />
+    </application>
+</manifest>

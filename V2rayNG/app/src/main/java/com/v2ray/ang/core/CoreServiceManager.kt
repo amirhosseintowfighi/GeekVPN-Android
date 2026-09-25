@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.system.OsConstants
 import androidx.core.content.ContextCompat
+import com.geekvpn.smartconnect.FailoverMonitor
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.contracts.IDialerService
 import com.v2ray.ang.contracts.ServiceControl
@@ -52,6 +53,7 @@ object CoreServiceManager {
     private var processFinder: XrayProcessFinder? = null
     private var browserDialer: IDialerService? = null
     private var networkMonitor: NetworkMonitor? = null
+    private var failoverMonitor: FailoverMonitor? = null
     private val connectionTestScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Volatile
@@ -123,6 +125,7 @@ object CoreServiceManager {
         currentVpnInterface = vpnInterface
         launchCore(service, vpnInterface)
         startNetworkMonitor(service)
+        startFailoverMonitor(service)
     }
 
     @Throws(Exception::class)
@@ -191,6 +194,8 @@ object CoreServiceManager {
      */
     fun stopCoreLoop(): Boolean {
         connectionTestScope.coroutineContext.cancelChildren()
+        failoverMonitor?.stop()
+        failoverMonitor = null
         val service = getService() ?: return false
 
         networkMonitor?.unregister()
@@ -241,6 +246,25 @@ object CoreServiceManager {
             onUnderlyingNetworksChanged = { networks -> serviceControl?.get()?.setUnderlyingNetworks(networks) },
             onHandover = { reloadCore() },
         ).also { it.register() }
+    }
+
+    /**
+     * GeekVPN: moves to another server of the same subscription when this one
+     * stops answering (`com.geekvpn.smartconnect`). Works in every run mode,
+     * through the same in-place reload a network handover uses.
+     */
+    private fun startFailoverMonitor(service: Service) {
+        if (failoverMonitor != null) return
+        lateinit var monitor: FailoverMonitor
+        monitor = FailoverMonitor(
+            service = service,
+            probe = {
+                if (isRunning() && !isReloading) coreController.measureDelay(SettingsManager.getDelayTestUrl()) else null
+            },
+            // Only the monitor still owned here may reload; a stopped one must not restart the core.
+            reload = { failoverMonitor === monitor && reloadCore() },
+        )
+        failoverMonitor = monitor.also { it.start() }
     }
 
     /**

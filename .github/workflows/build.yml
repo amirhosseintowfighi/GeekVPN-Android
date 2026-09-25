@@ -1,28 +1,127 @@
 name: Build APK
 
+# GeekVPN: builds libv2ray.aar from source (Xray core + cfscan in one gomobile
+# bind, see scripts/build-libv2ray.sh), then lints, tests and assembles the
+# debug and the R8-minified release APKs, then smoke-tests both on emulators
+# and publishes the screenshots to the ci/screenshots branch. A v* tag also
+# publishes the signed release APKs as a GitHub Release (docs/geekvpn.md).
+#
+# Everything here runs on GitHub-hosted runners. The self-hosted "iran" runner
+# is reserved for Iran-network tests and must never be reachable from a
+# pull_request trigger (see docs/geekvpn.md).
+
 on:
   workflow_dispatch:
-    inputs:
-      release_tag:
-        required: false
-        type: string
   push:
-    branches:
-      - master
+    branches-ignore:
+      # The screenshot branch is written by this workflow; building it would loop.
+      - 'ci/**'
+    tags:
+      - 'v*'
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NDK_VERSION: '29.0.14206865'
 
 jobs:
-  build:
+  libv2ray:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v7
       with:
         submodules: 'recursive'
-        fetch-depth: '0'
+
+    - name: Compute libv2ray cache key
+      id: key
+      run: |
+        CORE=$(git rev-parse HEAD:AndroidLibXrayLite)
+        echo "core=$CORE" >> $GITHUB_OUTPUT
+
+    - name: Restore cached libv2ray
+      id: cache-libv2ray
+      uses: actions/cache/restore@v6
+      with:
+        path: V2rayNG/app/libs/libv2ray.aar
+        key: libv2ray-${{ env.NDK_VERSION }}-${{ steps.key.outputs.core }}-${{ hashFiles('cfscan/**', 'scripts/build-libv2ray.sh') }}
+
+    - name: Setup Golang
+      if: steps.cache-libv2ray.outputs.cache-hit != 'true'
+      uses: actions/setup-go@v6
+      with:
+        go-version-file: 'AndroidLibXrayLite/go.mod'
+        cache-dependency-path: 'AndroidLibXrayLite/go.sum'
+
+    - name: Install gomobile
+      if: steps.cache-libv2ray.outputs.cache-hit != 'true'
+      run: |
+        # The gomobile tools must match the golang.org/x/mobile the core pins.
+        MOBILE=$(cd AndroidLibXrayLite && go list -m -f '{{.Version}}' golang.org/x/mobile)
+        go install golang.org/x/mobile/cmd/gomobile@$MOBILE golang.org/x/mobile/cmd/gobind@$MOBILE
+        echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+    - name: Setup Android SDK
+      if: steps.cache-libv2ray.outputs.cache-hit != 'true'
+      uses: android-actions/setup-android@v4
+      with:
+        log-accepted-android-sdk-licenses: false
+        cmdline-tools-version: '14742923'
+        packages: 'platforms;android-37.0 build-tools;37.0.0 platform-tools'
+
+    - name: Install NDK
+      if: steps.cache-libv2ray.outputs.cache-hit != 'true'
+      run: |
+        echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+          --channel=0 \
+          --install "ndk;${NDK_VERSION}"
+        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/${NDK_VERSION}" >> $GITHUB_ENV
+
+    - name: Build libv2ray.aar (Xray + cfscan)
+      if: steps.cache-libv2ray.outputs.cache-hit != 'true'
+      run: bash scripts/build-libv2ray.sh
+
+    - name: Save libv2ray
+      if: steps.cache-libv2ray.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: V2rayNG/app/libs/libv2ray.aar
+        key: ${{ steps.cache-libv2ray.outputs.cache-primary-key }}
+
+    - name: Test cfscan
+      if: steps.cache-libv2ray.outputs.cache-hit != 'true'
+      working-directory: cfscan
+      # CFSCAN_LIVE: also scan the real Cloudflare edge from the runner.
+      env:
+        CFSCAN_LIVE: "1"
+      run: go test -race -v ./...
+
+    - name: Upload libv2ray.aar
+      uses: actions/upload-artifact@v7
+      with:
+        name: libv2ray
+        path: V2rayNG/app/libs/libv2ray.aar
+        if-no-files-found: error
+
+  app:
+    needs: libv2ray
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+      with:
+        submodules: 'recursive'
+
+    - name: Download libv2ray.aar
+      uses: actions/download-artifact@v8
+      with:
+        name: libv2ray
+        path: V2rayNG/app/libs/
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v4
@@ -35,11 +134,8 @@ jobs:
       run: |
         echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
           --channel=0 \
-          --install "ndk;29.0.14206865"
-        echo "NDK_HOME=$ANDROID_HOME/ndk/29.0.14206865" >> $GITHUB_ENV
-        sed -i '10i\
-        \
-            ndkVersion = "29.0.14206865"' ${{ github.workspace }}/V2rayNG/app/build.gradle.kts
+          --install "ndk;${NDK_VERSION}"
+        echo "NDK_HOME=$ANDROID_HOME/ndk/${NDK_VERSION}" >> $GITHUB_ENV
 
     - name: Restore cached libhevtun
       id: cache-libhevtun-restore
@@ -52,7 +148,7 @@ jobs:
       if: steps.cache-libhevtun-restore.outputs.cache-hit != 'true'
       run: |
         bash compile-hevtun.sh
-    
+
     - name: Save libhevtun
       if: steps.cache-libhevtun-restore.outputs.cache-hit != 'true'
       uses: actions/cache/save@v6
@@ -64,99 +160,241 @@ jobs:
       run: |
         cp -r ${{ github.workspace }}/libs ${{ github.workspace }}/V2rayNG/app
 
-    - name: Fetch AndroidLibXrayLite tag
-      run: |
-        pushd AndroidLibXrayLite
-        CURRENT_TAG=$(git describe --tags --abbrev=0)
-        echo "Current tag in this repo: $CURRENT_TAG"
-        echo "CURRENT_TAG=$CURRENT_TAG" >> $GITHUB_ENV
-        popd
-
-    - name: Download libv2ray
-      uses: robinraju/release-downloader@v1.13
-      with:
-        repository: '2dust/AndroidLibXrayLite'
-        tag: ${{ env.CURRENT_TAG }}
-        fileName: 'libv2ray.aar'
-        out-file-path: V2rayNG/app/libs/
-
     - name: Setup Java
       uses: actions/setup-java@v6.0.1
       with:
         distribution: 'temurin'
         java-version: '21'
+        cache: 'gradle'
 
-    - name: Decode Keystore
-      uses: timheuer/base64-to-file@v2.0.0
-      id: android_keystore
-      with:
-        fileName: "android_keystore.jks"
-        encodedString: ${{ secrets.APP_KEYSTORE_BASE64 }}
-
-    - name: Build APK
+    - name: Release keystore
+      id: keystore
+      env:
+        KEYSTORE_B64: ${{ secrets.GEEK_RELEASE_KEYSTORE }}
       run: |
-        cd ${{ github.workspace }}/V2rayNG
+        # Without the secret the release build falls back to the debug key:
+        # still minified and smoke-tested, never uploaded or published.
+        if [ -n "$KEYSTORE_B64" ]; then
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "GEEK_RELEASE_STORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          echo "SIGNED=true" >> "$GITHUB_ENV"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "::notice::GEEK_RELEASE_KEYSTORE is not set; the release APK is signed with the debug key and not published"
+        fi
+
+    - name: Lint, test and assemble
+      working-directory: V2rayNG
+      env:
+        GEEK_RELEASE_STORE_PASSWORD: ${{ secrets.GEEK_RELEASE_STORE_PASSWORD }}
+        GEEK_RELEASE_KEY_ALIAS: ${{ secrets.GEEK_RELEASE_KEY_ALIAS }}
+        GEEK_RELEASE_KEY_PASSWORD: ${{ secrets.GEEK_RELEASE_KEY_PASSWORD }}
+        GEEK_VERSION_CODE: ${{ github.run_number }}
+        GEEK_VERSION_NAME: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        # Unset secrets fall back to placeholder hosts; the build still refuses non-https.
+        GEEK_API_BASE_STAGING: ${{ secrets.GEEK_API_BASE_STAGING }}
+        GEEK_API_BASE_PROD: ${{ secrets.GEEK_API_BASE_PROD }}
+        # A repository variable, not a secret: the bot's name is public.
+        GEEK_BOT_USERNAME: ${{ vars.GEEK_BOT_USERNAME }}
+      run: |
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
-        ./gradlew licenseFdroidReleaseReport
-        ./gradlew assembleRelease -Pandroid.injected.signing.store.file=${{ steps.android_keystore.outputs.filePath }} -Pandroid.injected.signing.store.password=${{ secrets.APP_KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.APP_KEYSTORE_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.APP_KEY_PASSWORD }}
-    
+        ./gradlew --continue -PndkVersion=${NDK_VERSION} lint test assembleDebug assembleRelease
+
+    - name: Print lint errors
+      if: ${{ failure() }}
+      run: |
+        find V2rayNG/app/build -name 'lint-results-*.txt' -exec grep -h -B1 -A3 'Error:' {} + || true
+
+    - name: Upload lint reports
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: lint-reports
+        path: V2rayNG/app/build/reports/
+        if-no-files-found: ignore
+
     - name: Upload arm64-v8a APK
       uses: actions/upload-artifact@v7
-      if: ${{  success() }}
       with:
         name: arm64-v8a
-        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*arm64-v8a*.apk
+        path: V2rayNG/app/build/outputs/apk/*/debug/*arm64-v8a*.apk
+        if-no-files-found: error
 
     - name: Upload armeabi-v7a APK
       uses: actions/upload-artifact@v7
-      if: ${{  success() }}
       with:
         name: armeabi-v7a
-        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*armeabi-v7a*.apk
-
-    - name: Upload x86 APK
-      uses: actions/upload-artifact@v7
-      if: ${{  success() }}
-      with:
-        name: x86-apk
-        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*x86*.apk
+        path: V2rayNG/app/build/outputs/apk/*/debug/*armeabi-v7a*.apk
+        if-no-files-found: error
 
     - name: Upload universal APK
       uses: actions/upload-artifact@v7
-      if: ${{ success() }}
       with:
-        name: universal-apk
-        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*universal*.apk
+        name: universal
+        path: V2rayNG/app/build/outputs/apk/*/debug/*universal*.apk
+        if-no-files-found: error
 
-  sign-and-release:
-    needs: build
-    runs-on: ubuntu-26.04
-    if: github.event_name == 'workflow_dispatch' && inputs.release_tag != ''
+    # For the emulators only: may be signed with the debug key.
+    - name: Upload release APK for the smoke test
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-smoke
+        path: V2rayNG/app/build/outputs/apk/playstoreProd/release/*universal*.apk
+        if-no-files-found: error
+        retention-days: 3
 
+    - name: Upload signed release APKs
+      if: ${{ env.SIGNED == 'true' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: release
+        path: |
+          V2rayNG/app/build/outputs/apk/playstoreProd/release/*.apk
+          V2rayNG/app/build/outputs/mapping/playstoreProdRelease/mapping.txt
+        if-no-files-found: error
+
+    outputs:
+      signed: ${{ steps.keystore.outputs.signed }}
+
+  device-smoke:
+    needs: app
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: ${{ matrix.experimental == true }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # minSdk on a small (320dp) screen to catch overflow; the rest on a
+        # 411dp Pixel 6, close to the design's 390dp artboard.
+        include:
+          - api-level: 24
+            profile: ''
+            gpu: swiftshader_indirect
+          - api-level: 30
+            profile: pixel_6
+            gpu: swiftshader_indirect
+          - api-level: 35
+            profile: pixel_6
+            gpu: swiftshader_indirect
+          # API 37's SDK packages carry a minor version: android-37.0.
+          - api-level: '37.0'
+            profile: pixel_6
+            # This image is unstable on GitHub's runners: swiftshader_indirect
+            # aborts in gfxstream (hasReadColorBufferDma) and takes
+            # system_server down; swangle_indirect breaks the input service
+            # at boot. guest renders inside Android and skips gfxstream.
+            # Non-blocking until the image is: its result shows on its own job.
+            gpu: guest
+            experimental: true
     steps:
-      - name: Download APK artifacts
-        uses: actions/download-artifact@v8
-        with:
-          path: release
+    - name: Checkout code
+      uses: actions/checkout@v7
 
-      - name: Sign APK files
-        run: |
-          printf '%s' "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          KEY=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr:/ {print $10; exit}')
-          mkdir -p release-files
+    - name: Download universal APK
+      uses: actions/download-artifact@v8
+      with:
+        name: universal
+        path: apk
 
-          find release -type f -name '*.apk' | while read apk; do
-            cp "$apk" release-files/
-            gpg --batch --yes --local-user "$KEY" --detach-sign --output "release-files/$(basename "$apk").sig" "$apk"
-          done
+    - name: Download release APK
+      uses: actions/download-artifact@v8
+      with:
+        name: release-smoke
+        path: apk-release
 
-          gpg --armor --export "$KEY" > release-files/v2rayN-public-key.asc
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
 
-      - name: Upload APKs, signatures and public key to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          file: release-files/*
-          tag: ${{ inputs.release_tag }}
-          file_glob: true
-          prerelease: true
+    - name: Run smoke test on emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: ${{ matrix.api-level }}
+        arch: x86_64
+        target: google_apis
+        profile: ${{ matrix.profile }}
+        # API 37's default data partition cannot fit the universal APK.
+        disk-size: 6G
+        disable-animations: true
+        emulator-options: -no-window -gpu ${{ matrix.gpu }} -noaudio -no-boot-anim -camera-back none
+        # Debug first (previews, catalog), then the R8 release build: another
+        # signature, so the debug install goes first.
+        script: |
+          bash scripts/ci/device-smoke.sh "$(find apk -path '*playstoreProd*' -name '*universal*.apk' | head -1)" out/api${{ matrix.api-level }}
+          adb uninstall com.geekvpn.app
+          bash scripts/ci/device-smoke.sh "$(find apk-release -name '*universal*.apk' | head -1)" out/api${{ matrix.api-level }}-release
+
+    - name: Upload smoke results
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: smoke-api${{ matrix.api-level }}
+        path: out/
+        if-no-files-found: ignore
+
+  publish-screenshots:
+    needs: device-smoke
+    if: ${{ always() && needs.device-smoke.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-screenshots
+      cancel-in-progress: false
+    steps:
+    - name: Download smoke results
+      # An emulator that never booted uploads nothing; publish whatever exists.
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        pattern: smoke-api*
+        path: results
+        merge-multiple: true
+
+    - name: Push to ci/screenshots
+      env:
+        GH_TOKEN: ${{ github.token }}
+        SOURCE_REF: ${{ github.ref_name }}
+      run: |
+        # One folder per source branch, replaced on every run, so the branch
+        # always shows the latest state of each line of work.
+        SLUG=$(echo "$SOURCE_REF" | tr '/' '_')
+        git clone --depth 1 --branch ci/screenshots \
+          "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" site \
+          || { git init -q site && git -C site checkout -q --orphan ci/screenshots \
+               && git -C site remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"; }
+        rm -rf "site/$SLUG" && mkdir -p "site/$SLUG" && cp -r results/. "site/$SLUG/"
+        printf 'source=%s\nsha=%s\nrun=%s/%s/actions/runs/%s\nsmoke=%s\n' \
+          "$SOURCE_REF" "${{ github.sha }}" "${{ github.server_url }}" "${{ github.repository }}" \
+          "${{ github.run_id }}" "${{ needs.device-smoke.result }}" > "site/$SLUG/RUN.txt"
+        cd site
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add -A
+        git commit -q -m "Screenshots for $SOURCE_REF @ ${GITHUB_SHA::8}" || exit 0
+        git push -q origin ci/screenshots
+
+  # A v* tag with the release key set: publish the signed prod APKs.
+  publish-release:
+    needs: [app, device-smoke]
+    if: ${{ github.ref_type == 'tag' && needs.app.outputs.signed == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Download signed release APKs
+      uses: actions/download-artifact@v8
+      with:
+        name: release
+        path: release
+
+    - name: Create GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+      run: |
+        gh release create "$TAG" --repo "${{ github.repository }}" --title "GeekVPN $TAG" --generate-notes \
+          $(find release -name '*.apk' | sort)

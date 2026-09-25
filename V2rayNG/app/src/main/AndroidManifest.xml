@@ -37,6 +37,10 @@
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
         android:minSdkVersion="34" />
+    <!-- GeekVPN: the clean-IP scan runs in a short dataSync foreground service. -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        android:minSdkVersion="34" />
     <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -61,23 +65,58 @@
                 android:value="true" />
         </service>
 
+        <!-- GeekVPN: the launcher entry is the login gate, which opens HomeActivity once
+             there is an account or guest choice. v2rayNG's MainActivity stays as
+             "advanced settings" and keeps its quick-settings entry. -->
         <activity
-            android:name=".ui.main.MainActivity"
-            android:exported="true"
-            android:launchMode="singleTask">
+            android:name="com.geekvpn.ui.login.LaunchActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
-            </intent-filter>
 
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
+        </activity>
+        <activity
+            android:name="com.geekvpn.ui.home.HomeActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize" />
+        <service
+            android:name="com.geekvpn.scanner.ScanService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        <!-- The bank's page sends the customer back here after an online payment. -->
+        <activity
+            android:name="com.geekvpn.ui.shop.PaymentReturnActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="payment"
+                    android:path="/result"
+                    android:scheme="geekvpn" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.server.ServerVmessActivity"

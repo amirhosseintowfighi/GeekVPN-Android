@@ -78,8 +78,10 @@ object AppLocaleManager {
         }
     }
 
+    // GeekVPN: a fresh install starts in Persian rather than the system language.
+    // A stored choice, "auto" included, is always honoured.
     private fun storedLanguage(): Language = Language.fromCode(
-        MmkvManager.decodeSettingsString(AppConfig.PREF_LANGUAGE) ?: Language.AUTO.code
+        MmkvManager.decodeSettingsString(AppConfig.PREF_LANGUAGE) ?: Language.PERSIAN.code
     )
 
     private fun syncLegacyPreference(languageTag: String?) {
