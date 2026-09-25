@@ -295,5 +295,4 @@
     <string name="geek_operator_irancell">ایرانسل</string>
     <string name="geek_operator_rightel">رایتل</string>
     <string name="geek_operator_taliya">تالیا</string>
-    <string name="geek_scan_latency">تأخیر %1$sms</string>
 </resources>

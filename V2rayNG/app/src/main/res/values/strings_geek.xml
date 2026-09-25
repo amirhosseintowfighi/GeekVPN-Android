@@ -299,5 +299,4 @@
     <string name="geek_operator_irancell">Irancell</string>
     <string name="geek_operator_rightel">RighTel</string>
     <string name="geek_operator_taliya">Taliya</string>
-    <string name="geek_scan_latency">%1$s ms</string>
 </resources>

@@ -292,10 +292,11 @@ private fun ResultRow(ip: CleanIp, inUse: Boolean, onUse: () -> Unit) {
     }
 }
 
-/** "۳۲۰ms · ±۱۲ms · ۳٫۲MB/s"; each part only when it was measured. */
+/** "نوسان ۶ms · پینگ ۳۸ms · ۳٫۲ MB/s"; each part only when it was measured. */
 @Composable
 private fun details(ip: CleanIp, locale: Locale): String {
-    val parts = mutableListOf(stringResource(R.string.geek_scan_latency, formatNumber(ip.latencyMs, locale)))
+    // The latency itself is beside the signal bars.
+    val parts = mutableListOf<String>()
     if (ip.jitterMs > 0) parts += stringResource(R.string.geek_scan_jitter, formatNumber(Math.round(ip.jitterMs), locale))
     if (ip.pingMs > 0) parts += stringResource(R.string.geek_scan_ping, formatNumber(ip.pingMs, locale))
     if (ip.downloadKBps > 0) parts += stringResource(R.string.geek_scan_speed, String.format(locale, "%.1f", ip.downloadKBps / 1000.0))
