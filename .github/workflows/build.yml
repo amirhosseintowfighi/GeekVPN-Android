@@ -305,6 +305,8 @@ jobs:
         arch: x86_64
         target: google_apis
         profile: ${{ matrix.profile }}
+        # API 37's default data partition cannot fit the universal APK.
+        disk-size: 6G
         disable-animations: true
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         # Debug first (previews, catalog), then the R8 release build: another
