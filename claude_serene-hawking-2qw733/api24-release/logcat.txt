@@ -1,0 +1,1123 @@
+--------- beginning of main
+09-25 16:44:46.994  2350  7936 I ChromeSync: [Persistence,AffiliationManager] One of affiliation or grouping data for android://RlM0ErhI68kbkJLIGLqi4ApGeaDEXRVn8fPYESRuQ71diMyzitRQWYqNZw1jAfVGTq3GJAp-kt5x4gBBGNJntA==@com.geekvpn.app/ was not found. Marking affiliation data as stale...
+09-25 16:44:47.043  8083  8083 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+--------- beginning of system
+09-25 16:44:47.063  1641  1653 I ActivityManager: Start proc 8083:com.google.android.partnersetup/u0a19 for broadcast com.google.android.partnersetup/.RlzPingBroadcastReceiver
+09-25 16:44:47.075  2298  8080 I UpdateIcingCorporaServi: Updating corpora: APPS=com.geekvpn.app, CONTACTS=MAYBE
+09-25 16:44:47.098  8083  8083 W System  : ClassLoader referenced unknown path: /system/priv-app/GooglePartnerSetup/lib/x86_64
+09-25 16:44:47.164  2350  2877 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.googlequicksearchbox componentName=null serviceId=36
+09-25 16:44:47.169  2350  2908 W Icing   : No valid account for uploading user actions
+09-25 16:44:47.172  2350  2908 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+09-25 16:44:47.176  2298  8080 I UpdateIcingCorporaServi: UpdateCorporaTask done [took 101 ms] updated apps [took 101 ms] 
+09-25 16:44:47.179  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:47.190  8092  8092 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:44:47.191  8092  8092 D AndroidRuntime: CheckJNI is OFF
+09-25 16:44:47.203  8092  8092 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:44:47.205  8092  8092 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:44:47.215  8092  8092 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:44:47.215  8092  8092 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:44:47.215  8092  8092 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:44:47.218  8092  8092 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:44:47.221  1641  2185 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity} from uid 0 on display 0
+09-25 16:44:47.222  1641  1662 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:44:47.229  8112  8112 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:44:47.236  1641  1939 I ActivityManager: Start proc 8112:com.geekvpn.app/u0a79 for activity com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity
+09-25 16:44:47.269  1312  1328 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:44:47.283  8112  8112 I MMKV    : Disable checkProcessMode()
+09-25 16:44:47.284  8112  8112 I MMKV    : current API level = 24, libc++_shared=0
+09-25 16:44:47.284  8112  8112 I MMKV    : <MMKV.cpp:166::initialize> version v1.3.15, page size 4096, arch x86_64
+09-25 16:44:47.284  8112  8112 I MMKV    : <MMKV.cpp:225::initializeMMKV> root dir: /data/user/0/com.geekvpn.app/files/mmkv
+09-25 16:44:47.284  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x21], /data/user/0/com.geekvpn.app/files/mmkv/SETTING
+09-25 16:44:47.284  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ef5167000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING]
+09-25 16:44:47.284  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x24], /data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc
+09-25 16:44:47.284  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ef511d000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc]
+09-25 16:44:47.284  8112  8112 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SETTING] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-25 16:44:47.284  8112  8112 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SETTING] with 0 key-values
+09-25 16:44:47.290  1963  2000 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d73280: ver 3 0 (tinfo 0x7e1ee79b9600)
+09-25 16:44:47.294  8112  8112 D WM-PackageManagerHelper: androidx.work.impl.background.systemjob.SystemJobService enabled
+09-25 16:44:47.294  8112  8112 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+09-25 16:44:47.297  8112  8112 I MMKV    : <MMKV_IO.cpp:522::writeActualSize> [SETTING] increase sequence to 1, crc 737405483, actualSize 4
+09-25 16:44:47.297  8112  8127 D WM-ForceStopRunnable: Is default app process = false
+09-25 16:44:47.306  8112  8117 I art     : Compiler allocated 4MB to compile hn4 jn4.k(android.content.Context, pf0)
+09-25 16:44:47.314  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x25], /data/user/0/com.geekvpn.app/files/mmkv/SUB
+09-25 16:44:47.315  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd1f000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SUB]
+09-25 16:44:47.315  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x26], /data/user/0/com.geekvpn.app/files/mmkv/SUB.crc
+09-25 16:44:47.315  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd1e000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SUB.crc]
+09-25 16:44:47.315  8112  8112 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SUB] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-25 16:44:47.315  8112  8112 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SUB] with 0 key-values
+09-25 16:44:47.315  8112  8112 I MMKV    : <MMKV_IO.cpp:522::writeActualSize> [SUB] increase sequence to 1, crc 737405483, actualSize 4
+09-25 16:44:47.316  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x27], /data/user/0/com.geekvpn.app/files/mmkv/MAIN
+09-25 16:44:47.316  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd1d000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/MAIN]
+09-25 16:44:47.316  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x28], /data/user/0/com.geekvpn.app/files/mmkv/MAIN.crc
+09-25 16:44:47.316  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd1c000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/MAIN.crc]
+09-25 16:44:47.316  8112  8112 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [MAIN] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-25 16:44:47.316  8112  8112 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [MAIN] with 0 key-values
+09-25 16:44:47.316  8112  8112 I MMKV    : <MMKV_IO.cpp:522::writeActualSize> [MAIN] increase sequence to 1, crc 737405483, actualSize 4
+09-25 16:44:47.332  8112  8112 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:44:47.336  8112  8112 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:44:47.341  8112  8112 I MMKV    : <MMKV_Android.cpp:158::mmkvWithID> prepare to load GEEK_ACCOUNT (id afa372bba174ad63bf0f4b8ed2b5ab4d) from rootPath 138671199331200
+09-25 16:44:47.341  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x2a], /data/user/0/com.geekvpn.app/files/geek_mmkv/afa372bba174ad63bf0f4b8ed2b5ab4d
+09-25 16:44:47.341  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd1a000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/afa372bba174ad63bf0f4b8ed2b5ab4d]
+09-25 16:44:47.341  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x2b], /data/user/0/com.geekvpn.app/files/geek_mmkv/afa372bba174ad63bf0f4b8ed2b5ab4d.crc
+09-25 16:44:47.341  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd19000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/afa372bba174ad63bf0f4b8ed2b5ab4d.crc]
+09-25 16:44:47.341  8112  8112 I MMKV    : <MMKV_Android.cpp:158::mmkvWithID> prepare to load GEEK_SECURE (id a399785e30a2098459bd27f625ab9d14) from rootPath 138671199330624
+09-25 16:44:47.341  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x2c], /data/user/0/com.geekvpn.app/files/geek_mmkv/a399785e30a2098459bd27f625ab9d14
+09-25 16:44:47.341  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd18000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/a399785e30a2098459bd27f625ab9d14]
+09-25 16:44:47.341  8112  8112 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x2d], /data/user/0/com.geekvpn.app/files/geek_mmkv/a399785e30a2098459bd27f625ab9d14.crc
+09-25 16:44:47.341  8112  8112 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd17000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/a399785e30a2098459bd27f625ab9d14.crc]
+09-25 16:44:47.341  8112  8112 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [afa372bba174ad63bf0f4b8ed2b5ab4d] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-25 16:44:47.341  8112  8112 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [afa372bba174ad63bf0f4b8ed2b5ab4d] with 0 key-values
+09-25 16:44:47.341  8112  8112 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [a399785e30a2098459bd27f625ab9d14] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-25 16:44:47.341  8112  8112 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [a399785e30a2098459bd27f625ab9d14] with 0 key-values
+09-25 16:44:47.347  1312  1745 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:44:47.349  8112  8112 D         : HostConnection::get() New Host Connection established 0x7e1ee79f6100, tid 8112
+09-25 16:44:47.392  8112  8117 I art     : Do partial code cache collection, code=22KB, data=29KB
+09-25 16:44:47.392  8112  8117 I art     : After code cache collection, code=22KB, data=29KB
+09-25 16:44:47.392  8112  8117 I art     : Increasing code cache capacity to 128KB
+09-25 16:44:47.418  8112  8117 I art     : Do partial code cache collection, code=46KB, data=61KB
+09-25 16:44:47.418  8112  8117 I art     : After code cache collection, code=46KB, data=61KB
+09-25 16:44:47.418  8112  8117 I art     : Increasing code cache capacity to 256KB
+09-25 16:44:47.420  8112  8117 I art     : Compiler allocated 5MB to compile vr2 wk3.s(int, oe0, int)
+09-25 16:44:47.455  8112  8128 D         : HostConnection::get() New Host Connection established 0x7e1ee79f61c0, tid 8128
+09-25 16:44:47.457  8112  8128 I OpenGLRenderer: Initialized EGL, version 1.4
+09-25 16:44:47.457  8112  8128 D OpenGLRenderer: Swap behavior 1
+09-25 16:44:47.458  8112  8128 D EGL_emulation: eglCreateContext: 0x7e1ef0d76160: maj 3 min 0 rcv 3
+09-25 16:44:47.459  8112  8128 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d76160: ver 3 0 (tinfo 0x7e1ef0d10f40)
+09-25 16:44:47.459  8112  8128 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008cdf
+09-25 16:44:47.459  8112  8128 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008824
+09-25 16:44:47.461  8112  8117 I art     : Do full code cache collection, code=115KB, data=125KB
+09-25 16:44:47.462  8112  8117 I art     : After code cache collection, code=75KB, data=67KB
+09-25 16:44:47.480  8112  8128 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d76160: ver 3 0 (tinfo 0x7e1ef0d10f40)
+09-25 16:44:47.681  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:47.862  8035  8062 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-25 16:44:47.876  8035  8062 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-25 16:44:47.877  8035  8062 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-25 16:44:47.878  8035  8062 V NativeCrypto: Registering com/google/android/gms/org/conscrypt/NativeCrypto's 286 native methods...
+09-25 16:44:47.890  8035  8062 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-25 16:44:47.892  8035  8062 I ProviderInstaller: Installed default security provider GmsCore_OpenSSL
+09-25 16:44:47.977  1641  1662 I ActivityManager: Displayed com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity: +752ms
+09-25 16:44:47.980  8092  8092 D AndroidRuntime: Shutting down VM
+09-25 16:44:48.004  1641  1662 I WindowManager: Destroying surface Surface(name=Starting com.geekvpn.app) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.AppWindowToken.destroySurfaces:363 com.android.server.wm.WindowStateAnimator.finishExit:565 com.android.server.wm.WindowStateAnimator.stepAnimationLocked:491 com.android.server.wm.WindowAnimator.updateWindowsLocked:303 com.android.server.wm.WindowAnimator.animateLocked:704 
+09-25 16:44:48.007  1641  2343 I WindowManager: Destroying surface Surface(name=com.android.settings/com.android.settings.FallbackHome) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.AppWindowToken.destroySurfaces:363 com.android.server.wm.AppWindowToken.notifyAppStopped:389 com.android.server.wm.WindowManagerService.notifyAppStopped:4463 com.android.server.am.ActivityStack.activityStoppedLocked:1252 com.android.server.am.ActivityManagerService.activityStopped:6903 
+09-25 16:44:48.149  2350  2908 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+09-25 16:44:48.157  2350  2908 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+09-25 16:44:48.157  2350  2908 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+09-25 16:44:48.163  2350  2908 I Icing   : Indexing done com.google.android.gms-apps
+09-25 16:44:48.176  2350  2908 I Icing   : Indexing com.google.android.googlequicksearchbox-applications_uri from com.google.android.googlequicksearchbox
+09-25 16:44:48.191  2350  2908 I Icing   : Indexing done com.google.android.googlequicksearchbox-applications_uri
+09-25 16:44:48.219  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:48.759  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:49.262  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:49.803  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:50.339  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:50.500  1756  2972 W Conscrypt: Could not set socket write timeout: java.net.SocketException: Socket closed
+09-25 16:44:50.500  1756  2972 W Conscrypt: 	at com.google.android.gms.org.conscrypt.Platform.setSocketWriteTimeout(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-25 16:44:50.500  1756  2972 W Conscrypt: 	at com.google.android.gms.org.conscrypt.ConscryptFileDescriptorSocket.setSoWriteTimeout(:com.google.android.gms@202414023@20.24.14 (040800-319035315):0)
+09-25 16:44:50.522  1756  2972 W Conscrypt: Could not set socket write timeout: java.net.SocketException: Socket closed
+09-25 16:44:50.522  1756  2972 W Conscrypt: 	at com.google.android.gms.org.conscrypt.Platform.setSocketWriteTimeout(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-25 16:44:50.522  1756  2972 W Conscrypt: 	at com.google.android.gms.org.conscrypt.ConscryptFileDescriptorSocket.setSoWriteTimeout(:com.google.android.gms@202414023@20.24.14 (040800-319035315):0)
+09-25 16:44:50.675  1756  2972 I aopq    : Scheduling adaptive one off task with window [14400, 604800] in seconds [CONTEXT service_id=51 ]
+09-25 16:44:50.880  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:51.422  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:51.960  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:52.501  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:52.855  8112  8139 D ProfileInstaller: Installing profile for com.geekvpn.app
+09-25 16:44:52.859  8112  8117 I art     : Do partial code cache collection, code=106KB, data=111KB
+09-25 16:44:52.860  8112  8117 I art     : After code cache collection, code=106KB, data=111KB
+09-25 16:44:52.860  8112  8117 I art     : Increasing code cache capacity to 512KB
+09-25 16:44:52.910  8112  8117 I art     : Compiler allocated 4MB to compile boolean ia2.V(java.io.ByteArrayOutputStream, byte[], xq0[])
+09-25 16:44:53.040  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:53.569  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:54.110  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:54.651  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:54.743  1641  3601 I ActivityManager: Killing 4381:com.google.android.apps.photos/u0a62 (adj 906): empty #17
+09-25 16:44:54.779  1641  2200 D ActivityManager: cleanUpApplicationRecord -- 4381
+09-25 16:44:55.169  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:55.711  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:56.252  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:56.793  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:57.329  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:57.335  1641  1685 I InputReader: Reconfiguring input devices.  changes=0x00000010
+09-25 16:44:57.337  1924  1924 D CarrierSvcBindHelper: No carrier app for: 0
+09-25 16:44:57.870  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:58.066  8143  8143 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:44:58.067  8143  8143 D AndroidRuntime: CheckJNI is OFF
+09-25 16:44:58.078  8143  8143 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:44:58.080  8143  8143 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:44:58.091  8143  8143 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:44:58.091  8143  8143 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:44:58.091  8143  8143 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:44:58.094  8143  8143 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:44:58.411  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:58.949  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:44:59.120  8143  8143 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:44:59.122  1641  2200 W WindowManager: Attempted to remove non-existing token: android.os.Binder@9810f8d
+09-25 16:44:59.127  8143  8143 D AndroidRuntime: Shutting down VM
+09-25 16:44:59.139  8112  8117 I art     : Compiler allocated 12MB to compile m2 n9.M(int)
+09-25 16:44:59.159  1312  1328 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:44:59.160  1312  1326 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:44:59.161  8155  8155 D         : HostConnection::get() New Host Connection established 0x775be982d4e0, tid 8155
+09-25 16:44:59.247  8160  8160 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:44:59.248  8160  8160 D AndroidRuntime: CheckJNI is OFF
+09-25 16:44:59.259  8160  8160 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:44:59.261  8160  8160 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:44:59.270  8160  8160 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:44:59.270  8160  8160 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:44:59.271  8160  8160 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:44:59.274  8160  8160 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:44:59.491  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:00.029  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:00.287  8160  8160 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:45:00.287  1641  1983 W WindowManager: Attempted to remove non-existing token: android.os.Binder@1fc1789
+09-25 16:45:00.289  8160  8160 D AndroidRuntime: Shutting down VM
+09-25 16:45:00.569  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:01.111  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:01.652  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:02.189  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:02.351  1641  1956 I ActivityManager: Killing 2225:com.android.providers.calendar/u0a2 (adj 906): empty #17
+09-25 16:45:02.353  1641  1653 D ActivityManager: cleanUpApplicationRecord -- 2225
+09-25 16:45:02.730  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:03.271  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:03.809  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:04.349  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:04.400  8184  8184 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:04.401  8184  8184 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:04.412  8184  8184 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:04.414  8184  8184 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:04.423  8184  8184 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:04.423  8184  8184 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:04.423  8184  8184 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:04.426  8184  8184 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:04.890  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:05.431  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:05.443  8184  8184 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:45:05.443  1641  2200 W WindowManager: Attempted to remove non-existing token: android.os.Binder@11c27af
+09-25 16:45:05.447  8184  8184 D AndroidRuntime: Shutting down VM
+09-25 16:45:05.475  1312  5246 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:45:05.476  1312  2054 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:45:05.477  8196  8196 D         : HostConnection::get() New Host Connection established 0x75fc5c02d4e0, tid 8196
+09-25 16:45:05.563  8201  8201 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:05.564  8201  8201 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:05.575  8201  8201 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:05.577  8201  8201 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:05.586  8201  8201 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:05.586  8201  8201 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:05.586  8201  8201 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:05.589  8201  8201 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:05.972  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:06.480  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:06.601  8201  8201 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:45:06.601  1641  2158 W WindowManager: Attempted to remove non-existing token: android.os.Binder@305a345
+09-25 16:45:06.604  8201  8201 D AndroidRuntime: Shutting down VM
+09-25 16:45:06.694  8215  8215 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:06.695  8215  8215 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:06.706  8215  8215 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:06.707  8215  8215 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:06.716  8215  8215 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:06.716  8215  8215 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:06.716  8215  8215 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:06.719  8215  8215 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-25 16:45:06.721  8215  8215 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=174.0, y[0]=469.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=481550, downTime=481550, deviceId=0, source=0x1002 }
+09-25 16:45:06.724  8215  8215 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=174.0, y[0]=469.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=481550, downTime=481550, deviceId=0, source=0x1002 }
+09-25 16:45:06.729  8112  8112 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+09-25 16:45:06.729  1393  1413 W audio_hw_generic: Not supplying enough data to HAL, expected position 308935 , only wrote 308880
+09-25 16:45:06.730  8112  8112 I MMKV    : <MMKV_IO.cpp:522::writeActualSize> [afa372bba174ad63bf0f4b8ed2b5ab4d] increase sequence to 1, crc 973768360, actualSize 4
+09-25 16:45:06.735  8215  8215 D AndroidRuntime: Shutting down VM
+09-25 16:45:06.743  8112  8117 I art     : Do full code cache collection, code=240KB, data=250KB
+09-25 16:45:06.743  8112  8117 I art     : After code cache collection, code=185KB, data=173KB
+09-25 16:45:06.989  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: Login: link/start failed (status=null)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: com.geekvpn.api.ApiException: network failure on /api/app/auth/link/start
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.geekvpn.api.GeekApi$execute$2.invokeSuspend(SourceFile:250)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at br.resumeWith(SourceFile:8)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at gs0.run(SourceFile:114)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at ze1.run(SourceFile:135)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at gz3.run(SourceFile:3)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at gk0.run(SourceFile:85)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: Caused by: javax.net.ssl.SSLHandshakeException: java.security.cert.CertPathValidatorException: Trust anchor for certification path not found.
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.OpenSSLSocketImpl.startHandshake(OpenSSLSocketImpl.java:361)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at tf0.j(SourceFile:34)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at tf0.c(SourceFile:156)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at e41.a(SourceFile:132)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at dx.a(SourceFile:1159)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at b6.b(SourceFile:109)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at dx.a(SourceFile:617)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at b6.b(SourceFile:109)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at dx.a(SourceFile:1032)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at b6.b(SourceFile:109)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at dx.a(SourceFile:242)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at b6.b(SourceFile:109)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at s23.f(SourceFile:136)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at s23.d(SourceFile:46)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.geekvpn.api.GeekApi$execute$2.invokeSuspend(SourceFile:33)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	... 5 more
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: Caused by: java.security.cert.CertificateException: java.security.cert.CertPathValidatorException: Trust anchor for certification path not found.
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.TrustManagerImpl.checkTrustedRecursive(TrustManagerImpl.java:549)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.TrustManagerImpl.checkTrustedRecursive(TrustManagerImpl.java:508)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.TrustManagerImpl.checkTrustedRecursive(TrustManagerImpl.java:508)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.TrustManagerImpl.checkTrustedRecursive(TrustManagerImpl.java:508)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.TrustManagerImpl.checkTrusted(TrustManagerImpl.java:401)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.TrustManagerImpl.checkTrusted(TrustManagerImpl.java:375)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.TrustManagerImpl.getTrustedChainForServer(TrustManagerImpl.java:304)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at android.security.net.config.NetworkSecurityTrustManager.checkServerTrusted(NetworkSecurityTrustManager.java:94)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at android.security.net.config.RootTrustManager.checkServerTrusted(RootTrustManager.java:88)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.Platform.checkServerTrusted(Platform.java:178)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.OpenSSLSocketImpl.verifyCertificateChain(OpenSSLSocketImpl.java:596)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.NativeCrypto.SSL_do_handshake(Native Method)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	at com.android.org.conscrypt.OpenSSLSocketImpl.startHandshake(OpenSSLSocketImpl.java:357)
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	... 19 more
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: Caused by: java.security.cert.CertPathValidatorException: Trust anchor for certification path not found.
+09-25 16:45:07.439  8112  8112 W com.geekvpn.app: 	... 32 more
+09-25 16:45:07.479  8112  8128 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d76160: ver 3 0 (tinfo 0x7e1ef0d10f40)
+09-25 16:45:07.517  8112  8128 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d76160: ver 3 0 (tinfo 0x7e1ef0d10f40)
+09-25 16:45:07.529  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:08.050  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:08.591  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:09.133  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:09.674  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:09.955  1393  1414 W audio_hw_generic: Not supplying enough data to HAL, expected position 616391 , only wrote 463680
+09-25 16:45:10.215  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:10.756  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:10.949  1641  1641 I ActivityManager: Killing 4052:com.google.android.gms.ui/u0a14 (adj 906): empty #17
+09-25 16:45:10.949  1641  1641 I ActivityManager: Killing 4136:com.google.android.music:main/u0a57 (adj 906): empty #18
+09-25 16:45:10.953  1641  1652 D ActivityManager: cleanUpApplicationRecord -- 4136
+09-25 16:45:10.986  1641  1662 I WindowManager: Destroying surface Surface(name=Toast) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.WindowSurfacePlacer.performSurfacePlacementInner:429 com.android.server.wm.WindowSurfacePlacer.performSurfacePlacementLoop:232 com.android.server.wm.WindowSurfacePlacer.performSurfacePlacement:180 com.android.server.wm.WindowManagerService$H.handleMessage:8086 android.os.Handler.dispatchMessage:102 
+09-25 16:45:10.989  1641  2200 D ActivityManager: cleanUpApplicationRecord -- 4052
+09-25 16:45:11.297  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:11.838  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:12.357  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:12.898  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:13.440  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:13.981  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:14.522  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:14.814  8231  8231 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:14.814  8231  8231 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:14.825  8231  8231 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:14.827  8231  8231 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:14.835  8231  8231 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:14.835  8231  8231 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:14.835  8231  8231 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:14.837  8231  8231 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:45:14.840  1641  3601 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity} from uid 0 on display 0
+09-25 16:45:14.842  8231  8231 D AndroidRuntime: Shutting down VM
+09-25 16:45:14.993  2350  2908 I ContentMaintenance: Internal cache bytes used: 0; limit: 100000000; download size: 0
+09-25 16:45:14.997  2350  2908 I RealtimeCacheCleanup: Beginning Realtime garbage collection.
+09-25 16:45:14.997  2350  2908 I RealtimeCacheCleanup: Finished Realtime garbage collection.
+09-25 16:45:15.063  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:15.604  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:15.804  1756  3632 V NativeCrypto: Read error: ssl=0x7e1ecacb8508: I/O error during system call, Connection reset by peer
+09-25 16:45:15.805  1756  3632 V NativeCrypto: SSL shutdown failed: ssl=0x7e1ecacb8508: I/O error during system call, Broken pipe
+09-25 16:45:15.806  1756  3632 E WakeLock: GCM_HB_ALARM release without a matched acquire!
+09-25 16:45:15.806  1756  3632 W WakeLock: GCM_HB_ALARM counter does not exist
+09-25 16:45:15.807  1641  1652 D ConnectivityService: reportNetworkConnectivity(100, false) by 10014
+09-25 16:45:15.808  1756  3632 W WakeLock: GCM_CONN_ALARM counter does not exist
+09-25 16:45:15.827  8242  8242 W art     : Unexpected CPU variant for X86 using defaults: x86
+09-25 16:45:15.831  1641  1655 I ActivityManager: Start proc 8242:com.google.android.talk/u0a52 for broadcast com.google.android.talk/com.google.android.apps.hangouts.service.GcmStateReceiver
+09-25 16:45:15.875  8242  8242 W System  : ClassLoader referenced unknown path: /system/app/Hangouts/lib/x86
+09-25 16:45:15.969  1641  1727 D ConnectivityService: NetworkAgentInfo [MOBILE (LTE) - 100] validation passed
+09-25 16:45:15.974  8242  8242 I Babel_telephony: TeleModule.onApplicationCreate
+09-25 16:45:16.007  8242  8242 D BabelGcmRegistration: requestGcmRegistrationId
+09-25 16:45:16.012  8242  8242 I Babel_Prime: wrapCrashReportingIntoUncaughtExceptionHandler
+09-25 16:45:16.013  8242  8242 I Babel_Prime: isMemoryEnabled=false
+09-25 16:45:16.013  8242  8242 I Babel_Prime: isTimerEnabled=true
+09-25 16:45:16.013  8242  8242 I Babel_Prime: isCrashCounterEnabled=false
+09-25 16:45:16.019  8242  8270 I Babel_SMS: MmsConfig: mnc/mcc: 310/260
+09-25 16:45:16.019  8242  8270 I Babel_SMS: MmsConfig.loadMmsSettings
+09-25 16:45:16.019  8242  8270 I Babel_SMS: MmsConfig.loadDeviceMmsSettings from API: mUserAgent=GoldfishNexus, mUaProfUrl=http://gsm.lge.com/html/gsm/Nexus5-M3.xml
+09-25 16:45:16.019  8242  8270 I Babel_SMS: MmsConfig.loadFromDatabase
+09-25 16:45:16.020  8242  8242 I Babel_Crash: Startup - clean
+09-25 16:45:16.035  8242  8270 E SQLiteLog: (1) no such table: mmsconfig
+09-25 16:45:16.036  8242  8270 I Babel_SMS: MmsConfig: no mmsconfig table android.database.sqlite.SQLiteException: no such table: mmsconfig (code 1): , while compiling: SELECT key, value, type FROM mmsconfig WHERE numeric=?
+09-25 16:45:16.036  8242  8270 I Babel_SMS: MmsConfig.loadFromResources
+09-25 16:45:16.036  8242  8270 E Babel_SMS: canonicalizeMccMnc: invalid mccmnc nullnull
+09-25 16:45:16.036  8242  8270 W Babel_SMS: MmsConfig: invalid key=userAgent or type=string
+09-25 16:45:16.036  8242  8270 W Babel_SMS: MmsConfig: invalid key=uaProfUrl or type=string
+09-25 16:45:16.037  8242  8270 I Babel_SMS: MmsConfig.loadMmsSettings: mUserAgent=GoldfishNexus, mUaProfUrl=http://gsm.lge.com/html/gsm/Nexus5-M3.xml
+09-25 16:45:16.052  8242  8242 I Babel_Prime: startMemoryMonitor
+09-25 16:45:16.058  8242  8242 D Babel   : onCreate: Shutdown runnable posted in onCreate with a delay of 5000 ms.
+09-25 16:45:16.074  8242  8242 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-25 16:45:16.095  8242  8242 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-25 16:45:16.095  8242  8242 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: Unable to load native code from existing library /system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at java.lang.Runtime.load0(Runtime.java:897)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at java.lang.System.load(System.java:1505)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):42)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.google.android.apps.hangouts.requestwriter.RequestWriter.onCreate(SourceFile:220)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.app.ActivityThread.handleCreateService(ActivityThread.java:3162)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.app.ActivityThread.-wrap5(ActivityThread.java)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1550)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.app.ActivityThread.main(ActivityThread.java:6077)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:866)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:756)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: Unable to load native code from existing library /data/user_de/0/com.google.android.gms/app_extracted_libs/x86_64/libconscrypt_gmscore_jni.so
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/data/user_de/0/com.google.android.gms/app_extracted_libs/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at java.lang.Runtime.load0(Runtime.java:897)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at java.lang.System.load(System.java:1505)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):56)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.google.android.apps.hangouts.requestwriter.RequestWriter.onCreate(SourceFile:220)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.app.ActivityThread.handleCreateService(ActivityThread.java:3162)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.app.ActivityThread.-wrap5(ActivityThread.java)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1550)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at android.app.ActivityThread.main(ActivityThread.java:6077)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:866)
+09-25 16:45:16.097  8242  8242 W GmsNativeLibraryLoader: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:756)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: Unable to locate conscrypt_gmscore_jni in dalvik.system.PathClassLoader[DexPathList[[zip file "/system/framework/com.android.location.provider.jar", zip file "/system/framework/com.android.media.remotedisplay.jar", zip file "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk"],nativeLibraryDirectories=[/system/priv-app/PrebuiltGmsCore/lib/x86_64, /system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64, /system/lib, /vendor/lib, /system/lib, /vendor/lib]]]
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at java.lang.Runtime.loadLibrary0(Runtime.java:977)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at java.lang.System.loadLibrary(System.java:1530)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):63)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at com.google.android.apps.hangouts.requestwriter.RequestWriter.onCreate(SourceFile:220)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at android.app.ActivityThread.handleCreateService(ActivityThread.java:3162)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at android.app.ActivityThread.-wrap5(ActivityThread.java)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1550)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at android.app.ActivityThread.main(ActivityThread.java:6077)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:866)
+09-25 16:45:16.098  8242  8242 E GmsNativeLibraryLoader: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:756)
+09-25 16:45:16.098  8242  8242 E ProviderInstaller: Failed to install provider: null
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: GPS not available when trying to installIfNeeded
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: fux
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at hnk.a(Unknown Source)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at com.google.android.apps.hangouts.requestwriter.RequestWriter.onCreate(SourceFile:220)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at android.app.ActivityThread.handleCreateService(ActivityThread.java:3162)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at android.app.ActivityThread.-wrap5(ActivityThread.java)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1550)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at android.os.Looper.loop(Looper.java:154)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at android.app.ActivityThread.main(ActivityThread.java:6077)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:866)
+09-25 16:45:16.098  8242  8242 E Babel_RequestWriter: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:756)
+09-25 16:45:16.101  8242  8274 D Babel   : Idle: Shutdown runnable posted in release with a delay of 5000 ms.
+09-25 16:45:16.112  8242  8242 D Babel   : Idle: Shutdown runnable posted in release with a delay of 5000 ms.
+09-25 16:45:16.139  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:16.680  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:17.219  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:17.760  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:18.301  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:18.823  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:18.919  8277  8277 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:18.920  8277  8277 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:18.930  8277  8277 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:18.932  8277  8277 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:18.940  8277  8277 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:18.940  8277  8277 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:18.941  8277  8277 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:18.944  8277  8277 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:19.364  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:19.904  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:19.958  8277  8277 W AccessibilityNodeInfoDumper: Fetch time: 0ms
+09-25 16:45:19.959  1641  1673 W WindowManager: Attempted to remove non-existing token: android.os.Binder@5920ca2
+09-25 16:45:19.961  8277  8277 D AndroidRuntime: Shutting down VM
+09-25 16:45:19.986  1312  5246 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:45:19.988  1312  1326 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:45:19.989  8289  8289 D         : HostConnection::get() New Host Connection established 0x7a025a62d4e0, tid 8289
+09-25 16:45:20.072  8294  8294 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:20.073  8294  8294 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:20.083  8294  8294 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:20.085  8294  8294 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:20.095  8294  8294 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:20.095  8294  8294 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:20.095  8294  8294 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:20.098  8294  8294 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:20.446  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:20.987  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:21.112  8294  8294 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:45:21.112  1641  1652 W WindowManager: Attempted to remove non-existing token: android.os.Binder@ae0b8f0
+09-25 16:45:21.115  8294  8294 D AndroidRuntime: Shutting down VM
+09-25 16:45:21.149  8242  8242 D Babel   : RefCountedService(com.google.android.apps.hangouts.requestwriter.RequestWriter) onDestroy (count=0, startId=1 stopped=true)
+09-25 16:45:21.528  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:22.069  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:22.610  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:23.151  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:23.355  1756  8308 I qtaguid : Tagging socket -1 with tag 3000040700000000(805307399) for uid -1 failed errno=-9
+09-25 16:45:23.355  1756  8308 I NetworkManagementSocketTagger: tagSocketFd(-1, 805307399, -1) failed with errno-9
+09-25 16:45:23.691  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:24.232  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:24.773  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:25.215  8313  8313 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:25.216  8313  8313 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:25.234  8313  8313 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:25.239  8313  8313 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:25.257  8313  8313 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:25.257  8313  8313 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:25.258  8313  8313 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:25.263  8313  8313 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:25.309  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:25.850  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:26.277  8313  8313 W AccessibilityNodeInfoDumper: Fetch time: 0ms
+09-25 16:45:26.277  1641  1788 W WindowManager: Attempted to remove non-existing token: android.os.Binder@12850ee
+09-25 16:45:26.280  8313  8313 D AndroidRuntime: Shutting down VM
+09-25 16:45:26.304  1312  1328 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:45:26.305  1312  2054 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:45:26.306  8325  8325 D         : HostConnection::get() New Host Connection established 0x70314802d4e0, tid 8325
+09-25 16:45:26.388  8330  8330 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:26.389  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:26.389  8330  8330 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:26.399  8330  8330 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:26.401  8330  8330 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:26.410  8330  8330 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:26.410  8330  8330 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:26.410  8330  8330 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:26.413  8330  8330 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:26.930  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:27.427  8330  8330 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:45:27.427  1641  2184 W WindowManager: Attempted to remove non-existing token: android.os.Binder@b0741c
+09-25 16:45:27.430  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:27.431  8330  8330 D AndroidRuntime: Shutting down VM
+09-25 16:45:27.522  8346  8346 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:27.523  8346  8346 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:27.534  8346  8346 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:27.535  8346  8346 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:27.543  8346  8346 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:27.543  8346  8346 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:27.543  8346  8346 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:27.546  8346  8346 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:45:27.549  1641  1939 I ActivityManager: Force stopping com.geekvpn.app appid=10079 user=0: from pid 8346
+09-25 16:45:27.549  1641  1939 I ActivityManager: Killing 8112:com.geekvpn.app/u0a79 (adj 0): stop com.geekvpn.app
+09-25 16:45:27.549  1641  1939 D ActivityManager: cleanUpApplicationRecord -- 8112
+09-25 16:45:27.549  1641  1939 W ActivityManager: Force removing ActivityRecord{549dcf7 u0 com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity t47}: app died, no saved state
+09-25 16:45:27.552  1641  1939 I WindowManager: Destroying surface Surface(name=com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.removeLocked:1456 com.android.server.wm.WindowManagerService.removeWindowInnerLocked:2484 com.android.server.wm.WindowManagerService.removeWindowLocked:2442 com.android.server.wm.WindowManagerService.removeWindowLocked:2311 com.android.server.wm.AppWindowToken.removeAllWindows:530 com.android.server.wm.AppWindowToken.removeAppFromTaskLocked:326 
+09-25 16:45:27.555  8346  8346 D AndroidRuntime: Shutting down VM
+09-25 16:45:27.557  1924  1924 D CarrierSvcBindHelper: No carrier app for: 0
+09-25 16:45:27.595  1641  1788 E JavaBinder: !!! FAILED BINDER TRANSACTION !!!  (parcel size = 104)
+09-25 16:45:27.595  1641  1788 W InputMethodManagerService: Got RemoteException sending setActive(false) notification to pid 8112 uid 10079
+09-25 16:45:27.598  1641  1788 E JavaBinder: !!! FAILED BINDER TRANSACTION !!!  (parcel size = 108)
+09-25 16:45:27.601  1641  1956 D GraphicsStats: Buffer count: 2
+09-25 16:45:27.603  1963  2000 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d73280: ver 3 0 (tinfo 0x7e1ee79b9600)
+09-25 16:45:27.652  8356  8356 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:27.653  8356  8356 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:27.664  8356  8356 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:27.666  8356  8356 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:27.674  8356  8356 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:27.674  8356  8356 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:27.675  8356  8356 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:27.677  8356  8356 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:45:27.680  1641  2200 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity} from uid 0 on display 0
+09-25 16:45:27.681  1641  1662 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:45:27.686  8366  8366 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:27.693  1641  1939 I ActivityManager: Start proc 8366:com.geekvpn.app/u0a79 for activity com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity
+09-25 16:45:27.719  1312  2054 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:45:27.728  8366  8366 I MMKV    : Disable checkProcessMode()
+09-25 16:45:27.728  8366  8366 I MMKV    : current API level = 24, libc++_shared=0
+09-25 16:45:27.728  8366  8366 I MMKV    : <MMKV.cpp:166::initialize> version v1.3.15, page size 4096, arch x86_64
+09-25 16:45:27.728  8366  8366 I MMKV    : <MMKV.cpp:225::initializeMMKV> root dir: /data/user/0/com.geekvpn.app/files/mmkv
+09-25 16:45:27.729  8366  8366 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x21], /data/user/0/com.geekvpn.app/files/mmkv/SETTING
+09-25 16:45:27.729  8366  8366 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ef51de000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING]
+09-25 16:45:27.729  8366  8366 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x24], /data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc
+09-25 16:45:27.729  8366  8366 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ef5167000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc]
+09-25 16:45:27.729  8366  8366 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [SETTING] has flag [0]
+09-25 16:45:27.729  8366  8366 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SETTING] with 2337 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:45:27.729  8366  8366 I MMKV    : <MMKV_IO.cpp:96::loadFromFile> loading [SETTING] with crc 4009633667 sequence 1 version 4
+09-25 16:45:27.729  8366  8366 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SETTING] with 23 key-values
+09-25 16:45:27.734  8366  8366 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+09-25 16:45:27.734  8366  8366 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+09-25 16:45:27.739  1963  2000 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d73280: ver 3 0 (tinfo 0x7e1ee79b9600)
+09-25 16:45:27.742  8366  8381 D WM-ForceStopRunnable: Is default app process = false
+09-25 16:45:27.747  8366  8371 I art     : Compiler allocated 4MB to compile hn4 jn4.k(android.content.Context, pf0)
+09-25 16:45:27.764  8366  8366 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:45:27.767  8366  8366 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_Android.cpp:158::mmkvWithID> prepare to load GEEK_ACCOUNT (id afa372bba174ad63bf0f4b8ed2b5ab4d) from rootPath 138671198829584
+09-25 16:45:27.773  8366  8366 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x26], /data/user/0/com.geekvpn.app/files/geek_mmkv/afa372bba174ad63bf0f4b8ed2b5ab4d
+09-25 16:45:27.773  8366  8366 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd0c000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/afa372bba174ad63bf0f4b8ed2b5ab4d]
+09-25 16:45:27.773  8366  8366 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x27], /data/user/0/com.geekvpn.app/files/geek_mmkv/afa372bba174ad63bf0f4b8ed2b5ab4d.crc
+09-25 16:45:27.773  8366  8366 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ee7c92000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/afa372bba174ad63bf0f4b8ed2b5ab4d.crc]
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_Android.cpp:158::mmkvWithID> prepare to load GEEK_SECURE (id a399785e30a2098459bd27f625ab9d14) from rootPath 138671198830064
+09-25 16:45:27.773  8366  8366 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x28], /data/user/0/com.geekvpn.app/files/geek_mmkv/a399785e30a2098459bd27f625ab9d14
+09-25 16:45:27.773  8366  8366 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ee7c91000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/a399785e30a2098459bd27f625ab9d14]
+09-25 16:45:27.773  8366  8366 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x29], /data/user/0/com.geekvpn.app/files/geek_mmkv/a399785e30a2098459bd27f625ab9d14.crc
+09-25 16:45:27.773  8366  8366 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ee7c86000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/a399785e30a2098459bd27f625ab9d14.crc]
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [afa372bba174ad63bf0f4b8ed2b5ab4d] has flag [0]
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [afa372bba174ad63bf0f4b8ed2b5ab4d] with 52 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_IO.cpp:96::loadFromFile> loading [afa372bba174ad63bf0f4b8ed2b5ab4d] with crc 2550219113 sequence 1 version 4
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [afa372bba174ad63bf0f4b8ed2b5ab4d] with 1 key-values
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [a399785e30a2098459bd27f625ab9d14] has flag [0]
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [a399785e30a2098459bd27f625ab9d14] with 0 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:45:27.773  8366  8366 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [a399785e30a2098459bd27f625ab9d14] with 0 key-values
+09-25 16:45:27.778  1312  5246 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:45:27.780  8366  8366 D         : HostConnection::get() New Host Connection established 0x7e1ee79e5ec0, tid 8366
+09-25 16:45:27.823  8366  8371 I art     : Do partial code cache collection, code=19KB, data=26KB
+09-25 16:45:27.823  8366  8371 I art     : After code cache collection, code=19KB, data=26KB
+09-25 16:45:27.823  8366  8371 I art     : Increasing code cache capacity to 128KB
+09-25 16:45:27.838  8366  8371 I art     : Do partial code cache collection, code=43KB, data=54KB
+09-25 16:45:27.840  8366  8371 I art     : After code cache collection, code=43KB, data=54KB
+09-25 16:45:27.840  8366  8371 I art     : Increasing code cache capacity to 256KB
+09-25 16:45:27.841  8366  8371 I art     : Compiler allocated 5MB to compile vr2 wk3.s(int, oe0, int)
+09-25 16:45:27.879  8366  8371 I art     : Do full code cache collection, code=112KB, data=120KB
+09-25 16:45:27.879  8366  8371 I art     : After code cache collection, code=77KB, data=68KB
+09-25 16:45:27.888  8366  8382 D         : HostConnection::get() New Host Connection established 0x7e1ee79e6040, tid 8382
+09-25 16:45:27.889  8366  8382 I OpenGLRenderer: Initialized EGL, version 1.4
+09-25 16:45:27.889  8366  8382 D OpenGLRenderer: Swap behavior 1
+09-25 16:45:27.890  8366  8382 D EGL_emulation: eglCreateContext: 0x7e1ef0d76340: maj 3 min 0 rcv 3
+09-25 16:45:27.891  8366  8382 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d76340: ver 3 0 (tinfo 0x7e1ef0d20d20)
+09-25 16:45:27.892  8366  8382 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008cdf
+09-25 16:45:27.892  8366  8382 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008824
+09-25 16:45:27.911  8366  8382 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d76340: ver 3 0 (tinfo 0x7e1ef0d20d20)
+09-25 16:45:27.921  8366  8371 I art     : Do partial code cache collection, code=108KB, data=115KB
+09-25 16:45:27.921  8366  8371 I art     : After code cache collection, code=107KB, data=115KB
+09-25 16:45:27.921  8366  8371 I art     : Increasing code cache capacity to 512KB
+09-25 16:45:27.931  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:28.303  1641  1662 I ActivityManager: Displayed com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity: +621ms
+09-25 16:45:28.304  8356  8356 D AndroidRuntime: Shutting down VM
+09-25 16:45:28.335  1641  1662 I WindowManager: Destroying surface Surface(name=Starting com.geekvpn.app) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.AppWindowToken.destroySurfaces:363 com.android.server.wm.WindowStateAnimator.finishExit:565 com.android.server.wm.WindowStateAnimator.stepAnimationLocked:491 com.android.server.wm.WindowAnimator.updateWindowsLocked:303 com.android.server.wm.WindowAnimator.animateLocked:704 
+09-25 16:45:28.338  1641  1652 I WindowManager: Destroying surface Surface(name=com.android.settings/com.android.settings.FallbackHome) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.AppWindowToken.destroySurfaces:363 com.android.server.wm.AppWindowToken.notifyAppStopped:389 com.android.server.wm.WindowManagerService.notifyAppStopped:4463 com.android.server.am.ActivityStack.activityStoppedLocked:1252 com.android.server.am.ActivityManagerService.activityStopped:6903 
+09-25 16:45:28.472  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:29.013  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:29.554  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:30.095  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:30.636  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:31.011  8242  8262 W Babel   : bcq TOOK TOO LONG! (15040ms > 10000ms)
+09-25 16:45:31.011  8242  8263 W Babel   : bcq TOOK TOO LONG! (15022ms > 10000ms)
+09-25 16:45:31.043  4174  8386 I MS_RegisterService: RegisterService intent:Intent { act=register_intent_action flg=0x10 cmp=com.google.android.talk/com.google.android.libraries.matchstick.net.SilentRegisterService } isPeriodic:false
+09-25 16:45:31.043  1641  1673 I Telecom : PhoneAccountRegistrar: SimCallManager queried, returning: null: TSI.gSCM@AFw
+09-25 16:45:31.044  4174  8386 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-25 16:45:31.044  4174  8386 W System  : ClassLoader referenced unknown path: /system/priv-app/PrebuiltGmsCore/lib/x86_64
+09-25 16:45:31.046  8242  8242 I Babel_telephony: TeleModule.updateConnectionManagerRegistration, registration preference changed from false to false
+09-25 16:45:31.046  8242  8242 W Babel   : BAM#gBA: invalid account id: -1
+09-25 16:45:31.046  8242  8242 W Babel   : BAM#gBA: invalid account id: -1
+09-25 16:45:31.046  8242  8242 I Babel_telephony: TeleModule.updateIncomingCallRegistration, preferred account for incoming calls changed from: null to null
+09-25 16:45:31.047  1641  1653 I Telecom : PhoneAccountRegistrar: SimCallManager queried, returning: null: TSI.gSCM@AF4
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: Unable to load native code from existing library /system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at java.lang.Runtime.load0(Runtime.java:897)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at java.lang.System.load(System.java:1505)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):42)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at com.google.android.libraries.matchstick.net.SilentRegisterService.onHandleIntent(SourceFile:216)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at android.app.IntentService$ServiceHandler.handleMessage(IntentService.java:68)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-25 16:45:31.049  4174  8386 W GmsNativeLibraryLoader: 	at android.os.HandlerThread.run(HandlerThread.java:61)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: Unable to load native code from existing library /data/user_de/0/com.google.android.gms/app_extracted_libs/x86_64/libconscrypt_gmscore_jni.so
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/data/user_de/0/com.google.android.gms/app_extracted_libs/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at java.lang.Runtime.load0(Runtime.java:897)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at java.lang.System.load(System.java:1505)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):56)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at com.google.android.libraries.matchstick.net.SilentRegisterService.onHandleIntent(SourceFile:216)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at android.app.IntentService$ServiceHandler.handleMessage(IntentService.java:68)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-25 16:45:31.054  4174  8386 W GmsNativeLibraryLoader: 	at android.os.HandlerThread.run(HandlerThread.java:61)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: Unable to locate conscrypt_gmscore_jni in dalvik.system.PathClassLoader[DexPathList[[zip file "/system/framework/com.android.location.provider.jar", zip file "/system/framework/com.android.media.remotedisplay.jar", zip file "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk"],nativeLibraryDirectories=[/system/priv-app/PrebuiltGmsCore/lib/x86_64, /system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64, /system/lib, /vendor/lib, /system/lib, /vendor/lib]]]
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: java.lang.UnsatisfiedLinkError: dlopen failed: "/system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk!/lib/x86_64/libconscrypt_gmscore_jni.so" is 64-bit instead of 32-bit
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at java.lang.Runtime.loadLibrary0(Runtime.java:977)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at java.lang.System.loadLibrary(System.java:1530)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at ssl.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):63)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):8)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at com.google.android.gms.common.security.ProviderInstallerImpl.insertProvider(:com.google.android.gms@202414023@20.24.14 (040800-319035315):3)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at java.lang.reflect.Method.invoke(Native Method)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at hnk.a(Unknown Source)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at com.google.android.libraries.matchstick.net.SilentRegisterService.onHandleIntent(SourceFile:216)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at android.app.IntentService$ServiceHandler.handleMessage(IntentService.java:68)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at android.os.Looper.loop(Looper.java:154)
+09-25 16:45:31.056  4174  8386 E GmsNativeLibraryLoader: 	at android.os.HandlerThread.run(HandlerThread.java:61)
+09-25 16:45:31.056  4174  8386 E ProviderInstaller: Failed to install provider: null
+09-25 16:45:31.056  4174  8386 E MS_RegisterService: Google play services not available
+09-25 16:45:31.056  4174  8386 E MS_RegisterService: fux
+09-25 16:45:31.056  4174  8386 E MS_RegisterService: 	at hnk.a(Unknown Source)
+09-25 16:45:31.056  4174  8386 E MS_RegisterService: 	at com.google.android.libraries.matchstick.net.SilentRegisterService.onHandleIntent(SourceFile:216)
+09-25 16:45:31.056  4174  8386 E MS_RegisterService: 	at android.app.IntentService$ServiceHandler.handleMessage(IntentService.java:68)
+09-25 16:45:31.056  4174  8386 E MS_RegisterService: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+09-25 16:45:31.056  4174  8386 E MS_RegisterService: 	at android.os.Looper.loop(Looper.java:154)
+09-25 16:45:31.056  4174  8386 E MS_RegisterService: 	at android.os.HandlerThread.run(HandlerThread.java:61)
+09-25 16:45:31.106  8242  8262 W BabelGcmRegistration: Error registering for GCM
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: java.io.IOException: DEPRECATED_ENDPOINT
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at gpx.a(Unknown Source)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at hso.a(SourceFile:38)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at eih.a(SourceFile:366)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at eih.doInBackground(SourceFile:361)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at android.os.AsyncTask$2.call(AsyncTask.java:304)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at java.util.concurrent.FutureTask.run(FutureTask.java:237)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at android.os.AsyncTask$SerialExecutor$1.run(AsyncTask.java:243)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1133)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:607)
+09-25 16:45:31.109  8242  8262 W BabelGcmRegistration: 	at java.lang.Thread.run(Thread.java:761)
+09-25 16:45:31.169  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:31.710  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:32.251  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:32.792  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:32.863  8366  8389 D ProfileInstaller: Skipping profile installation for com.geekvpn.app
+09-25 16:45:33.336  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:33.877  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:34.376  8392  8392 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:34.377  8392  8392 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:34.387  8392  8392 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:34.388  8392  8392 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:34.397  8392  8392 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:34.397  8392  8392 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:34.397  8392  8392 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:34.400  8392  8392 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:34.409  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:34.950  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:35.415  8392  8392 W AccessibilityNodeInfoDumper: Fetch time: 0ms
+09-25 16:45:35.415  1641  2185 W WindowManager: Attempted to remove non-existing token: android.os.Binder@a329d05
+09-25 16:45:35.418  8392  8392 D AndroidRuntime: Shutting down VM
+09-25 16:45:35.437  8366  8371 I art     : Compiler allocated 12MB to compile m2 n9.M(int)
+09-25 16:45:35.489  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:35.501  8402  8402 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:35.502  8402  8402 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:35.513  8402  8402 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:35.515  8402  8402 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:35.523  8402  8402 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:35.523  8402  8402 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:35.523  8402  8402 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:35.526  8402  8402 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-25 16:45:35.528  8402  8402 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=160.0, y[0]=592.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=510357, downTime=510357, deviceId=0, source=0x1002 }
+09-25 16:45:35.530  8402  8402 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=160.0, y[0]=592.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=510357, downTime=510357, deviceId=0, source=0x1002 }
+09-25 16:45:35.533  1641  1652 I ActivityManager: START u0 {cmp=com.geekvpn.app/com.geekvpn.ui.home.HomeActivity} from uid 10079 on display 0
+09-25 16:45:35.537  1393  1413 W audio_hw_generic: Not supplying enough data to HAL, expected position 463839 , only wrote 463680
+09-25 16:45:35.537  8402  8402 D AndroidRuntime: Shutting down VM
+09-25 16:45:35.554  8366  8366 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:45:35.555  8366  8366 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:45:35.560  8366  8366 I MMKV    : <MMKV_Android.cpp:158::mmkvWithID> prepare to load GEEK_CONNECTION (id 68058a595622083d6d833517c5d1805b) from rootPath 138671199893456
+09-25 16:45:35.561  8366  8366 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x34], /data/user/0/com.geekvpn.app/files/geek_mmkv/68058a595622083d6d833517c5d1805b
+09-25 16:45:35.561  8366  8366 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eda03f000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/68058a595622083d6d833517c5d1805b]
+09-25 16:45:35.561  8366  8366 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x35], /data/user/0/com.geekvpn.app/files/geek_mmkv/68058a595622083d6d833517c5d1805b.crc
+09-25 16:45:35.561  8366  8366 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eda010000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/geek_mmkv/68058a595622083d6d833517c5d1805b.crc]
+09-25 16:45:35.561  8366  8366 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [68058a595622083d6d833517c5d1805b] with 0 actual size, file size 4096, InterProcess 1, meta info version:0
+09-25 16:45:35.561  8366  8366 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [68058a595622083d6d833517c5d1805b] with 0 key-values
+09-25 16:45:35.570  8366  8413 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x36], /data/user/0/com.geekvpn.app/files/mmkv/MAIN
+09-25 16:45:35.571  8366  8413 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ed9c00000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/MAIN]
+09-25 16:45:35.571  8366  8413 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x37], /data/user/0/com.geekvpn.app/files/mmkv/MAIN.crc
+09-25 16:45:35.571  8366  8413 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ed9601000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/MAIN.crc]
+09-25 16:45:35.571  8366  8413 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [MAIN] has flag [0]
+09-25 16:45:35.571  8366  8413 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [MAIN] with 42 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:45:35.571  8366  8413 I MMKV    : <MMKV_IO.cpp:96::loadFromFile> loading [MAIN] with crc 2095142132 sequence 1 version 4
+09-25 16:45:35.571  8366  8413 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [MAIN] with 1 key-values
+09-25 16:45:35.571  8366  8413 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x38], /data/user/0/com.geekvpn.app/files/mmkv/SUB
+09-25 16:45:35.571  8366  8413 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ed9600000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SUB]
+09-25 16:45:35.571  8366  8413 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x39], /data/user/0/com.geekvpn.app/files/mmkv/SUB.crc
+09-25 16:45:35.571  8366  8413 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ed8e00000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SUB.crc]
+09-25 16:45:35.571  8366  8413 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [SUB] has flag [0]
+09-25 16:45:35.571  8366  8413 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SUB] with 187 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:45:35.571  8366  8413 I MMKV    : <MMKV_IO.cpp:96::loadFromFile> loading [SUB] with crc 3316041567 sequence 1 version 4
+09-25 16:45:35.571  8366  8413 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SUB] with 1 key-values
+09-25 16:45:35.573  8366  8416 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+09-25 16:45:35.577  8366  8412 I MMKV    : <MMKV_IO.cpp:522::writeActualSize> [68058a595622083d6d833517c5d1805b] increase sequence to 1, crc 2335605416, actualSize 4
+09-25 16:45:35.660  8366  8371 I art     : Do full code cache collection, code=226KB, data=249KB
+09-25 16:45:35.660  8366  8371 I art     : After code cache collection, code=212KB, data=186KB
+09-25 16:45:35.780  8366  8382 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d76340: ver 3 0 (tinfo 0x7e1ef0d20d20)
+09-25 16:45:35.783  8366  8371 I art     : Do partial code cache collection, code=252KB, data=228KB
+09-25 16:45:35.783  8366  8371 I art     : After code cache collection, code=252KB, data=228KB
+09-25 16:45:35.783  8366  8371 I art     : Increasing code cache capacity to 1024KB
+09-25 16:45:35.904  1641  1662 I ActivityManager: Displayed com.geekvpn.app/com.geekvpn.ui.home.HomeActivity: +365ms
+09-25 16:45:35.938  1641  2170 I WindowManager: Destroying surface Surface(name=com.geekvpn.app/com.geekvpn.ui.login.LaunchActivity) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.WindowManagerService.tryStartExitingAnimation:3024 com.android.server.wm.WindowManagerService.relayoutWindow:2904 com.android.server.wm.Session.relayout:224 android.view.IWindowSession$Stub.onTransact:286 com.android.server.wm.Session.onTransact:145 
+09-25 16:45:36.029  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:36.532  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:37.038  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:37.555  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:38.096  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:38.610  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:38.762  1393  1414 W audio_hw_generic: Not supplying enough data to HAL, expected position 771264 , only wrote 618480
+09-25 16:45:39.151  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:39.692  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:40.233  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:40.775  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:41.316  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:41.618  8426  8426 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:41.619  8426  8426 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:41.629  8426  8426 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:41.631  8426  8426 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:41.641  8426  8426 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:41.641  8426  8426 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:41.642  8426  8426 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:41.645  8426  8426 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:41.857  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:42.398  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:42.667  8426  8426 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@b35e; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(181, 653 - 286, 676); packageName: com.geekvpn.app; className: android.widget.TextView; text: 172.171.13.53; error: null; maxTextLength: -1; contentDescription: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+09-25 16:45:42.667  8426  8426 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@b437; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(119, 653 - 134, 674); packageName: com.geekvpn.app; className: android.widget.TextView; text: —; error: null; maxTextLength: -1; contentDescription: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+09-25 16:45:42.672  8426  8426 W AccessibilityNodeInfoDumper: Fetch time: 6ms
+09-25 16:45:42.673  1641  1939 W WindowManager: Attempted to remove non-existing token: android.os.Binder@b71617b
+09-25 16:45:42.677  8426  8426 D AndroidRuntime: Shutting down VM
+09-25 16:45:42.707  8366  8371 I art     : Compiler allocated 12MB to compile m2 n9.M(int)
+09-25 16:45:42.719  1312  1326 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:45:42.719  1312  1328 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:45:42.721  8438  8438 D         : HostConnection::get() New Host Connection established 0x7a8ec4e2d4e0, tid 8438
+09-25 16:45:42.810  8443  8443 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:42.811  8443  8443 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:42.821  8443  8443 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:42.823  8443  8443 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:42.833  8443  8443 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:42.833  8443  8443 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:42.834  8443  8443 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:42.837  8443  8443 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:42.929  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:43.470  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:43.856  8443  8443 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@b365; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(181, 653 - 286, 676); packageName: com.geekvpn.app; className: android.widget.TextView; text: 172.171.13.53; error: null; maxTextLength: -1; contentDescription: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+09-25 16:45:43.856  8443  8443 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@b43e; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(119, 653 - 134, 674); packageName: com.geekvpn.app; className: android.widget.TextView; text: —; error: null; maxTextLength: -1; contentDescription: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+09-25 16:45:43.858  8443  8443 W AccessibilityNodeInfoDumper: Fetch time: 3ms
+09-25 16:45:43.858  1641  1956 W WindowManager: Attempted to remove non-existing token: android.os.Binder@fd70ff1
+09-25 16:45:43.860  8443  8443 D AndroidRuntime: Shutting down VM
+09-25 16:45:43.947  8457  8457 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:43.948  8457  8457 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:43.958  8457  8457 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:43.960  8457  8457 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:43.968  8457  8457 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:43.968  8457  8457 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:43.968  8457  8457 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:43.971  8457  8457 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:45:43.974  1641  1673 I ActivityManager: START u0 {act=android.intent.action.VIEW dat=geekvpn://payment/result?payment=0 flg=0x10000000 cmp=com.geekvpn.app/com.geekvpn.ui.shop.PaymentReturnActivity} from uid 0 on display 0
+09-25 16:45:43.977  1641  1653 I ActivityManager: Killing 3994:com.google.android.gms.unstable/u0a14 (adj 906): empty #17
+09-25 16:45:43.979  1641  2185 I ActivityManager: START u0 {flg=0x24000000 cmp=com.geekvpn.app/com.geekvpn.ui.home.HomeActivity (has extras)} from uid 10079 on display 0
+09-25 16:45:43.982  1641  1788 W ActivityManager: Duplicate finish request for ActivityRecord{b2a9a57 u0 com.geekvpn.app/com.geekvpn.ui.shop.PaymentReturnActivity t48 f}
+09-25 16:45:43.985  8457  8457 D AndroidRuntime: Shutting down VM
+09-25 16:45:43.986  1641  1652 W InputMethodManagerService: Window already focused, ignoring focus gain of: com.android.internal.view.IInputMethodClient$Stub$Proxy@6d484f3 attribute=null, token = android.os.BinderProxy@bb14c80
+09-25 16:45:44.009  1641  1983 D ActivityManager: cleanUpApplicationRecord -- 3994
+09-25 16:45:44.010  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:44.551  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:45.092  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:45.633  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:46.052  8242  8263 W Babel   : bcq TOOK TOO LONG! (15041ms > 10000ms)
+09-25 16:45:46.174  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:46.715  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:47.257  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:47.798  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:48.339  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:48.859  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:49.400  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:49.941  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:50.066  8473  8473 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:50.067  8473  8473 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:50.077  8473  8473 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:50.079  8473  8473 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:50.089  8473  8473 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:50.089  8473  8473 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:50.090  8473  8473 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:50.092  8473  8473 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:50.483  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:51.024  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:51.114  8473  8473 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:45:51.114  1641  1956 W WindowManager: Attempted to remove non-existing token: android.os.Binder@78f9bae
+09-25 16:45:51.116  8473  8473 D AndroidRuntime: Shutting down VM
+09-25 16:45:51.143  1312  1745 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:45:51.143  1312  2054 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:45:51.146  8485  8485 D         : HostConnection::get() New Host Connection established 0x75dad3c2d4e0, tid 8485
+09-25 16:45:51.231  8490  8490 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:51.232  8490  8490 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:51.243  8490  8490 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:51.244  8490  8490 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:51.254  8490  8490 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:51.254  8490  8490 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:51.255  8490  8490 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:51.257  8490  8490 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:45:51.564  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:52.105  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:52.271  8490  8490 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:45:52.271  1641  2184 W WindowManager: Attempted to remove non-existing token: android.os.Binder@1859cdc
+09-25 16:45:52.273  8490  8490 D AndroidRuntime: Shutting down VM
+09-25 16:45:52.357  8502  8502 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:52.358  8502  8502 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:52.368  8502  8502 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:52.370  8502  8502 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:52.378  8502  8502 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:52.378  8502  8502 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:52.379  8502  8502 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:52.381  8502  8502 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:45:52.384  1641  1673 I ActivityManager: Force stopping com.geekvpn.app appid=10079 user=0: from pid 8502
+09-25 16:45:52.384  1641  1673 I ActivityManager: Killing 8366:com.geekvpn.app/u0a79 (adj 0): stop com.geekvpn.app
+09-25 16:45:52.384  1641  1673 D ActivityManager: cleanUpApplicationRecord -- 8366
+09-25 16:45:52.384  1641  1673 W ActivityManager: Force removing ActivityRecord{f086926 u0 com.geekvpn.app/com.geekvpn.ui.home.HomeActivity t48}: app died, no saved state
+09-25 16:45:52.385  1641  1673 I WindowManager: Destroying surface Surface(name=com.geekvpn.app/com.geekvpn.ui.home.HomeActivity) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.removeLocked:1456 com.android.server.wm.WindowManagerService.removeWindowInnerLocked:2484 com.android.server.wm.WindowManagerService.removeWindowLocked:2442 com.android.server.wm.WindowManagerService.removeWindowLocked:2311 com.android.server.wm.AppWindowToken.removeAllWindows:530 com.android.server.wm.AppWindowToken.removeAppFromTaskLocked:326 
+09-25 16:45:52.388  1924  1924 D CarrierSvcBindHelper: No carrier app for: 0
+09-25 16:45:52.391  8502  8502 D AndroidRuntime: Shutting down VM
+09-25 16:45:52.412  1641  1788 E JavaBinder: !!! FAILED BINDER TRANSACTION !!!  (parcel size = 104)
+09-25 16:45:52.412  1641  1788 W InputMethodManagerService: Got RemoteException sending setActive(false) notification to pid 8366 uid 10079
+09-25 16:45:52.415  1641  1788 E JavaBinder: !!! FAILED BINDER TRANSACTION !!!  (parcel size = 108)
+09-25 16:45:52.421  1641  1939 D GraphicsStats: Buffer count: 2
+09-25 16:45:52.422  1963  2000 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d73280: ver 3 0 (tinfo 0x7e1ee79b9600)
+09-25 16:45:52.479  8512  8512 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:52.480  8512  8512 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:52.492  8512  8512 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:52.493  8512  8512 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:52.501  8512  8512 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:52.501  8512  8512 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:52.501  8512  8512 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:52.505  8512  8512 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:45:52.508  1641  1983 I ActivityManager: START u0 {flg=0x10000000 cmp=com.geekvpn.app/com.geekvpn.ui.catalog.ScreenPreviewActivity} from uid 0 on display 0
+09-25 16:45:52.509  8512  8512 D AndroidRuntime: Shutting down VM
+09-25 16:45:52.587  8522  8522 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:45:52.588  8522  8522 D AndroidRuntime: CheckJNI is OFF
+09-25 16:45:52.599  8522  8522 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:52.601  8522  8522 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:45:52.607  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:52.610  8522  8522 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:45:52.610  8522  8522 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:45:52.610  8522  8522 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:45:52.613  8522  8522 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:45:52.616  1641  1653 I ActivityManager: START u0 {flg=0x10000000 cmp=com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity} from uid 0 on display 0
+09-25 16:45:52.616  1641  1662 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:45:52.622  8532  8532 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:45:52.628  1641  1788 I ActivityManager: Start proc 8532:com.geekvpn.app/u0a79 for activity com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity
+09-25 16:45:52.650  8532  8532 I MMKV    : Disable checkProcessMode()
+09-25 16:45:52.651  8532  8532 I MMKV    : current API level = 24, libc++_shared=0
+09-25 16:45:52.651  8532  8532 I MMKV    : <MMKV.cpp:166::initialize> version v1.3.15, page size 4096, arch x86_64
+09-25 16:45:52.651  8532  8532 I MMKV    : <MMKV.cpp:225::initializeMMKV> root dir: /data/user/0/com.geekvpn.app/files/mmkv
+09-25 16:45:52.651  8532  8532 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x21], /data/user/0/com.geekvpn.app/files/mmkv/SETTING
+09-25 16:45:52.651  8532  8532 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ef51de000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING]
+09-25 16:45:52.651  8532  8532 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x24], /data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc
+09-25 16:45:52.651  8532  8532 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ef5167000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc]
+09-25 16:45:52.651  8532  8532 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [SETTING] has flag [0]
+09-25 16:45:52.651  8532  8532 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SETTING] with 2962 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:45:52.651  8532  8532 I MMKV    : <MMKV_IO.cpp:96::loadFromFile> loading [SETTING] with crc 974422375 sequence 1 version 4
+09-25 16:45:52.651  8532  8532 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SETTING] with 23 key-values
+09-25 16:45:52.653  1312  1745 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:45:52.665  8532  8532 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+09-25 16:45:52.665  8532  8532 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+09-25 16:45:52.671  1963  2000 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d73280: ver 3 0 (tinfo 0x7e1ee79b9600)
+09-25 16:45:52.673  8532  8547 D WM-ForceStopRunnable: Is default app process = false
+09-25 16:45:52.678  8532  8536 I art     : Compiler allocated 4MB to compile hn4 jn4.k(android.content.Context, pf0)
+09-25 16:45:52.694  8532  8532 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:45:52.696  8532  8532 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:45:52.707  8532  8532 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x26], /data/user/0/com.geekvpn.app/files/mmkv/MAIN
+09-25 16:45:52.707  8532  8532 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd1e000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/MAIN]
+09-25 16:45:52.707  8532  8532 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x27], /data/user/0/com.geekvpn.app/files/mmkv/MAIN.crc
+09-25 16:45:52.707  8532  8532 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd1d000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/MAIN.crc]
+09-25 16:45:52.707  8532  8532 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [MAIN] has flag [0]
+09-25 16:45:52.707  8532  8532 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [MAIN] with 42 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:45:52.707  8532  8532 I MMKV    : <MMKV_IO.cpp:96::loadFromFile> loading [MAIN] with crc 2095142132 sequence 1 version 4
+09-25 16:45:52.707  8532  8532 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [MAIN] with 1 key-values
+09-25 16:45:52.713  8532  8548 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x28], /data/user/0/com.geekvpn.app/files/mmkv/SUB
+09-25 16:45:52.713  8532  8548 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eefd0c000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SUB]
+09-25 16:45:52.713  8532  8548 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x29], /data/user/0/com.geekvpn.app/files/mmkv/SUB.crc
+09-25 16:45:52.713  8532  8548 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1eea4ca000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SUB.crc]
+09-25 16:45:52.713  8532  8548 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [SUB] has flag [0]
+09-25 16:45:52.713  8532  8548 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SUB] with 187 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:45:52.713  8532  8548 I MMKV    : <MMKV_IO.cpp:96::loadFromFile> loading [SUB] with crc 3316041567 sequence 1 version 4
+09-25 16:45:52.713  8532  8548 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SUB] with 1 key-values
+09-25 16:45:52.721  1312  1745 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:45:52.722  8532  8532 D         : HostConnection::get() New Host Connection established 0x7e1ed9ca75a0, tid 8532
+09-25 16:45:52.769  8532  8536 I art     : Do partial code cache collection, code=19KB, data=30KB
+09-25 16:45:52.779  8532  8536 I art     : After code cache collection, code=19KB, data=30KB
+09-25 16:45:52.779  8532  8536 I art     : Increasing code cache capacity to 128KB
+09-25 16:45:52.817  8532  8536 I art     : Do partial code cache collection, code=32KB, data=54KB
+09-25 16:45:52.817  8532  8536 I art     : After code cache collection, code=32KB, data=54KB
+09-25 16:45:52.817  8532  8536 I art     : Increasing code cache capacity to 256KB
+09-25 16:45:52.872  8532  8553 D         : HostConnection::get() New Host Connection established 0x7e1eea21b4e0, tid 8553
+09-25 16:45:52.873  8532  8553 I OpenGLRenderer: Initialized EGL, version 1.4
+09-25 16:45:52.873  8532  8553 D OpenGLRenderer: Swap behavior 1
+09-25 16:45:52.874  8532  8553 D EGL_emulation: eglCreateContext: 0x7e1eea247320: maj 3 min 0 rcv 3
+09-25 16:45:52.875  8532  8553 D EGL_emulation: eglMakeCurrent: 0x7e1eea247320: ver 3 0 (tinfo 0x7e1eea20c500)
+09-25 16:45:52.876  8532  8553 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008cdf
+09-25 16:45:52.876  8532  8553 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008824
+09-25 16:45:52.884  8532  8536 I art     : Do full code cache collection, code=73KB, data=123KB
+09-25 16:45:52.884  8532  8536 I art     : After code cache collection, code=55KB, data=46KB
+09-25 16:45:52.885  8532  8536 I art     : Compiler allocated 5MB to compile vr2 wk3.s(int, oe0, int)
+09-25 16:45:52.914  8532  8553 D EGL_emulation: eglMakeCurrent: 0x7e1eea247320: ver 3 0 (tinfo 0x7e1eea20c500)
+09-25 16:45:52.933  8532  8536 I art     : Do partial code cache collection, code=123KB, data=102KB
+09-25 16:45:52.933  8532  8536 I art     : After code cache collection, code=106KB, data=95KB
+09-25 16:45:52.933  8532  8536 I art     : Increasing code cache capacity to 512KB
+09-25 16:45:53.109  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:53.174  1641  1662 I ActivityManager: Displayed com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity: +556ms
+09-25 16:45:53.175  8522  8522 D AndroidRuntime: Shutting down VM
+09-25 16:45:53.186  1641  2170 I WindowManager: Destroying surface Surface(name=com.android.settings/com.android.settings.FallbackHome) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.AppWindowToken.destroySurfaces:363 com.android.server.wm.AppWindowToken.notifyAppStopped:389 com.android.server.wm.WindowManagerService.notifyAppStopped:4463 com.android.server.am.ActivityStack.activityStoppedLocked:1252 com.android.server.am.ActivityManagerService.activityStopped:6903 
+09-25 16:45:53.202  1641  1662 I WindowManager: Destroying surface Surface(name=Starting com.geekvpn.app) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.AppWindowToken.destroySurfaces:363 com.android.server.wm.WindowStateAnimator.finishExit:565 com.android.server.wm.WindowStateAnimator.stepAnimationLocked:491 com.android.server.wm.WindowAnimator.updateWindowsLocked:303 com.android.server.wm.WindowAnimator.animateLocked:704 
+09-25 16:45:53.650  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:54.191  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:54.732  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:55.273  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:55.814  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:56.355  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:56.896  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:57.435  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:57.958  8532  8556 D ProfileInstaller: Skipping profile installation for com.geekvpn.app
+09-25 16:45:57.969  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:58.510  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:59.051  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:45:59.592  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:00.129  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:00.670  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:01.211  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:01.752  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:02.294  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:02.835  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:03.256  8559  8559 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:46:03.257  8559  8559 D AndroidRuntime: CheckJNI is OFF
+09-25 16:46:03.268  8559  8559 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:03.270  8559  8559 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:46:03.278  8559  8559 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:46:03.278  8559  8559 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:46:03.278  8559  8559 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:46:03.281  8559  8559 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:46:03.376  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:03.917  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:04.301  8559  8559 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:46:04.301  1641  1652 W WindowManager: Attempted to remove non-existing token: android.os.Binder@b8ecf2f
+09-25 16:46:04.303  8559  8559 D AndroidRuntime: Shutting down VM
+09-25 16:46:04.328  1312  1328 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:46:04.328  8532  8536 I art     : Compiler allocated 12MB to compile m2 n9.M(int)
+09-25 16:46:04.328  1312  5246 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:46:04.329  8570  8570 D         : HostConnection::get() New Host Connection established 0x7f0d8a02d4e0, tid 8570
+09-25 16:46:04.415  8576  8576 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:46:04.416  8576  8576 D AndroidRuntime: CheckJNI is OFF
+09-25 16:46:04.426  8576  8576 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:04.428  8576  8576 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:46:04.437  8576  8576 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:46:04.437  8576  8576 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:46:04.438  8576  8576 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:46:04.441  8576  8576 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:46:04.449  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:04.990  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:05.455  8576  8576 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:46:05.456  1641  1956 W WindowManager: Attempted to remove non-existing token: android.os.Binder@3cf56c5
+09-25 16:46:05.458  8576  8576 D AndroidRuntime: Shutting down VM
+09-25 16:46:05.529  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:05.550  8592  8592 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:46:05.550  8592  8592 D AndroidRuntime: CheckJNI is OFF
+09-25 16:46:05.561  8592  8592 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:05.563  8592  8592 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:46:05.572  8592  8592 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:46:05.572  8592  8592 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:46:05.573  8592  8592 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:46:05.575  8592  8592 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:46:05.578  1641  1673 I ActivityManager: START u0 {flg=0x10000000 cmp=com.geekvpn.app/com.v2ray.ang.ui.AboutActivity} from uid 0 on display 0
+09-25 16:46:05.587  8532  8532 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:46:05.587  8532  8532 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:46:05.668  8532  8536 I art     : Do full code cache collection, code=250KB, data=249KB
+09-25 16:46:05.668  8532  8536 I art     : After code cache collection, code=240KB, data=194KB
+09-25 16:46:05.677  8532  8553 D EGL_emulation: eglMakeCurrent: 0x7e1eea247320: ver 3 0 (tinfo 0x7e1eea20c500)
+09-25 16:46:05.683  8532  8536 I art     : Do partial code cache collection, code=251KB, data=214KB
+09-25 16:46:05.684  8532  8536 I art     : After code cache collection, code=251KB, data=214KB
+09-25 16:46:05.684  8532  8536 I art     : Increasing code cache capacity to 1024KB
+09-25 16:46:05.719  1641  1662 I ActivityManager: Displayed com.geekvpn.app/com.v2ray.ang.ui.AboutActivity: +138ms
+09-25 16:46:05.720  8592  8592 D AndroidRuntime: Shutting down VM
+09-25 16:46:05.754  1641  1956 I WindowManager: Destroying surface Surface(name=com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.destroyOrSaveSurface:2100 com.android.server.wm.WindowManagerService.tryStartExitingAnimation:3024 com.android.server.wm.WindowManagerService.relayoutWindow:2904 com.android.server.wm.Session.relayout:224 android.view.IWindowSession$Stub.onTransact:286 com.android.server.wm.Session.onTransact:145 
+09-25 16:46:05.762  8532  8536 I art     : Compiler allocated 4MB to compile boolean mp3.a(java.util.Set)
+09-25 16:46:06.070  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:06.611  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:07.152  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:07.693  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:08.234  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:08.776  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:09.318  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:09.860  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:10.401  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:10.935  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:11.469  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:11.798  8612  8612 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:46:11.799  8612  8612 D AndroidRuntime: CheckJNI is OFF
+09-25 16:46:11.809  8612  8612 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:11.810  8612  8612 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:46:11.819  8612  8612 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:46:11.819  8612  8612 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:46:11.820  8612  8612 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:46:11.822  8612  8612 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:46:12.010  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:12.543  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:12.840  8612  8612 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:46:12.840  1641  2184 W WindowManager: Attempted to remove non-existing token: android.os.Binder@5e05079
+09-25 16:46:12.843  8612  8612 D AndroidRuntime: Shutting down VM
+09-25 16:46:12.858  8532  8536 I art     : Compiler allocated 12MB to compile m2 n9.M(int)
+09-25 16:46:12.868  1312  1745 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-25 16:46:12.870  1312  2054 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 819200
+09-25 16:46:12.873  8624  8624 D         : HostConnection::get() New Host Connection established 0x74601202d4e0, tid 8624
+09-25 16:46:12.949  8629  8629 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:46:12.949  8629  8629 D AndroidRuntime: CheckJNI is OFF
+09-25 16:46:12.959  8629  8629 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:12.961  8629  8629 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:46:12.970  8629  8629 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:46:12.970  8629  8629 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:46:12.970  8629  8629 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:46:12.972  8629  8629 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-25 16:46:13.079  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:13.620  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:13.986  8629  8629 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+09-25 16:46:13.986  1641  1983 W WindowManager: Attempted to remove non-existing token: android.os.Binder@bd7e21f
+09-25 16:46:13.989  8629  8629 D AndroidRuntime: Shutting down VM
+09-25 16:46:14.072  8641  8641 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:46:14.073  8641  8641 D AndroidRuntime: CheckJNI is OFF
+09-25 16:46:14.084  8641  8641 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:14.086  8641  8641 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:46:14.094  8641  8641 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:46:14.094  8641  8641 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:46:14.095  8641  8641 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:46:14.097  8641  8641 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+09-25 16:46:14.100  8641  8641 D AndroidRuntime: Shutting down VM
+09-25 16:46:14.159  1963  1963 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+09-25 16:46:14.174  8651  8651 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:46:14.175  8651  8651 D AndroidRuntime: CheckJNI is OFF
+09-25 16:46:14.185  8651  8651 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:14.186  8651  8651 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:46:14.194  8651  8651 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:46:14.194  8651  8651 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:46:14.194  8651  8651 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:46:14.197  8651  8651 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:46:14.200  1641  2158 I ActivityManager: START u0 {flg=0x10000000 cmp=com.geekvpn.app/com.geekvpn.ui.catalog.CatalogActivity} from uid 0 on display 0
+09-25 16:46:14.200  8651  8651 D AndroidRuntime: Shutting down VM
+09-25 16:46:14.273  8661  8661 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-25 16:46:14.274  8661  8661 D AndroidRuntime: CheckJNI is OFF
+09-25 16:46:14.284  8661  8661 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:14.285  8661  8661 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+09-25 16:46:14.293  8661  8661 E memtrack: Couldn't load memtrack module (No such file or directory)
+09-25 16:46:14.293  8661  8661 E android.os.Debug: failed to load memtrack module: -2
+09-25 16:46:14.294  8661  8661 I Radio-JNI: register_android_hardware_Radio DONE
+09-25 16:46:14.296  8661  8661 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-25 16:46:14.298  1641  2343 I ActivityManager: Force stopping com.geekvpn.app appid=10079 user=0: from pid 8661
+09-25 16:46:14.299  1641  2343 I ActivityManager: Killing 8532:com.geekvpn.app/u0a79 (adj 0): stop com.geekvpn.app
+09-25 16:46:14.299  1641  2343 D ActivityManager: cleanUpApplicationRecord -- 8532
+09-25 16:46:14.302  1641  2343 W ActivityManager: Force removing ActivityRecord{c32f4b u0 com.geekvpn.app/com.v2ray.ang.ui.AboutActivity t49}: app died, no saved state
+09-25 16:46:14.305  1641  2343 E JavaBinder: !!! FAILED BINDER TRANSACTION !!!  (parcel size = 56)
+09-25 16:46:14.306  1641  2343 I WindowManager: Destroying surface Surface(name=com.geekvpn.app/com.v2ray.ang.ui.AboutActivity) called by com.android.server.wm.WindowStateAnimator.destroySurface:2016 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:882 com.android.server.wm.WindowState.removeLocked:1456 com.android.server.wm.WindowManagerService.removeWindowInnerLocked:2484 com.android.server.wm.WindowManagerService.removeWindowLocked:2442 com.android.server.wm.WindowManagerService.removeWindowLocked:2311 com.android.server.wm.AppWindowToken.removeAllWindows:530 com.android.server.wm.AppWindowToken.removeAppFromTaskLocked:326 
+09-25 16:46:14.309  1641  1662 E JavaBinder: !!! FAILED BINDER TRANSACTION !!!  (parcel size = 60)
+09-25 16:46:14.310  1641  1662 E ResourceType: Style contains key with bad entry: 0x0101056c
+09-25 16:46:14.311  1641  1662 W WindowManager: view not successfully added to wm, removing view
+09-25 16:46:14.313  1641  2343 I ActivityManager: Start proc 8671:com.geekvpn.app/u0a79 for activity com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity
+09-25 16:46:14.313  8671  8671 W art     : Unexpected CPU variant for X86 using defaults: x86_64
+09-25 16:46:14.315  1641  2343 E JavaBinder: !!! FAILED BINDER TRANSACTION !!!  (parcel size = 56)
+09-25 16:46:14.316  1641  2343 I ActivityManager:   Force finishing activity ActivityRecord{e3daac8 u0 com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity t49}
+09-25 16:46:14.319  1641  2343 E JavaBinder: !!! FAILED BINDER TRANSACTION !!!  (parcel size = 56)
+09-25 16:46:14.320  1641  1684 W InputDispatcher: channel 'e3702c2 com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity (server)' ~ Consumer closed input channel or an error occurred.  events=0x9
+09-25 16:46:14.320  1641  1684 E InputDispatcher: channel 'e3702c2 com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity (server)' ~ Channel is unrecoverably broken and will be disposed!
+09-25 16:46:14.320  1641  1673 D GraphicsStats: Buffer count: 2
+09-25 16:46:14.321  1641  1673 I WindowManager: WIN DEATH: Window{e3702c2 u0 com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity}
+09-25 16:46:14.321  1641  1673 W InputDispatcher: Attempted to unregister already unregistered input channel 'e3702c2 com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity (server)'
+09-25 16:46:14.322  1641  2343 I ActivityManager:   Force finishing activity ActivityRecord{e3daac8 u0 com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity t49 f}
+09-25 16:46:14.322  1641  2343 W ActivityManager: Duplicate finish request for ActivityRecord{e3daac8 u0 com.geekvpn.app/com.v2ray.ang.ui.main.MainActivity t49 f}
+09-25 16:46:14.323  8661  8661 D AndroidRuntime: Shutting down VM
+09-25 16:46:14.324  1641  1939 I ActivityManager: Killing 7907:com.android.keychain/1000 (adj 906): empty #17
+09-25 16:46:14.326  1924  1924 D CarrierSvcBindHelper: No carrier app for: 0
+09-25 16:46:14.349  1641  2170 D ActivityManager: cleanUpApplicationRecord -- 7907
+09-25 16:46:14.357  8671  8671 I MMKV    : Disable checkProcessMode()
+09-25 16:46:14.358  8671  8671 I MMKV    : current API level = 24, libc++_shared=0
+09-25 16:46:14.358  8671  8671 I MMKV    : <MMKV.cpp:166::initialize> version v1.3.15, page size 4096, arch x86_64
+09-25 16:46:14.358  8671  8671 I MMKV    : <MMKV.cpp:225::initializeMMKV> root dir: /data/user/0/com.geekvpn.app/files/mmkv
+09-25 16:46:14.358  8671  8671 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x21], /data/user/0/com.geekvpn.app/files/mmkv/SETTING
+09-25 16:46:14.358  8671  8671 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ef51de000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING]
+09-25 16:46:14.358  8671  8671 I MMKV    : <MemoryFile.cpp:98::open> open fd[0x24], /data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc
+09-25 16:46:14.358  8671  8671 I MMKV    : <MemoryFile.cpp:203::mmap> mmap to address [0x7e1ef5167000], oldPtr [0x0], [/data/user/0/com.geekvpn.app/files/mmkv/SETTING.crc]
+09-25 16:46:14.358  8671  8671 I MMKV    : <MMKV_IO.cpp:221::loadMetaInfoAndCheck> meta file [SETTING] has flag [0]
+09-25 16:46:14.358  8671  8671 I MMKV    : <MMKV_IO.cpp:91::loadFromFile> loading [SETTING] with 3010 actual size, file size 4096, InterProcess 1, meta info version:4
+09-25 16:46:14.358  8671  8671 I MMKV    : <MMKV_IO.cpp:96::loadFromFile> loading [SETTING] with crc 2742997817 sequence 1 version 4
+09-25 16:46:14.358  8671  8671 I MMKV    : <MMKV_IO.cpp:140::loadFromFile> loaded [SETTING] with 24 key-values
+09-25 16:46:14.363  8671  8671 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+09-25 16:46:14.363  8671  8671 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+09-25 16:46:14.370  8671  8689 D WM-ForceStopRunnable: Is default app process = false
+09-25 16:46:14.371  1963  2000 D EGL_emulation: eglMakeCurrent: 0x7e1ef0d73280: ver 3 0 (tinfo 0x7e1ee79b9600)
