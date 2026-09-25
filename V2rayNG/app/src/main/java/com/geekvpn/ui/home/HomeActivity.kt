@@ -123,6 +123,11 @@ class HomeActivity : HelperBaseComponentActivity() {
                         when (event) {
                             is HomeEvent.Message -> showMessage(event.text)
                             is HomeEvent.Text -> Toast.makeText(this@HomeActivity, event.text, Toast.LENGTH_LONG).show()
+                            is HomeEvent.Failed -> Toast.makeText(
+                                this@HomeActivity,
+                                getString(R.string.geek_smart_failed, event.attempts),
+                                Toast.LENGTH_LONG,
+                            ).show()
                         }
                     }
                 }
@@ -259,6 +264,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                         onUpdate = home::refreshAccount,
                         updating = state.updating,
                         onCleanIp = openScanner,
+                        onFailoverChange = home::setFailover,
                     )
                 } else if (overlay == Overlay.Scanner) {
                     ScannerScreen(

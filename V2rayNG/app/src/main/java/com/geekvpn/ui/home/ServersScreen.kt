@@ -1,5 +1,7 @@
 package com.geekvpn.ui.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -43,6 +47,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.geekvpn.smartconnect.FailoverThreshold
 import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.components.CountryBadge
 import com.geekvpn.ui.components.GeekCheckbox
@@ -66,6 +71,7 @@ fun ServersScreen(
     updating: Boolean,
     /** Opens the clean-IP scanner; null when it does not apply to the selected config. */
     onCleanIp: (() -> Unit)? = null,
+    onFailoverChange: (FailoverThreshold) -> Unit = {},
 ) {
     val colors = Geek.colors
     var query by rememberSaveable { mutableStateOf("") }
@@ -113,7 +119,7 @@ fun ServersScreen(
                 modifier = Modifier.fillMaxSize().navigationBarsPadding(),
             ) {
                 item(key = "search") { SearchField(query, { query = it }) }
-                item(key = "auto") { AutoCard(state.autoServer, onAutoServerChange) }
+                item(key = "auto") { AutoCard(state.autoServer, state.failover, onAutoServerChange, onFailoverChange) }
                 if (onCleanIp != null) {
                     item(key = "clean-ip") { CleanIpCard(onCleanIp) }
                 }
@@ -173,29 +179,77 @@ private fun SearchField(value: String, onChange: (String) -> Unit) {
 }
 
 @Composable
-private fun AutoCard(auto: Boolean, onChange: (Boolean) -> Unit) {
+private fun AutoCard(
+    auto: Boolean,
+    failover: FailoverThreshold,
+    onChange: (Boolean) -> Unit,
+    onFailover: (FailoverThreshold) -> Unit,
+) {
     val colors = Geek.colors
     GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.tileLarge, modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(role = Role.Switch) { onChange(!auto) }
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Box(
-                Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center,
+        Column(Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(role = Role.Switch) { onChange(!auto) }
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Icon(GeekIcons.Bolt, contentDescription = null, tint = colors.logoBlue, modifier = Modifier.size(22.dp))
+                Box(
+                    Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(GeekIcons.Bolt, contentDescription = null, tint = colors.logoBlue, modifier = Modifier.size(22.dp))
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.geek_servers_auto_title), style = Geek.type.row, color = colors.onGlass)
+                    Text(stringResource(R.string.geek_servers_auto_hint), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted)
+                }
+                GeekSwitch(checked = auto, onCheckedChange = null)
             }
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.geek_servers_auto_title), style = Geek.type.row, color = colors.onGlass)
-                Text(stringResource(R.string.geek_servers_auto_hint), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted)
-            }
-            GeekSwitch(checked = auto, onCheckedChange = null)
+            if (auto) FailoverChoice(failover, onFailover)
         }
+    }
+}
+
+/** Spec §3.5's adjustable threshold: when a running connection moves to another server. */
+@Composable
+private fun FailoverChoice(current: FailoverThreshold, onSelect: (FailoverThreshold) -> Unit) {
+    val colors = Geek.colors
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, bottom = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(stringResource(R.string.geek_failover_title), style = Geek.type.row.copy(fontSize = 13.sp), color = colors.onGlass)
+        Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            FailoverThreshold.entries.forEach { option ->
+                val selected = option == current
+                val shape = RoundedCornerShape(12.dp)
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(44.dp)
+                        .clip(shape)
+                        .background(if (selected) colors.action else colors.chip)
+                        .then(if (selected) Modifier else Modifier.border(1.dp, colors.track, shape))
+                        .selectable(selected = selected, role = Role.RadioButton) { onSelect(option) },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        stringResource(option.label),
+                        style = Geek.type.micro.copy(fontWeight = FontWeight.Bold),
+                        color = if (selected) colors.onAction else colors.onGlass,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+        Text(
+            stringResource(if (current == FailoverThreshold.Off) R.string.geek_failover_hint_off else R.string.geek_failover_hint),
+            style = Geek.type.caption.copy(fontSize = 12.sp),
+            color = colors.onGlassMuted,
+        )
     }
 }
 

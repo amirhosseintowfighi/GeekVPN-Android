@@ -299,4 +299,19 @@
     <string name="geek_operator_irancell">Irancell</string>
     <string name="geek_operator_rightel">RighTel</string>
     <string name="geek_operator_taliya">Taliya</string>
+
+    <!-- Smart connect and failover (spec §3.5, §3.6) -->
+    <string name="geek_smart_finding_ip">Finding a clean IP…</string>
+    <string name="geek_smart_testing">Testing servers…</string>
+    <string name="geek_smart_connecting_attempt">Connecting… attempt %1$d of %2$d</string>
+    <string name="geek_smart_cancel_hint">Tap the button again to cancel</string>
+    <string name="geek_smart_failed">Could not connect. Servers tried: %1$d. Check your internet or try again later.</string>
+    <string name="geek_failover_title">Switch server while connected: when cut off, or slower than</string>
+    <string name="geek_failover_off">Never</string>
+    <string name="geek_failover_lost">Cut off</string>
+    <string name="geek_failover_1s">1 s</string>
+    <string name="geek_failover_2s">2 s</string>
+    <string name="geek_failover_3s">3 s</string>
+    <string name="geek_failover_hint">When the connection drops or stays slower than this, the servers are retested in the background and the best one takes over.</string>
+    <string name="geek_failover_hint_off">The connection stays on the server it started with.</string>
 </resources>

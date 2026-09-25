@@ -26,6 +26,7 @@ import com.geekvpn.scanner.ScanRecord
 import com.geekvpn.scanner.ScanState
 import com.geekvpn.shop.ShopCatalog
 import com.geekvpn.shop.Tier
+import com.geekvpn.smartconnect.SmartStage
 import com.geekvpn.ui.account.AccountUiState
 import com.geekvpn.ui.account.ThemeChoice
 import com.geekvpn.ui.home.HomeUiState
@@ -85,6 +86,10 @@ internal object PreviewSamples {
     )
 
     val homeEmpty = HomeUiState(balance = 0, exitIp = ExitIp("5.160.12.34", "IR"))
+
+    /** Smart connect's short scan, then its second connection attempt. */
+    val homeFindingIp = homeOff.copy(phase = ConnectionPhase.Testing, stage = SmartStage.FindingIp)
+    val homeAttempt = homeOff.copy(phase = ConnectionPhase.Connecting, stage = SmartStage.Connecting(2, 3))
 
     val homeOn = homeOff.copy(
         phase = ConnectionPhase.On,

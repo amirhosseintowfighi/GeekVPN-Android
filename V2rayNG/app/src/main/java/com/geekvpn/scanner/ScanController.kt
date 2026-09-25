@@ -6,10 +6,13 @@ import androidx.core.content.ContextCompat
 import com.geekvpn.GeekStorage
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** One scan's progress, as the scanner screen shows it. */
 data class ScanState(
@@ -27,6 +30,8 @@ data class ScanState(
     val applied: CleanIp? = null,
     /** Bumped when [applied] changes, so the same address applied twice is still news. */
     val appliedVersion: Int = 0,
+    /** Scans finished since the process started, for a caller waiting on one. */
+    val finished: Int = 0,
 )
 
 /**
@@ -40,13 +45,33 @@ object ScanController {
 
     val store: ScanStore by lazy { ScanStore(GeekStorage.open(IpOverrides.STORE_ID)) }
 
-    fun start(context: Context, guid: String, downloadTest: Boolean) {
+    fun start(context: Context, guid: String, downloadTest: Boolean, timeoutMs: Long = 0) {
         if (state.value.running) return
         val intent = Intent(context, ScanService::class.java)
             .setAction(ScanService.ACTION_START)
             .putExtra(ScanService.EXTRA_GUID, guid)
             .putExtra(ScanService.EXTRA_DOWNLOAD, downloadTest)
+            .putExtra(ScanService.EXTRA_TIMEOUT_MS, timeoutMs)
         ContextCompat.startForegroundService(context, intent)
+    }
+
+    /**
+     * Smart connect's short scan (spec §3.6): at most [QUICK_SCAN_MS], then
+     * whatever it found, best first. Waits for a scan the customer already
+     * started instead of starting another. Cancelling the caller stops the scan.
+     */
+    suspend fun quickScan(context: Context, guid: String): List<String> {
+        val before = state.value.finished
+        if (!state.value.running) start(context, guid, downloadTest = false, timeoutMs = QUICK_SCAN_MS)
+        try {
+            // The service's own timer stops the scan; this bound only covers a service that never started.
+            withTimeoutOrNull(QUICK_SCAN_MS + QUICK_SCAN_GRACE_MS) { state.first { it.finished > before } }
+                ?: stop(context)
+        } catch (e: CancellationException) {
+            stop(context)
+            throw e
+        }
+        return CleanIps.fresh(context, guid)
     }
 
     fun stop(context: Context) {
@@ -54,8 +79,21 @@ object ScanController {
         context.startService(Intent(context, ScanService::class.java).setAction(ScanService.ACTION_STOP))
     }
 
+    const val QUICK_SCAN_MS = 20_000L
+    private const val QUICK_SCAN_GRACE_MS = 10_000L
+
     internal fun onStarted(guid: String, target: CdnTarget, network: NetworkIdentity) {
-        state.update { ScanState(running = true, guid = guid, target = target, network = network, applied = it.applied, appliedVersion = it.appliedVersion) }
+        state.update {
+            ScanState(
+                running = true,
+                guid = guid,
+                target = target,
+                network = network,
+                applied = it.applied,
+                appliedVersion = it.appliedVersion,
+                finished = it.finished,
+            )
+        }
     }
 
     internal fun onResult(ip: CleanIp) {
@@ -73,6 +111,7 @@ object ScanController {
                 error = error,
                 applied = applied ?: it.applied,
                 appliedVersion = if (applied != null) it.appliedVersion + 1 else it.appliedVersion,
+                finished = it.finished + 1,
             )
         }
     }

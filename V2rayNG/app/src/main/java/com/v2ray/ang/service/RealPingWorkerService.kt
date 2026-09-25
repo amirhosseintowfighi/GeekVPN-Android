@@ -1,6 +1,7 @@
 package com.v2ray.ang.service
 
 import android.content.Context
+import com.geekvpn.scanner.IpOverrides
 import com.v2ray.ang.core.CoreConfigManager
 import com.v2ray.ang.core.CoreNativeManager
 import com.v2ray.ang.dto.RealPingEvent
@@ -107,7 +108,8 @@ class RealPingWorkerService(
     private suspend fun startRealPing(guid: String): Long {
         val retFailure = -1L
 
-        val config = MmkvManager.decodeServerConfig(guid) ?: return retFailure
+        // GeekVPN: the TCP pre-check goes to the clean IP the test will use, not the config's own address.
+        val config = MmkvManager.decodeServerConfig(guid)?.let { IpOverrides.apply(context, it) } ?: return retFailure
         if (!config.configType.isComplexType()
             && config.configType != EConfigType.HYSTERIA2
             && config.configType != EConfigType.WIREGUARD

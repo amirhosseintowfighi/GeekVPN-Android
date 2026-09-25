@@ -1,5 +1,7 @@
 package com.geekvpn.connection
 
+import com.geekvpn.GeekStorage
+import com.geekvpn.smartconnect.FailoverThreshold
 import com.tencent.mmkv.MMKV
 
 /**
@@ -7,6 +9,8 @@ import com.tencent.mmkv.MMKV
  * server is picked automatically, the route mode, and when the running
  * connection started (the daemon does not say, and the timer must survive
  * the app being closed and reopened).
+ *
+ * Read by the VPN process too (the failover monitor); the file is multi-process.
  */
 class ConnectionPrefs(private val storage: MMKV) {
     var autoServer: Boolean
@@ -36,10 +40,22 @@ class ConnectionPrefs(private val storage: MMKV) {
             storage.encode(KEY_CONNECTED_SINCE, value)
         }
 
-    private companion object {
-        const val KEY_AUTO_SERVER = "auto_server"
-        const val KEY_AUTO_UPDATE = "auto_update"
-        const val KEY_ROUTE = "route_mode"
-        const val KEY_CONNECTED_SINCE = "connected_since"
+    /** When the running connection moves to another server; only with [autoServer] on. */
+    var failoverThreshold: FailoverThreshold
+        get() = FailoverThreshold.of(storage.decodeString(KEY_FAILOVER))
+        set(value) {
+            storage.encode(KEY_FAILOVER, value.key)
+        }
+
+    companion object {
+        private const val STORE_ID = "GEEK_CONNECTION"
+
+        fun open(): ConnectionPrefs = ConnectionPrefs(GeekStorage.open(STORE_ID))
+
+        private const val KEY_FAILOVER = "failover_threshold"
+        private const val KEY_AUTO_SERVER = "auto_server"
+        private const val KEY_AUTO_UPDATE = "auto_update"
+        private const val KEY_ROUTE = "route_mode"
+        private const val KEY_CONNECTED_SINCE = "connected_since"
     }
 }

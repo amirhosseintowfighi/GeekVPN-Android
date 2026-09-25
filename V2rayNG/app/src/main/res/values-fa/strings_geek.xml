@@ -295,4 +295,19 @@
     <string name="geek_operator_irancell">ایرانسل</string>
     <string name="geek_operator_rightel">رایتل</string>
     <string name="geek_operator_taliya">تالیا</string>
+
+    <!-- اتصال هوشمند و failover -->
+    <string name="geek_smart_finding_ip">در حال پیدا کردن IP تمیز…</string>
+    <string name="geek_smart_testing">در حال تست سرورها…</string>
+    <string name="geek_smart_connecting_attempt">در حال اتصال… تلاش %1$d از %2$d</string>
+    <string name="geek_smart_cancel_hint">برای لغو، دوباره دکمه را بزن</string>
+    <string name="geek_smart_failed">اتصال برقرار نشد. تعداد سرورهای امتحان‌شده: %1$d. اینترنت را بررسی کن یا کمی بعد دوباره امتحان کن.</string>
+    <string name="geek_failover_title">تعویض خودکار در حین اتصال: وقتی قطع شد یا کندتر از</string>
+    <string name="geek_failover_off">هرگز</string>
+    <string name="geek_failover_lost">فقط قطعی</string>
+    <string name="geek_failover_1s">۱ ثانیه</string>
+    <string name="geek_failover_2s">۲ ثانیه</string>
+    <string name="geek_failover_3s">۳ ثانیه</string>
+    <string name="geek_failover_hint">اگر اتصال قطع شود یا کندتر از این بماند، سرورها در پس‌زمینه دوباره تست می‌شوند و بهترین جایگزین می‌شود.</string>
+    <string name="geek_failover_hint_off">اتصال روی همان سروری که با آن وصل شدی می‌ماند.</string>
 </resources>

@@ -165,7 +165,7 @@ if [[ "$probe" != *Error* ]]; then
         preview "$screen" false
         preview "$screen" true
     done
-    for screen in home-empty servers route shop-guest checkout scanner-running; do
+    for screen in home-empty servers route shop-guest checkout scanner-running home-finding-ip home-attempt; do
         preview "$screen" false
     done
 fi

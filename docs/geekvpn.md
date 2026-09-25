@@ -33,6 +33,8 @@ git submodule update --init --recursive
 | آیکن‌ها (`mipmap-*`، `drawable-*dpi/ic_stat_*`) | خروجی `branding/gen_icons.py`؛ بعد از merge دوباره اجرایش کن |
 | `res/xml/shortcuts.xml` | `targetPackage` |
 | `core/CoreConfigContextBuilder.kt` | یک خط: پروفایل قبل از ساخت کانفیگ از `IpOverrides.apply` رد می‌شود (اسکنر) |
+| `service/RealPingWorkerService.kt` | یک خط: پیش‌تست TCP هم به IP تمیز (override) می‌رود، نه آدرس خود کانفیگ |
+| `core/CoreServiceManager.kt` | `FailoverMonitor` بعد از شروع هسته ساخته و قبل از توقفش متوقف می‌شود (`startFailoverMonitor`) |
 
 بعد از merge، اگر `AndroidLibXrayLite` جلو رفته باشد، CI خودش AAR را دوباره می‌سازد
 (کلید cache به gitlink submodule بسته است).
@@ -134,8 +136,7 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 - اتصال فقط از `LauncherManager` شروع و قطع می‌شود و وضعیت daemon از
   `MainRepository` خود v2rayNG می‌آید؛ سرویس VPN دست نخورده است.
   `ConnectionLogic` تصمیم می‌گیرد هر پیام daemon وضعیت را به کجا ببرد.
-- «سرور: خودکار» قبل از اتصال همان real-delay test خود v2rayNG را روی سرورهای
-  سرویس فعال اجرا می‌کند و سریع‌ترین را انتخاب می‌کند. failover در فاز ۸ است.
+- «سرور: خودکار» یعنی اتصال هوشمند و failover (بخش پایین).
 - سرعت دانلود و آپلود از `TrafficStats` برای UID خود اپ خوانده می‌شود: سوکت‌های
   هسته مال همین UID است و daemon راهی برای فرستادن آمار به UI ندارد.
 - IP خروجی از `check-host.net/ip` می‌آید؛ وقتی وصل است از proxy محلی هسته، وقتی
@@ -226,3 +227,34 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 pip install cairosvg pillow
 python3 branding/gen_icons.py
 ```
+
+## اتصال هوشمند و failover (`com.geekvpn.smartconnect`)
+
+- کل منطق در `SmartConnectUseCase` است و از UI و سرویس VPN جداست. هر چیزی که
+  لازم دارد از `SmartConnectPorts` می‌گیرد، پس با unit test پوشش داده می‌شود.
+- دکمه‌ی اتصال با «سرور: خودکار» این کارها را انجام می‌دهد:
+  1. برای کانفیگ‌هایی که اسکنر رویشان کار می‌کند، IPهای تمیز تازه‌ی همین شبکه را
+     برمی‌دارد. اگر IP تازه‌ای نباشد، یک اسکن کوتاه ۲۰ ثانیه‌ای اجرا می‌کند
+     (`ScanController.quickScan`، همان `ScanService`).
+  2. real-delay test خود v2rayNG را اجرا می‌کند (`CoreTestService`، همروندی از
+     `PREF_REAL_PING_CONCURRENCY`). برای هر IP یک دور تست انجام می‌شود، حداکثر
+     ۳ IP. override برای هر کانفیگ است، پس هر دور فقط با یک IP تست می‌شود.
+  3. با بهترین گزینه وصل می‌شود. اگر هسته بالا نیاید یا تست تأخیر خود v2rayNG
+     روی اتصال زنده (`MSG_MEASURE_DELAY`) جواب ندهد، گزینه‌ی بعدی را امتحان
+     می‌کند. حداکثر ۳ تلاش انجام می‌شود و بعد پیام فارسی نشان داده می‌شود.
+- هر مرحله روی Home نوشته می‌شود و با زدن دوباره‌ی دکمه لغو می‌شود. لغو، اسکن و
+  تست را متوقف می‌کند و اگر اتصالی شروع شده بود آن را قطع می‌کند.
+- با «سرور: خودکار» خاموش، همان سرور انتخاب‌شده بدون تست وصل می‌شود.
+- failover در پروسه‌ی VPN (`:daemon`) اجرا می‌شود، چون پروسه‌ی اپ ممکن است وقتی
+  VPN وصل است بسته شده باشد. عمرش دقیقاً با هسته یکی است. هر ۳۰ ثانیه (با صفحه‌ی
+  خاموش هر ۲ دقیقه) تأخیر اتصال زنده را از خود هسته می‌پرسد. `FailoverPolicy`
+  تصمیم می‌گیرد: دو بار پشت سر هم بد، یعنی failover. «بد» یعنی خطا، یا کندتر از
+  آستانه. بعد از هر failover یک cooldown می‌آید که از ۲ دقیقه شروع می‌شود و تا
+  ۳۰ دقیقه دو برابر می‌شود.
+- موقع failover، سرورهای همان سرویس با `RealPingWorkerService` در همان پروسه
+  تست می‌شوند و IPهای تمیز تازه هم امتحان می‌شوند، ولی اسکن جدید انجام نمی‌شود.
+  بعد هسته با `reloadCore` روی سرور جدید دوباره ساخته می‌شود؛ تونل پایین نمی‌آید.
+  اگر هیچ سروری جواب ندهد، مشکل از شبکه‌ی گوشی حساب می‌شود و سرور عوض نمی‌شود.
+- آستانه در صفحه‌ی «سرورها» زیر «سرور: خودکار» تنظیم می‌شود: هرگز، فقط قطعی، ۱،
+  ۲ (پیش‌فرض) یا ۳ ثانیه. در `ConnectionPrefs` ذخیره می‌شود؛ MMKV آن
+  multi-process است و پروسه‌ی VPN هم آن را می‌خواند.

@@ -59,7 +59,7 @@ object GeekGraph {
 
     val accountStore: AccountStore by lazy { AccountStore(storage(ID_ACCOUNT)) }
 
-    val connectionPrefs: ConnectionPrefs by lazy { ConnectionPrefs(storage(ID_CONNECTION)) }
+    val connectionPrefs: ConnectionPrefs by lazy { ConnectionPrefs.open() }
 
     val accountSync: AccountSync by lazy { AccountSync(api, accountStore) }
 
@@ -113,6 +113,5 @@ object GeekGraph {
     private const val LOGOUT_TIMEOUT_MS = 5_000L
     private const val ID_ACCOUNT = "GEEK_ACCOUNT"
     private const val ID_SECURE = "GEEK_SECURE"
-    private const val ID_CONNECTION = "GEEK_CONNECTION"
     private const val LAUNCH_SYNC_INTERVAL_MS = 10 * 60 * 1000L
 }

@@ -56,6 +56,7 @@ import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.connection.RouteMode
 import com.geekvpn.connection.ServerNames
 import com.geekvpn.connection.TrafficMeter
+import com.geekvpn.smartconnect.SmartStage
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatGib
 import com.geekvpn.ui.components.CountryBadge
@@ -225,19 +226,34 @@ private fun StatusText(state: HomeUiState) {
                     color = colors.onBackgroundMuted,
                 )
             }
-            else -> Text(
-                stringResource(
-                    when (state.phase) {
-                        ConnectionPhase.Testing -> R.string.geek_home_testing
-                        ConnectionPhase.Stopping -> R.string.geek_home_stopping
-                        else -> R.string.geek_home_connecting
-                    }
-                ),
-                style = Geek.type.sectionTitle,
-                color = colors.onBackground,
-            )
+            else -> {
+                Text(
+                    busyText(state.phase, state.stage),
+                    style = Geek.type.sectionTitle,
+                    color = colors.onBackground,
+                )
+                if (state.phase != ConnectionPhase.Stopping) {
+                    Text(
+                        stringResource(R.string.geek_smart_cancel_hint),
+                        style = Geek.type.caption,
+                        color = colors.onBackgroundMuted,
+                    )
+                }
+            }
         }
     }
+}
+
+/** What the connection is doing: smart connect's step (spec §3.6), else the phase. */
+@Composable
+private fun busyText(phase: ConnectionPhase, stage: SmartStage?): String = when {
+    phase == ConnectionPhase.Stopping -> stringResource(R.string.geek_home_stopping)
+    stage == SmartStage.FindingIp -> stringResource(R.string.geek_smart_finding_ip)
+    stage == SmartStage.Testing -> stringResource(R.string.geek_smart_testing)
+    stage is SmartStage.Connecting && stage.attempt > 1 ->
+        stringResource(R.string.geek_smart_connecting_attempt, stage.attempt, stage.of)
+    phase == ConnectionPhase.Testing -> stringResource(R.string.geek_home_testing)
+    else -> stringResource(R.string.geek_home_connecting)
 }
 
 /** "00:12:48", Latin digits as in the design, ticking once a second. */

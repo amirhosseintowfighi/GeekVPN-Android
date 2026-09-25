@@ -18,6 +18,13 @@ import com.geekvpn.connection.ServiceSignal
 import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.connection.TrafficMeter
 import com.geekvpn.scanner.CleanIpTarget
+import com.geekvpn.scanner.CleanIps
+import com.geekvpn.scanner.ScanController
+import com.geekvpn.smartconnect.FailoverThreshold
+import com.geekvpn.smartconnect.SmartConnectPorts
+import com.geekvpn.smartconnect.SmartConnectUseCase
+import com.geekvpn.smartconnect.SmartResult
+import com.geekvpn.smartconnect.SmartStage
 import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
@@ -28,6 +35,7 @@ import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.ui.main.MainRepository
 import com.v2ray.ang.ui.main.MainServiceEvent
 import com.v2ray.ang.util.LogUtil
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -86,6 +94,9 @@ data class HomeUiState(
     val updating: Boolean = false,
     /** The selected config, when the clean-IP scanner applies to it. */
     val cleanIp: CleanIpTarget? = null,
+    /** Smart connect's step, while it runs; null otherwise. */
+    val stage: SmartStage? = null,
+    val failover: FailoverThreshold = FailoverThreshold.DEFAULT,
 )
 
 sealed interface HomeEvent {
@@ -93,6 +104,9 @@ sealed interface HomeEvent {
 
     /** The daemon's own words, when it gave a reason for failing to start. */
     data class Text(val text: String) : HomeEvent
+
+    /** Smart connect gave up after [attempts] servers. */
+    data class Failed(val attempts: Int) : HomeEvent
 }
 
 /**
@@ -112,6 +126,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             autoServer = prefs.autoServer,
             route = prefs.routeMode ?: RouteMode.Smart,
             connectedSince = prefs.connectedSince,
+            failover = prefs.failoverThreshold,
         )
     )
     val uiState: StateFlow<HomeUiState> = state.asStateFlow()
@@ -126,6 +141,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private var exitIpCheckedAt = 0L
     private var testJob: Job? = null
     private var pendingTest: Pair<String, CompletableDeferred<Unit>>? = null
+    private var smartJob: Job? = null
+
+    /** While smart connect runs, the daemon's start/stop reports go to it instead of the phase. */
+    private var smartSignals: Channel<ServiceSignal>? = null
+    private var pendingProbe: Pair<String, CompletableDeferred<Long>>? = null
 
     init {
         viewModelScope.launch { repository.mainServiceEvent.collect { onServiceEvent(it) } }
@@ -176,37 +196,102 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             eventChannel.trySend(HomeEvent.Message(R.string.geek_home_err_service_inactive))
             return
         }
-        testJob = viewModelScope.launch {
-            if (current.autoServer && current.servers.size > 1) {
-                state.update { it.copy(phase = ConnectionPhase.Testing) }
-                val best = runTest(groupId)
-                if (state.value.phase != ConnectionPhase.Testing) return@launch // cancelled
-                if (best != null) {
-                    withContext(Dispatchers.IO) { MmkvManager.setSelectServer(best) }
-                    reloadServers()
-                } else {
-                    eventChannel.send(HomeEvent.Message(R.string.geek_home_err_no_server_answered))
-                }
-            }
-            if (state.value.selected == null) {
-                state.update { it.copy(phase = ConnectionPhase.Off) }
-                eventChannel.send(HomeEvent.Message(R.string.geek_home_err_no_service))
-                return@launch
-            }
+        if (!current.autoServer) {
+            // The customer's own pick: connect with it as it stands.
             state.update { it.copy(phase = ConnectionPhase.Connecting) }
             LauncherManager.startService(app)
+            return
+        }
+        smartJob = viewModelScope.launch { smartConnect(groupId, current) }
+    }
+
+    /**
+     * Spec §3.6 through [SmartConnectUseCase]: clean addresses, the delay
+     * test, then up to three connection attempts, each shown on Home.
+     */
+    private suspend fun smartConnect(groupId: String, current: HomeUiState) {
+        val signals = Channel<ServiceSignal>(Channel.UNLIMITED)
+        smartSignals = signals
+        val ports = HomePorts(signals, current)
+        state.update { it.copy(phase = ConnectionPhase.Testing, stage = SmartStage.Testing) }
+        try {
+            val result = SmartConnectUseCase(ports).run(groupId, current.selected?.guid) { stage ->
+                val phase = if (stage is SmartStage.Connecting) ConnectionPhase.Connecting else ConnectionPhase.Testing
+                state.update { it.copy(phase = phase, stage = stage) }
+            }
+            smartSignals = null
+            ports.keepBestDelays()
+            when (result) {
+                is SmartResult.Connected -> {
+                    if (result.untested) eventChannel.send(HomeEvent.Message(R.string.geek_home_err_no_server_answered))
+                    val since = System.currentTimeMillis()
+                    prefs.connectedSince = since
+                    state.update { it.copy(phase = ConnectionPhase.On, stage = null, connectedSince = since) }
+                    onConnectionChanged()
+                }
+                SmartResult.NoServers -> {
+                    state.update { it.copy(phase = ConnectionPhase.Off, stage = null) }
+                    eventChannel.send(HomeEvent.Message(R.string.geek_home_err_no_service))
+                }
+                is SmartResult.Failed -> {
+                    stopAfterSmart(ports.started)
+                    eventChannel.send(HomeEvent.Failed(result.attempts))
+                }
+            }
+            reloadServers()
+        } catch (e: CancellationException) {
+            smartSignals = null
+            repository.cancelAllPing()
+            stopAfterSmart(ports.started)
+            throw e
+        } finally {
+            smartSignals = null
+            pendingProbe = null
+        }
+    }
+
+    private fun stopAfterSmart(started: Boolean) {
+        if (!started) {
+            state.update { it.copy(phase = ConnectionPhase.Off, stage = null) }
+            return
+        }
+        state.update { it.copy(phase = ConnectionPhase.Stopping, stage = null) }
+        LauncherManager.stopService(app)
+        // The last attempt may have left no daemon to answer the stop. Then
+        // settle on Off and ask; a daemon that is still up answers "running".
+        viewModelScope.launch {
+            delay(STOP_SETTLE_MS)
+            if (state.value.phase == ConnectionPhase.Stopping) {
+                state.update { it.copy(phase = ConnectionPhase.Off) }
+                repository.sendMsg2Service(AppConfig.MSG_REGISTER_CLIENT, "")
+            }
         }
     }
 
     fun disconnect() {
         when (state.value.phase) {
-            ConnectionPhase.Testing -> cancelTest()
-            ConnectionPhase.Connecting, ConnectionPhase.On -> {
+            ConnectionPhase.Testing, ConnectionPhase.Connecting -> {
+                val smart = smartJob
+                when {
+                    smart?.isActive == true -> smart.cancel()
+                    state.value.phase == ConnectionPhase.Testing -> cancelTest()
+                    else -> {
+                        state.update { it.copy(phase = ConnectionPhase.Stopping) }
+                        LauncherManager.stopService(app)
+                    }
+                }
+            }
+            ConnectionPhase.On -> {
                 state.update { it.copy(phase = ConnectionPhase.Stopping) }
                 LauncherManager.stopService(app)
             }
             ConnectionPhase.Off, ConnectionPhase.Stopping -> Unit
         }
+    }
+
+    fun setFailover(threshold: FailoverThreshold) {
+        prefs.failoverThreshold = threshold
+        state.update { it.copy(failover = threshold) }
     }
 
     fun setAutoServer(enabled: Boolean) {
@@ -325,6 +410,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // -- daemon events ---------------------------------------------------------
 
     private fun onServiceEvent(event: MainServiceEvent) {
+        val smart = smartSignals
+        if (smart != null) {
+            val forwarded = when (event) {
+                MainServiceEvent.StateStartSuccess -> ServiceSignal.StartSuccess
+                is MainServiceEvent.StateStartFailure -> ServiceSignal.StartFailure
+                MainServiceEvent.StateStopSuccess -> ServiceSignal.StopSuccess
+                else -> null
+            }
+            if (forwarded != null) {
+                smart.trySend(forwarded)
+                return
+            }
+            if (event == MainServiceEvent.StateRunning || event == MainServiceEvent.StateNotRunning) return
+        }
         val signal = when (event) {
             MainServiceEvent.StateRunning -> ServiceSignal.Running
             MainServiceEvent.StateNotRunning -> ServiceSignal.NotRunning
@@ -355,6 +454,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 finishTest(event.requestId)
                 return
             }
+            is MainServiceEvent.MeasureDelayResult -> {
+                pendingProbe?.takeIf { it.first == event.requestId }?.second?.complete(event.result.delayMillis)
+                return
+            }
+            is MainServiceEvent.MeasureDelayCancelled -> {
+                pendingProbe?.takeIf { it.first == event.requestId }?.second?.complete(-1L)
+                return
+            }
             else -> return
         }
         val before = state.value.phase
@@ -366,38 +473,137 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
         prefs.connectedSince = since
         state.update { it.copy(phase = after, connectedSince = since) }
-        if (before != after && (after == ConnectionPhase.On || after == ConnectionPhase.Off)) {
-            meter.reset()
-            state.update { it.copy(speed = null) }
-            updateSpeedSampler()
-            refreshExitIp()
-        }
+        if (before != after && (after == ConnectionPhase.On || after == ConnectionPhase.Off)) onConnectionChanged()
+        // The VPN process's failover monitor reports a server switch as "running".
+        if (signal == ServiceSignal.Running && before == ConnectionPhase.On) reloadServers()
+    }
+
+    private fun onConnectionChanged() {
+        meter.reset()
+        state.update { it.copy(speed = null) }
+        updateSpeedSampler()
+        refreshExitIp()
     }
 
     // -- internals ---------------------------------------------------------------
 
     /** Runs the daemon's real-delay test on [groupId] and returns the fastest server. */
     private suspend fun runTest(groupId: String): String? {
+        val guids = state.value.servers.map { it.guid }
+        val delays = measureDelays(guids, TestServiceMessage(key = AppConfig.MSG_MEASURE_CONFIG_START, subscriptionId = groupId))
+        return ConnectionLogic.best(guids.map { ConnectionLogic.Delay(it, delays[it] ?: 0) })
+    }
+
+    /** v2rayNG's real-delay test through its test service; results by GUID, as it stored them. */
+    private suspend fun measureDelays(guids: List<String>, message: TestServiceMessage): Map<String, Long> {
         val requestId = UUID.randomUUID().toString()
         val done = CompletableDeferred<Unit>()
         pendingTest = requestId to done
         state.update { current ->
-            current.copy(testing = true, servers = current.servers.map { it.copy(delayMs = 0) })
+            current.copy(testing = true, servers = current.servers.map { if (it.guid in guids) it.copy(delayMs = 0) else it })
         }
-        val guids = state.value.servers.map { it.guid }
-        withContext(Dispatchers.IO) { repository.clearAllTestDelayResults(guids) }
-        repository.sendMsg2TestService(
-            TestServiceMessage(key = AppConfig.MSG_MEASURE_CONFIG_START, subscriptionId = groupId),
-            requestId,
-        )
-        if (withTimeoutOrNull(TEST_TIMEOUT_MS) { done.await() } == null) {
-            LogUtil.w(AppConfig.TAG, "Home: delay test of $groupId timed out")
-            repository.cancelAllPing()
+        try {
+            withContext(Dispatchers.IO) { repository.clearAllTestDelayResults(guids) }
+            repository.sendMsg2TestService(message, requestId)
+            if (withTimeoutOrNull(TEST_TIMEOUT_MS) { done.await() } == null) {
+                LogUtil.w(AppConfig.TAG, "Home: delay test of ${guids.size} servers timed out")
+                repository.cancelAllPing()
+            }
+        } finally {
+            pendingTest = null
+            state.update { it.copy(testing = false) }
         }
-        pendingTest = null
-        state.update { it.copy(testing = false) }
-        val delays = withContext(Dispatchers.IO) { guids.map { ConnectionLogic.Delay(it, delayOf(it)) } }
-        return ConnectionLogic.best(delays)
+        return withContext(Dispatchers.IO) { guids.associateWith { delayOf(it) } }
+    }
+
+    /** Smart connect on this screen: v2rayNG's test service, `LauncherManager` and the daemon's reports. */
+    private inner class HomePorts(
+        private val signals: Channel<ServiceSignal>,
+        private val snapshot: HomeUiState,
+    ) : SmartConnectPorts {
+        /** A start was sent, so a failure or cancel must stop the daemon. */
+        var started = false
+            private set
+
+        /** Each config's best delay over all rounds, for the list once the test is over. */
+        private val bestSeen = mutableMapOf<String, Long>()
+
+        override fun servers(groupId: String): List<String> = MmkvManager.decodeServerList(groupId)
+
+        override fun scannable(guid: String): Boolean {
+            val profile = MmkvManager.decodeServerConfig(guid) ?: return false
+            val isAccount = snapshot.groupId?.let { SubscriptionPlan.isAccountGuid(it) } == true
+            return CleanIpTarget.of(guid, "", profile, snapshot.activeService?.tier, isAccount) != null
+        }
+
+        override fun freshIps(guid: String): List<String> = CleanIps.fresh(app, guid)
+
+        override suspend fun quickScan(guid: String): List<String> = ScanController.quickScan(app, guid)
+
+        override fun useIp(guid: String, ip: String, delayMs: Long) = CleanIps.use(app, guid, ip, delayMs)
+
+        override suspend fun measure(guids: List<String>): Map<String, Long> {
+            val delays = measureDelays(guids, TestServiceMessage(key = AppConfig.MSG_MEASURE_CONFIG_START, serverGuids = guids))
+            delays.forEach { (guid, delay) ->
+                if (delay > 0 && (bestSeen[guid] ?: Long.MAX_VALUE) > delay) bestSeen[guid] = delay
+            }
+            return delays
+        }
+
+        override suspend fun connect(guid: String): Boolean {
+            withContext(Dispatchers.IO) { MmkvManager.setSelectServer(guid) }
+            reloadServers()
+            while (signals.tryReceive().isSuccess) Unit // reports of an earlier attempt
+            if (!started) {
+                LauncherManager.startService(app)
+            } else {
+                // Restart when the daemon is up, start again when the last attempt left it stopped.
+                LauncherManager.restartServiceOrStart(app) { LauncherManager.startService(app) }
+            }
+            started = true
+            val up = withTimeoutOrNull(START_TIMEOUT_MS) {
+                var result: Boolean? = null
+                while (result == null) {
+                    result = when (signals.receive()) {
+                        ServiceSignal.StartSuccess -> true
+                        ServiceSignal.StartFailure -> false
+                        else -> null
+                    }
+                }
+                result
+            } ?: false
+            if (!up) {
+                LogUtil.w(AppConfig.TAG, "Home: smart connect could not start $guid")
+                return false
+            }
+            val delay = probe()
+            LogUtil.i(AppConfig.TAG, "Home: smart connect $guid carries traffic: ${delay > 0} ($delay ms)")
+            if (delay > 0) {
+                state.update { current ->
+                    current.copy(servers = current.servers.map { if (it.guid == guid) it.copy(delayMs = delay) else it })
+                }
+            }
+            return delay > 0
+        }
+
+        /** Keeps the list honest after rounds with different addresses: each config's best. */
+        suspend fun keepBestDelays() {
+            if (bestSeen.isEmpty()) return
+            withContext(Dispatchers.IO) { bestSeen.forEach { (guid, delay) -> MmkvManager.encodeServerTestDelayMillis(guid, delay) } }
+        }
+
+        /** The daemon's own delay check through the running connection. */
+        private suspend fun probe(): Long {
+            val requestId = UUID.randomUUID().toString()
+            val result = CompletableDeferred<Long>()
+            pendingProbe = requestId to result
+            repository.testCurrentServerRealPing(requestId)
+            return try {
+                withTimeoutOrNull(PROBE_TIMEOUT_MS) { result.await() } ?: -1L
+            } finally {
+                pendingProbe = null
+            }
+        }
     }
 
     private fun finishTest(requestId: String) {
@@ -531,6 +737,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private companion object {
         const val SPEED_INTERVAL_MS = 1_000L
         const val TEST_TIMEOUT_MS = 45_000L
+        const val START_TIMEOUT_MS = 20_000L
+        const val STOP_SETTLE_MS = 8_000L
+
+        /** v2rayNG's check tries two URLs, then looks up the exit address. */
+        const val PROBE_TIMEOUT_MS = 20_000L
         const val EXIT_IP_MAX_AGE_MS = 60_000L
     }
 }

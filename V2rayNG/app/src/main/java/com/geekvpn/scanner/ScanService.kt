@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -55,10 +56,11 @@ class ScanService : Service() {
                 goForeground(0, 0)
                 val guid = intent.getStringExtra(EXTRA_GUID)
                 val download = intent.getBooleanExtra(EXTRA_DOWNLOAD, false)
+                val timeoutMs = intent.getLongExtra(EXTRA_TIMEOUT_MS, 0L)
                 if (guid == null || CfScanNative.isRunning()) {
                     if (!CfScanNative.isRunning()) stopSelf()
                 } else {
-                    scope.launch { begin(guid, download) }
+                    scope.launch { begin(guid, download, timeoutMs) }
                 }
             }
             else -> stopSelf()
@@ -66,7 +68,7 @@ class ScanService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun begin(guid: String, download: Boolean) {
+    private fun begin(guid: String, download: Boolean, timeoutMs: Long) {
         val profile = MmkvManager.decodeServerConfig(guid)
         val target = profile?.let { CdnTarget.of(it) }
         if (profile == null || target == null) {
@@ -119,6 +121,13 @@ class ScanService : Service() {
                     }
                 },
             )
+            if (timeoutMs > 0) {
+                // Smart connect's short scan: stop where it is and keep what it found.
+                scope.launch {
+                    delay(timeoutMs)
+                    if (CfScanNative.isRunning()) CfScanNative.stop()
+                }
+            }
         } catch (e: Exception) {
             // gomobile surfaces Go errors as Exception: bad config or a scan already running.
             LogUtil.e(AppConfig.TAG, "Scan: could not start", e)
@@ -183,6 +192,9 @@ class ScanService : Service() {
         const val ACTION_STOP = "com.geekvpn.scanner.STOP"
         const val EXTRA_GUID = "guid"
         const val EXTRA_DOWNLOAD = "download"
+
+        /** Stop the scan after this long (smart connect); 0 runs it to the end. */
+        const val EXTRA_TIMEOUT_MS = "timeout_ms"
 
         /** cf-scanner's Cloudflare IPv4 list (MIT), shipped with the app. */
         const val RANGES_ASSET = "cfscan/ipv4.txt"

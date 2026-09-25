@@ -124,6 +124,8 @@ private fun TabPreview(screen: String) {
         val state = when (screen) {
             "home-on" -> PreviewSamples.homeOn
             "home-empty" -> PreviewSamples.homeEmpty
+            "home-finding-ip" -> PreviewSamples.homeFindingIp
+            "home-attempt" -> PreviewSamples.homeAttempt
             else -> PreviewSamples.homeOff
         }
         Column(
