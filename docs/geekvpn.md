@@ -93,7 +93,10 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 
 - `device-smoke`: روی Emulator با API 24، 30، 35 و 37 اول APK `universal` debug و
   بعد همان APK release (با R8) را نصب و اجرا می‌کند (`scripts/ci/device-smoke.sh`).
-  نتیجه‌ی release در پوشه‌ی `apiNN-release` است. job قرمز می‌شود اگر:
+  نتیجه‌ی release در پوشه‌ی `apiNN-release` است. API 37 فعلاً غیرمسدودکننده است:
+  image آن روی رانرهای GitHub در لایه‌ی گرافیک emulator (gfxstream) crash می‌کند و
+  system_server را پایین می‌آورد، پس با `-gpu guest` اجرا می‌شود و قرمز شدنش کل
+  action را قرمز نمی‌کند. job قرمز می‌شود اگر:
   - اپ crash کند؛
   - صفحه‌ی «درباره» نسخه‌ی `cfscan` را نشان ندهد؛
   - `scripts/ci/a11y-check.py` روی صفحه‌های GeekVPN چیزی پیدا کند: هر چیز

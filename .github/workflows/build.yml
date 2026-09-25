@@ -261,6 +261,7 @@ jobs:
     needs: app
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    continue-on-error: ${{ matrix.experimental == true }}
     strategy:
       fail-fast: false
       matrix:
@@ -279,9 +280,13 @@ jobs:
           # API 37's SDK packages carry a minor version: android-37.0.
           - api-level: '37.0'
             profile: pixel_6
-            # swiftshader_indirect aborts on this image in gfxstream
-            # (hasReadColorBufferDma), taking screencap and system_server down.
-            gpu: swangle_indirect
+            # This image is unstable on GitHub's runners: swiftshader_indirect
+            # aborts in gfxstream (hasReadColorBufferDma) and takes
+            # system_server down; swangle_indirect breaks the input service
+            # at boot. guest renders inside Android and skips gfxstream.
+            # Non-blocking until the image is: its result shows on its own job.
+            gpu: guest
+            experimental: true
     steps:
     - name: Checkout code
       uses: actions/checkout@v7
