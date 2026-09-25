@@ -172,8 +172,15 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 ## صفحه‌های اصلی (`com.geekvpn.ui.home` و بقیه)
 
 - `HomeActivity` چهار تب طراحی را دارد: خانه، سرویس‌ها، فروشگاه و حساب. صفحه‌ی «سرورها» و sheet «مسیر ترافیک» روی همین activity
-  باز می‌شوند. صفحه‌های v2rayNG از «حساب ← تنظیمات پیشرفته» (`MainActivity`) و
-  «پروفایل‌ها» (`SubSettingActivity`) در دسترس‌اند.
+  باز می‌شوند.
+- «حساب ← تنظیمات پیشرفته» دیگر خود v2rayNG (`MainActivity`) را باز نمی‌کند:
+  `com.geekvpn.ui.advanced.AdvancedActivity` همان تنظیمات `SettingsActivity` v2rayNG
+  را با طراحی GeekVPN نشان می‌دهد. کلیدهای MMKV، پیش‌فرض‌ها، شرط‌های فعال بودن و
+  وابستگی‌ها (`AdvancedSettings`) عین v2rayNG است. گزینه‌های مخصوص ظاهر خود v2rayNG
+  (چیدمان لیست، تم و رنگ پویا) حذف شده‌اند. بعد از merge با upstream، اگر
+  `SettingsActivity` گزینه‌ی جدیدی گرفت، باید به `AdvancedSettings.sections` هم اضافه
+  شود. هر تغییر `SettingsChangeManager` را خبر می‌کند و `HomeActivity` در `onStart`
+  اتصال در حال اجرا را دوباره می‌سازد.
 - کاری که صفحه‌ی اصلی v2rayNG موقع باز شدن می‌کند، اینجا `HomeViewModel` انجام
   می‌دهد و هر اتصال منتظرش می‌ماند: کپی `geosite.dat` و `geoip.dat` (بدون آن‌ها Xray
   قانون‌های `geosite:ir` مسیر هوشمند را نمی‌سازد و بالا نمی‌آید) و زمان‌بندی

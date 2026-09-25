@@ -310,4 +310,12 @@
     <string name="geek_failover_3s">۳ ثانیه</string>
     <string name="geek_failover_hint">اگر اتصال قطع شود یا کندتر از این بماند، سرورها در پس‌زمینه دوباره تست می‌شوند و بهترین جایگزین می‌شود.</string>
     <string name="geek_failover_hint_off">اتصال روی همان سروری که با آن وصل شدی می‌ماند.</string>
+
+    <!-- تنظیمات پیشرفته -->
+    <string name="geek_advanced_subtitle">هسته، DNS و تونل. تغییرها از اتصال بعدی اعمال می‌شوند.</string>
+    <string name="geek_advanced_expanded">باز</string>
+    <string name="geek_advanced_collapsed">بسته</string>
+    <string name="geek_advanced_default">پیش‌فرض</string>
+    <string name="geek_advanced_empty_default">برای مقدار پیش‌فرض خالی بگذار.</string>
+    <string name="geek_advanced_save">ذخیره</string>
 </resources>

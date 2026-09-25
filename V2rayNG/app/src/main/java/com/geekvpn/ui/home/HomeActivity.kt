@@ -44,6 +44,7 @@ import com.geekvpn.shop.Tier
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
 import com.geekvpn.ui.account.AccountViewModel
+import com.geekvpn.ui.advanced.AdvancedActivity
 import com.geekvpn.ui.common.GeekHeader
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
@@ -71,9 +72,9 @@ import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.enums.PermissionType
 import com.v2ray.ang.handler.SettingsManager
+import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.ui.AboutActivity
 import com.v2ray.ang.ui.base.HelperBaseComponentActivity
-import com.v2ray.ang.ui.main.MainActivity
 import com.v2ray.ang.ui.perappproxy.PerAppProxyActivity
 import com.v2ray.ang.ui.subscription.SubEditActivity
 import com.v2ray.ang.ui.subscription.SubSettingActivity
@@ -156,6 +157,8 @@ class HomeActivity : HelperBaseComponentActivity() {
     override fun onStart() {
         super.onStart()
         home.onForeground(true)
+        // v2rayNG's "a setting changed" signal: rebuild a running connection with it.
+        if (SettingsChangeManager.consumeRestartService()) home.reconnectIfRunning()
         // Back from a gateway's page without its link: refresh anyway.
         shop.onReturn(null)
     }
@@ -444,7 +447,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onServers() = openServers()
         override fun onRoute() = openRoute()
         override fun onCleanIp() = openCleanIp()
-        override fun onAdvanced() = startActivity(Intent(this@HomeActivity, MainActivity::class.java))
+        override fun onAdvanced() = startActivity(Intent(this@HomeActivity, AdvancedActivity::class.java))
         override fun onProfiles() = startActivity(Intent(this@HomeActivity, SubSettingActivity::class.java))
         override fun onSupport() = openBot()
         override fun onAbout() = startActivity(Intent(this@HomeActivity, AboutActivity::class.java))

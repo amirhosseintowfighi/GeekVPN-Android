@@ -314,4 +314,12 @@
     <string name="geek_failover_3s">3 s</string>
     <string name="geek_failover_hint">When the connection drops or stays slower than this, the servers are retested in the background and the best one takes over.</string>
     <string name="geek_failover_hint_off">The connection stays on the server it started with.</string>
+
+    <!-- Advanced settings (v2rayNG's settings in GeekVPN's design) -->
+    <string name="geek_advanced_subtitle">Core, DNS and tunnel. Changes apply on the next connection.</string>
+    <string name="geek_advanced_expanded">Open</string>
+    <string name="geek_advanced_collapsed">Closed</string>
+    <string name="geek_advanced_default">Default</string>
+    <string name="geek_advanced_empty_default">Leave empty for the default.</string>
+    <string name="geek_advanced_save">Save</string>
 </resources>
