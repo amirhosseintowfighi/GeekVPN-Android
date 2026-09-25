@@ -98,7 +98,7 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 ## ورود و حساب (`com.geekvpn.auth`، `com.geekvpn.account`)
 
 - ورودی لانچر `com.geekvpn.ui.login.LaunchActivity` است، نه `MainActivity`. اگر
-  کاربر وارد شده باشد یا «شروع سریع» را زده باشد، مستقیم `MainActivity` را باز
+  کاربر وارد شده باشد یا «شروع سریع» را زده باشد، مستقیم `HomeActivity` را باز
   می‌کند؛ وگرنه صفحه‌ی ورود (`Main.html`) را نشان می‌دهد.
 - ورود با تلگرام: `POST /api/app/auth/link/start` یک لینک `t.me` می‌دهد، اپ تلگرام
   را با `tg://resolve` باز می‌کند و `link/poll` را long-poll می‌کند تا کاربر در ربات
