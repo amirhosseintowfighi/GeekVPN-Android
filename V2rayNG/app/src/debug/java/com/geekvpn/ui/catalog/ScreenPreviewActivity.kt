@@ -78,6 +78,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
             "shop", "shop-guest", "checkout", "wallet", "deposit", "scanner", "scanner-running",
+            "home-finding-ip", "home-attempt",
         )
     }
 }

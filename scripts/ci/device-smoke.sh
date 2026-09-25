@@ -168,6 +168,13 @@ if [[ "$probe" != *Error* ]]; then
     for screen in home-empty servers route shop-guest checkout scanner-running home-finding-ip home-attempt; do
         preview "$screen" false
     done
+    # A name the preview activity does not know falls back to the waiting screen.
+    for screen in home-finding-ip home-attempt; do
+        if ! grep -q "دوباره دکمه را بزن" "$OUT/preview-$screen.xml"; then
+            echo "::error::preview $screen did not show the smart connect stage"
+            LOGIN_FAILED=1
+        fi
+    done
 fi
 
 # By component: the main screen is behind the login gate.
