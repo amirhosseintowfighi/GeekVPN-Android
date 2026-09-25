@@ -106,7 +106,11 @@ adb shell am force-stop "$PKG"
 # The waiting and syncing screens with sample data (debug builds): the real
 # flow above only gets there when this emulator can reach the API.
 PREVIEW="$PKG/com.geekvpn.ui.catalog.ScreenPreviewActivity"
-if adb shell pm dump "$PKG" | grep -q "com.geekvpn.ui.catalog.ScreenPreviewActivity"; then
+# Probed by starting it: without an intent-filter it is not in `pm dump`'s
+# resolver tables, and release builds do not have it at all.
+probe=$(adb shell am start -W -n "$PREVIEW" 2>&1 || true)
+if [[ "$probe" != *Error* ]]; then
+    adb shell am force-stop "$PKG"
     for screen in waiting create syncing username; do
         for dark in false true; do
             name="preview-$screen"; [[ "$dark" == true ]] && name="$name-dark"
