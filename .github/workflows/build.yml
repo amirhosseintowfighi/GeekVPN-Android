@@ -273,7 +273,8 @@ jobs:
             profile: pixel_6
           - api-level: 35
             profile: pixel_6
-          - api-level: 37
+          # API 37's SDK packages carry a minor version: android-37.0.
+          - api-level: '37.0'
             profile: pixel_6
     steps:
     - name: Checkout code
