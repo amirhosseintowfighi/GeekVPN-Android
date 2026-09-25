@@ -92,7 +92,7 @@ class FailoverMonitor(
             LogUtil.i(AppConfig.TAG, "Failover: no config answered, keeping $current")
             return
         }
-        best.choice.ip?.let { CleanIps.use(service, best.choice.guid, it, best.delayMs) }
+        // rank() left each CDN-fronted config on its best address already.
         MmkvManager.setSelectServer(best.choice.guid)
         if (reload()) {
             LogUtil.i(AppConfig.TAG, "Failover: moved from $current to ${best.choice.guid} (${best.delayMs} ms)")
@@ -106,14 +106,15 @@ class FailoverMonitor(
 
         // The account tier is not known in this process; a config the scanner
         // ran for on this network is one it applies to.
-        override fun scannable(guid: String): Boolean = CleanIps.scanned(service, guid)
+        override suspend fun scannable(guid: String): Boolean =
+            CleanIps.knownBehindCloudflare(guid) == true && CleanIps.scanned(service, guid)
 
         override fun freshIps(guid: String): List<String> = CleanIps.fresh(service, guid)
 
         // No scanning in the background: it costs data and is the customer's call.
         override suspend fun quickScan(guid: String): List<String> = emptyList()
 
-        override fun useIp(guid: String, ip: String, delayMs: Long) = CleanIps.use(service, guid, ip, delayMs)
+        override fun useIp(guid: String, ip: String?, delayMs: Long) = CleanIps.use(service, guid, ip, delayMs)
 
         override suspend fun measure(guids: List<String>): Map<String, Long> {
             val results = ConcurrentHashMap<String, Long>()

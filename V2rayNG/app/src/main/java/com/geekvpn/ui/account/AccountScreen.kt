@@ -277,7 +277,9 @@ private fun WalletButton(text: String, icon: ImageVector?, primary: Boolean, onC
         modifier = modifier
             .height(46.dp)
             .clip(Geek.shapes.button)
-            .background(if (primary) colors.logoBlue else colors.onAction.copy(alpha = 0.12f))
+            // The card is colors.action; its inverse stays visible in both themes
+            // (logoBlue is the dark theme's action colour, so it vanished there).
+            .background(if (primary) colors.onAction else colors.onAction.copy(alpha = 0.12f))
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

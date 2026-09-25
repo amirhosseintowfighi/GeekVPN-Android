@@ -26,6 +26,9 @@ data class ScanRecord(val results: List<CleanIp>, val scannedAt: Long) {
     }
 }
 
+/** Whether a config's domain resolves to Cloudflare, and when that was checked. */
+data class CdnVerdict(val behind: Boolean, val checkedAt: Long)
+
 /** The address a config uses on one network instead of its own. */
 data class IpOverride(val ip: String, val appliedAt: Long, val latencyMs: Long)
 
@@ -56,6 +59,12 @@ class ScanStore(private val storage: MMKV, private val gson: Gson = Gson()) {
         storage.removeValueForKey(overrideKey(profileKey, network))
     }
 
+    fun cdnVerdict(target: CdnTarget): CdnVerdict? = read(verdictKey(target), CdnVerdict::class.java)
+
+    fun setCdnVerdict(target: CdnTarget, verdict: CdnVerdict) {
+        storage.encode(verdictKey(target), gson.toJson(verdict))
+    }
+
     /** The scanner screen's "download test" switch; off unless the customer turns it on. */
     var downloadTest: Boolean
         get() = storage.decodeBool(KEY_DOWNLOAD, false)
@@ -81,6 +90,7 @@ class ScanStore(private val storage: MMKV, private val gson: Gson = Gson()) {
             results.distinctBy { it.ip }.sortedWith(compareBy<CleanIp> { it.latencyMs + it.jitterMs * 2 }.thenBy { it.pingMs })
 
         private fun resultKey(target: CdnTarget, network: String) = "scan|${target.sni}|${target.port}|$network"
+        private fun verdictKey(target: CdnTarget) = "cdn|${target.sni}|${target.host}"
         private fun overrideKey(profileKey: String, network: String) = "override|$profileKey|$network"
     }
 }

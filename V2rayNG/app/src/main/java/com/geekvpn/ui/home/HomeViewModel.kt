@@ -143,6 +143,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private var pendingTest: Pair<String, CompletableDeferred<Unit>>? = null
     private var smartJob: Job? = null
 
+    /**
+     * What v2rayNG's own main screen does on start and GeekVPN must do in its
+     * place: copy the geosite/geoip files the routing rules need (without them
+     * Xray fails to build "geosite:ir" and refuses to start) and schedule the
+     * periodic subscription refresh. Every connect waits for it.
+     */
+    private val prepared: Job = viewModelScope.launch(Dispatchers.IO) {
+        repository.initAssets()
+        repository.syncSubscriptions()
+    }
+
     /** While smart connect runs, the daemon's start/stop reports go to it instead of the phase. */
     private var smartSignals: Channel<ServiceSignal>? = null
     private var pendingProbe: Pair<String, CompletableDeferred<Long>>? = null
@@ -199,10 +210,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         if (!current.autoServer) {
             // The customer's own pick: connect with it as it stands.
             state.update { it.copy(phase = ConnectionPhase.Connecting) }
-            LauncherManager.startService(app)
+            viewModelScope.launch {
+                prepared.join()
+                LauncherManager.startService(app)
+            }
             return
         }
-        smartJob = viewModelScope.launch { smartConnect(groupId, current) }
+        smartJob = viewModelScope.launch {
+            prepared.join()
+            smartConnect(groupId, current)
+        }
     }
 
     /**
@@ -530,17 +547,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         override fun servers(groupId: String): List<String> = MmkvManager.decodeServerList(groupId)
 
-        override fun scannable(guid: String): Boolean {
-            val profile = MmkvManager.decodeServerConfig(guid) ?: return false
+        override suspend fun scannable(guid: String): Boolean = withContext(Dispatchers.IO) {
+            val profile = MmkvManager.decodeServerConfig(guid) ?: return@withContext false
             val isAccount = snapshot.groupId?.let { SubscriptionPlan.isAccountGuid(it) } == true
-            return CleanIpTarget.of(guid, "", profile, snapshot.activeService?.tier, isAccount) != null
+            CleanIpTarget.of(guid, "", profile, snapshot.activeService?.tier, isAccount) != null &&
+                // Never scanned for automatically unless the domain is known to be Cloudflare's.
+                CleanIps.verify(app, guid) == true
         }
 
         override fun freshIps(guid: String): List<String> = CleanIps.fresh(app, guid)
 
         override suspend fun quickScan(guid: String): List<String> = ScanController.quickScan(app, guid)
 
-        override fun useIp(guid: String, ip: String, delayMs: Long) = CleanIps.use(app, guid, ip, delayMs)
+        override fun useIp(guid: String, ip: String?, delayMs: Long) = CleanIps.use(app, guid, ip, delayMs)
 
         override suspend fun measure(guids: List<String>): Map<String, Long> {
             val delays = measureDelays(guids, TestServiceMessage(key = AppConfig.MSG_MEASURE_CONFIG_START, serverGuids = guids))
@@ -723,6 +742,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             val profile = MmkvManager.decodeServerConfig(row.guid) ?: return@let null
             val isAccount = groupId?.let { SubscriptionPlan.isAccountGuid(it) } == true
             CleanIpTarget.of(row.guid, row.title, profile, active?.tier, isAccount)
+                ?.takeIf { CleanIps.knownBehindCloudflare(row.guid) != false }
         }
         return Snapshot(services, active, groupId, rows, selected, manual, cleanIp)
     }
