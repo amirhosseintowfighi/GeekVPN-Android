@@ -1,6 +1,8 @@
 package com.geekvpn.ui.components
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -36,6 +40,9 @@ enum class GeekTab(@StringRes val label: Int, val icon: ImageVector) {
  * Floating tab bar: the selected tab is a 60dp milk-glass tile with its label
  * under it; the others are 52dp clear-glass tiles whose labels are kept (for
  * layout) but invisible, as in the design.
+ *
+ * The tiles sit on a nearly opaque dock. Without it, a card scrolling under the
+ * bar showed through the clear tiles in the same colour and the tabs got lost.
  */
 @Composable
 fun GeekBottomNav(
@@ -43,11 +50,18 @@ fun GeekBottomNav(
     onSelect: (GeekTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = Geek.colors
+    val shape = Geek.shapes.card
     Row(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(bottom = 8.dp)
+            .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
+            .shadow(16.dp, shape, clip = false, ambientColor = colors.shadow, spotColor = colors.shadow)
+            .clip(shape)
+            .background(colors.navDock, shape)
+            .border(1.dp, colors.clearGlassBorder, shape)
+            .padding(top = 8.dp, bottom = 4.dp)
             .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.Bottom,

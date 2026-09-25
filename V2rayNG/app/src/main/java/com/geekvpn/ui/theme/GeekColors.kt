@@ -61,6 +61,11 @@ data class GeekColors(
     val shadow: Color,
     /** Behind a sheet (Route.html): the screen dims to navy. */
     val scrim: Color,
+    /**
+     * The tab bar's dock: "bg" nearly opaque, so cards scrolling under the bar
+     * don't show through its clear-glass tiles.
+     */
+    val navDock: Color,
     val actionShadow: Color,
 )
 
@@ -100,6 +105,7 @@ internal val LightGeekColors = GeekColors(
     dangerBorder = Color(0xFFF7C9CD),
     shadow = Color(0x47022454), // rgba(2,36,84,.28)
     scrim = Color(0x99031B33),
+    navDock = Color(0xF00A67C4), // a shade under bg @ 94%
     actionShadow = Color(0x59021838), // rgba(2,24,56,.35)
 )
 
@@ -145,6 +151,7 @@ internal val DarkGeekColors = GeekColors(
     dangerBorder = Color(0xFF6B2E3A),
     shadow = Color(0x66000814),
     scrim = Color(0xB3000814),
+    navDock = Color(0xF0031830), // a shade under bg @ 94%
     actionShadow = Color(0x4D00ACFE),
 )
 

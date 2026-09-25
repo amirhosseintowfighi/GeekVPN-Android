@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -145,7 +146,8 @@ class HomeActivity : HelperBaseComponentActivity() {
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                             .statusBarsPadding()
-                            // Room for the floating tab bar.
+                            .navigationBarsPadding()
+                            // Room for the tab bar's dock above the system navigation bar.
                             .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp),
                         verticalArrangement = Arrangement.spacedBy(18.dp),
                     ) {
