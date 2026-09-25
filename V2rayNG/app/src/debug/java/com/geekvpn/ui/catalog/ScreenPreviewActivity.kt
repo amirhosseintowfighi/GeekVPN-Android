@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.geekvpn.connection.RouteMode
+import com.geekvpn.shop.Tier
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
 import com.geekvpn.ui.common.GeekHeader
@@ -31,7 +32,12 @@ import com.geekvpn.ui.login.UsernameScreen
 import com.geekvpn.ui.login.WaitingScreen
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
-import com.geekvpn.ui.shop.ShopPlaceholder
+import com.geekvpn.ui.shop.CheckoutSheet
+import com.geekvpn.ui.shop.DepositSheet
+import com.geekvpn.ui.shop.ShopActions
+import com.geekvpn.ui.shop.ShopScreen
+import com.geekvpn.ui.shop.ShopSheet
+import com.geekvpn.ui.shop.WalletSheet
 import com.geekvpn.ui.theme.GeekTheme
 import com.v2ray.ang.ui.base.BaseComponentActivity
 
@@ -66,7 +72,10 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_CREATE = "create"
         const val SCREEN_SYNCING = "syncing"
         const val SCREEN_USERNAME = "username"
-        val TAB_SCREENS = setOf("home-off", "home-on", "home-empty", "servers", "route", "services", "account", "shop")
+        val TAB_SCREENS = setOf(
+            "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
+            "shop", "shop-guest", "checkout", "wallet", "deposit",
+        )
     }
 }
 
@@ -90,8 +99,15 @@ private fun TabPreview(screen: String) {
         val tab = when (screen) {
             "services" -> GeekTab.Services
             "account" -> GeekTab.Account
-            "shop" -> GeekTab.Shop
+            "shop", "shop-guest", "checkout", "wallet", "deposit" -> GeekTab.Shop
             else -> GeekTab.Home
+        }
+        val shop = when (screen) {
+            "shop-guest" -> PreviewSamples.shopGuest
+            "checkout" -> PreviewSamples.checkout
+            "wallet" -> PreviewSamples.wallet
+            "deposit" -> PreviewSamples.deposit
+            else -> PreviewSamples.shop
         }
         val state = when (screen) {
             "home-on" -> PreviewSamples.homeOn
@@ -119,7 +135,7 @@ private fun TabPreview(screen: String) {
                     onChooseService = none,
                 )
                 GeekTab.Services -> ServicesScreen(state = state, isSignedIn = true, actions = PreviewActions)
-                GeekTab.Shop -> ShopPlaceholder(onOpenBot = none)
+                GeekTab.Shop -> ShopScreen(state = shop, actions = PreviewShopActions)
                 GeekTab.Account -> AccountScreen(
                     state = PreviewSamples.account,
                     route = state.route,
@@ -134,6 +150,18 @@ private fun TabPreview(screen: String) {
             }
         }
         GeekBottomNav(selected = tab, onSelect = {}, modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth())
+        when (val sheet = shop.sheet) {
+            is ShopSheet.Checkout -> Box(Modifier.fillMaxSize()) {
+                CheckoutSheet(sheet, PreviewSamples.shopCheckoutOptions, shop.balance, busy = false, onChoose = {}, onDismiss = none)
+            }
+            ShopSheet.Wallet -> Box(Modifier.fillMaxSize()) {
+                WalletSheet(shop.balance, shop.wallet, busy = false, onTopup = {}, onPending = {}, onDismiss = none)
+            }
+            is ShopSheet.Deposit -> Box(Modifier.fillMaxSize()) {
+                DepositSheet(sheet.info, uploading = false, onCopy = { _, _ -> }, onSendReceipt = none, onDismiss = none)
+            }
+            null -> Unit
+        }
         if (screen == "route") {
             Box(Modifier.fillMaxSize()) {
                 RouteSheet(current = RouteMode.Smart, onSave = {}, onPerApp = none, onDismiss = none)
@@ -151,6 +179,7 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onConnect() = Unit
     override fun onDisconnect() = Unit
     override fun onRefresh() = Unit
+    override fun onRenew(subscriptionId: String) = Unit
     override fun onCopy(url: String) = Unit
     override fun onUseManual(groupId: String) = Unit
     override fun onWallet() = Unit
@@ -161,4 +190,18 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onSupport() = Unit
     override fun onAbout() = Unit
     override fun onLogin() = Unit
+}
+
+private object PreviewShopActions : ShopActions {
+    override fun onWallet() = Unit
+    override fun onLogin() = Unit
+    override fun onRetry() = Unit
+    override fun onTier(tier: Tier) = Unit
+    override fun onDuration(days: Int) = Unit
+    override fun onPlan(planId: String) = Unit
+    override fun onApplyCoupon(code: String) = Unit
+    override fun onClearCoupon() = Unit
+    override fun onCancelRenew() = Unit
+    override fun onPay() = Unit
+    override fun onTrial() = Unit
 }

@@ -242,8 +242,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Services' refresh: services from the server, then their servers. */
-    fun refreshAccount() {
+    /**
+     * Services' refresh: services from the server, then their servers.
+     * [announce] false for a refresh the customer did not ask for (after a purchase).
+     */
+    fun refreshAccount(announce: Boolean = true) {
         if (state.value.updating || GeekGraph.session.session.value !is com.geekvpn.auth.Session.SignedIn) return
         viewModelScope.launch {
             state.update { it.copy(updating = true) }
@@ -256,7 +259,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
             state.update { it.copy(updating = false) }
             reloadServers()
-            eventChannel.send(HomeEvent.Message(message))
+            if (announce || message == R.string.geek_services_sync_failed) eventChannel.send(HomeEvent.Message(message))
         }
     }
 

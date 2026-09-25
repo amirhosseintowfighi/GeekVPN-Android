@@ -66,6 +66,16 @@ data class GeekColors(
      * don't show through its clear-glass tiles.
      */
     val navDock: Color,
+    /** Unselected choice chips on milk glass (Shop.html's white buttons). */
+    val chip: Color,
+    /** The shop's pay bar and its cyan button (Shop.html). */
+    val payBar: Color,
+    val onPayBar: Color,
+    val payButton: Color,
+    val onPayButton: Color,
+    /** The card-to-card card (Deposit.html). */
+    val bankCard: Color,
+    val onBankCard: Color,
     val actionShadow: Color,
 )
 
@@ -106,6 +116,13 @@ internal val LightGeekColors = GeekColors(
     shadow = Color(0x47022454), // rgba(2,36,84,.28)
     scrim = Color(0x99031B33),
     navDock = Color(0xF00A67C4), // a shade under bg @ 94%
+    chip = Color(0xFFFFFFFF),
+    payBar = Color(0xFF062845),
+    onPayBar = Color(0xFFFFFFFF),
+    payButton = Color(0xFF00ACFE),
+    onPayButton = Color(0xFF062845),
+    bankCard = Color(0xFF00ACFE),
+    onBankCard = Color(0xFFFFFFFF),
     actionShadow = Color(0x59021838), // rgba(2,24,56,.35)
 )
 
@@ -152,6 +169,13 @@ internal val DarkGeekColors = GeekColors(
     shadow = Color(0x66000814),
     scrim = Color(0xB3000814),
     navDock = Color(0xF0031830), // a shade under bg @ 94%
+    chip = Color(0xFF0F3357),
+    payBar = Color(0xFF0B2A4A),
+    onPayBar = Color(0xFFFFFFFF),
+    payButton = Color(0xFF00ACFE),
+    onPayButton = Color(0xFF031B33),
+    bankCard = Color(0xFF0870D4),
+    onBankCard = Color(0xFFFFFFFF),
     actionShadow = Color(0x4D00ACFE),
 )
 

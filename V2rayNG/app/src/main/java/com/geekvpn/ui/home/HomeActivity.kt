@@ -8,8 +8,10 @@ import android.net.VpnService
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,6 +39,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
+import com.geekvpn.shop.Tier
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
 import com.geekvpn.ui.account.AccountViewModel
@@ -46,7 +50,16 @@ import com.geekvpn.ui.components.GeekTab
 import com.geekvpn.ui.login.LaunchActivity
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
-import com.geekvpn.ui.shop.ShopPlaceholder
+import com.geekvpn.ui.shop.CheckoutSheet
+import com.geekvpn.ui.shop.DepositSheet
+import com.geekvpn.ui.shop.ReceiptImage
+import com.geekvpn.ui.shop.ShopActions
+import com.geekvpn.ui.shop.ShopEvent
+import com.geekvpn.ui.shop.ShopScreen
+import com.geekvpn.ui.shop.ShopSheet
+import com.geekvpn.ui.shop.ShopUiState
+import com.geekvpn.ui.shop.ShopViewModel
+import com.geekvpn.ui.shop.WalletSheet
 import com.geekvpn.ui.theme.GeekTheme
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
@@ -60,7 +73,9 @@ import com.v2ray.ang.ui.perappproxy.PerAppProxyActivity
 import com.v2ray.ang.ui.subscription.SubEditActivity
 import com.v2ray.ang.ui.subscription.SubSettingActivity
 import com.v2ray.ang.util.LogUtil
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** What covers the tab content: the servers page or the route sheet. */
 private enum class Overlay { None, Servers, Route }
@@ -73,6 +88,17 @@ private enum class Overlay { None, Servers, Route }
 class HomeActivity : HelperBaseComponentActivity() {
     private val home: HomeViewModel by viewModels()
     private val account: AccountViewModel by viewModels()
+    private val shop: ShopViewModel by viewModels()
+
+    /** The open tab. Here rather than in composition so shop events can switch it. */
+    private var tab by mutableStateOf(GeekTab.Home)
+
+    /** The receipt for the open card-to-card payment; no storage permission needed. */
+    private val receiptPicker = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            shop.uploadReceipt { withContext(Dispatchers.IO) { ReceiptImage.read(contentResolver, uri) } }
+        }
+    }
 
     private val vpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) home.connect() else showMessage(R.string.geek_home_err_vpn_denied)
@@ -80,7 +106,9 @@ class HomeActivity : HelperBaseComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        savedInstanceState?.getString(STATE_TAB)?.let { saved -> GeekTab.entries.firstOrNull { it.name == saved }?.let { tab = it } }
         GeekGraph.syncOnLaunch()
+        handlePaymentReturn(intent)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -92,6 +120,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                         }
                     }
                 }
+                launch { shop.events.collect { onShopEvent(it) } }
                 launch {
                     // Signed out here, by the server, or from guest mode: back to the login screens.
                     GeekGraph.session.session.collect { session ->
@@ -108,6 +137,64 @@ class HomeActivity : HelperBaseComponentActivity() {
     override fun onStart() {
         super.onStart()
         home.onForeground(true)
+        // Back from a gateway's page without its link: refresh anyway.
+        shop.onReturn(null)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handlePaymentReturn(intent)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(STATE_TAB, tab.name)
+    }
+
+    private fun handlePaymentReturn(intent: Intent?) {
+        val result = intent?.getStringExtra(EXTRA_PAYMENT_RESULT) ?: return
+        intent.removeExtra(EXTRA_PAYMENT_RESULT)
+        tab = GeekTab.Shop
+        shop.onReturn(result)
+    }
+
+    private fun onShopEvent(event: ShopEvent) {
+        when (event) {
+            is ShopEvent.Message -> showMessage(event.text)
+            is ShopEvent.Text -> Toast.makeText(this, event.text, Toast.LENGTH_LONG).show()
+            is ShopEvent.OpenUrl -> openGateway(event.url)
+            ShopEvent.Purchased -> {
+                tab = GeekTab.Services
+                home.refreshAccount(announce = false)
+            }
+            ShopEvent.AccountChanged -> home.refreshAccount(announce = false)
+        }
+    }
+
+    /** A bank's page in a Custom Tab; the browser when there is none. */
+    private fun openGateway(url: String) {
+        val uri = url.toUri()
+        if (uri.scheme != "https") {
+            LogUtil.w(AppConfig.TAG, "Shop: refusing a gateway link that is not https")
+            showMessage(R.string.geek_shop_err_generic)
+            return
+        }
+        try {
+            CustomTabsIntent.Builder().setShowTitle(true).build().launchUrl(this, uri)
+        } catch (e: ActivityNotFoundException) {
+            LogUtil.i(AppConfig.TAG, "Shop: no Custom Tabs browser, opening the gateway directly", e)
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, uri))
+            } catch (e2: ActivityNotFoundException) {
+                LogUtil.w(AppConfig.TAG, "Shop: no browser for the gateway", e2)
+                showMessage(R.string.geek_shop_err_browser)
+            }
+        }
+    }
+
+    private fun copy(text: String, message: Int) {
+        getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(getString(R.string.geek_brand), text))
+        showMessage(message)
     }
 
     override fun onStop() {
@@ -121,12 +208,19 @@ class HomeActivity : HelperBaseComponentActivity() {
             val state by home.uiState.collectAsStateWithLifecycle()
             val accountState by account.uiState.collectAsStateWithLifecycle()
             val logoutAsked by account.logoutAsked.collectAsStateWithLifecycle()
-            var tab by rememberSaveable { mutableStateOf(GeekTab.Home) }
+            val shopState by shop.uiState.collectAsStateWithLifecycle()
             var overlay by rememberSaveable { mutableStateOf(Overlay.None) }
             val signedIn = accountState.session is Session.SignedIn
 
-            BackHandler(enabled = overlay != Overlay.None || tab != GeekTab.Home) {
-                if (overlay != Overlay.None) overlay = Overlay.None else tab = GeekTab.Home
+            BackHandler(enabled = shopState.sheet != null || overlay != Overlay.None || tab != GeekTab.Home) {
+                when {
+                    shopState.sheet != null -> shop.closeSheet()
+                    overlay != Overlay.None -> overlay = Overlay.None
+                    else -> tab = GeekTab.Home
+                }
+            }
+            LaunchedEffect(tab, accountState.session) {
+                if (tab == GeekTab.Shop) shop.load()
             }
 
             GeekBackdrop {
@@ -154,7 +248,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                         if (tab == GeekTab.Home) {
                             GeekHeader(
                                 balance = state.balance,
-                                onWallet = if (signedIn) ({ tab = GeekTab.Account }) else null,
+                                onWallet = if (signedIn) shop::openWallet else null,
                             )
                         }
                         when (tab) {
@@ -172,9 +266,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                                 isSignedIn = signedIn,
                                 actions = servicesActions(openShop = { tab = GeekTab.Shop }),
                             )
-                            GeekTab.Shop -> ShopPlaceholder(
-                                onOpenBot = if (BuildConfig.BOT_USERNAME.isNotEmpty()) ::openBot else null,
-                            )
+                            GeekTab.Shop -> ShopScreen(state = shopState, actions = shopActions)
                             GeekTab.Account -> AccountScreen(
                                 state = accountState,
                                 route = state.route,
@@ -197,6 +289,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                         modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
                     )
                 }
+                ShopSheetHost(shopState)
                 if (overlay == Overlay.Route) {
                     Box(Modifier.fillMaxSize()) {
                         RouteSheet(
@@ -224,8 +317,63 @@ class HomeActivity : HelperBaseComponentActivity() {
         if (intent == null) home.connect() else vpnPermission.launch(intent)
     }
 
+    /** Whatever payment sheet the shop has open, over every tab. */
+    @Composable
+    private fun ShopSheetHost(state: ShopUiState) {
+        val sheet = state.sheet ?: return
+        Box(Modifier.fillMaxSize()) {
+            when (sheet) {
+                is ShopSheet.Checkout -> CheckoutSheet(
+                    sheet = sheet,
+                    options = shop.optionsFor(sheet.purpose),
+                    balance = state.balance,
+                    busy = state.busy,
+                    onChoose = shop::choose,
+                    onDismiss = shop::closeSheet,
+                )
+                ShopSheet.Wallet -> WalletSheet(
+                    balance = state.balance,
+                    wallet = state.wallet,
+                    busy = state.busy,
+                    onTopup = shop::topup,
+                    onPending = shop::openPending,
+                    onDismiss = shop::closeSheet,
+                )
+                is ShopSheet.Deposit -> DepositSheet(
+                    info = sheet.info,
+                    uploading = state.uploading,
+                    onCopy = ::copy,
+                    onSendReceipt = {
+                        receiptPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    },
+                    onDismiss = shop::closeSheet,
+                )
+            }
+        }
+    }
+
+    private val shopActions = object : ShopActions {
+        override fun onWallet() = shop.openWallet()
+        override fun onLogin() = GeekGraph.signOut()
+        override fun onRetry() = shop.load(force = true)
+        override fun onTier(tier: Tier) = shop.selectTier(tier)
+        override fun onDuration(days: Int) = shop.selectDuration(days)
+        override fun onPlan(planId: String) = shop.selectPlan(planId)
+        override fun onApplyCoupon(code: String) = shop.applyCoupon(code)
+        override fun onClearCoupon() = shop.clearCoupon()
+        override fun onCancelRenew() = shop.cancelRenew()
+        override fun onPay() = shop.pay()
+        override fun onTrial() = shop.claimTrial()
+    }
+
     private fun servicesActions(openShop: () -> Unit) = object : ServicesActions {
         override fun onBuy() = openShop()
+        override fun onRenew(subscriptionId: String) {
+            val card = GeekGraph.accountStore.services.value.firstOrNull { it.subscriptionId == subscriptionId }
+            val title = card?.productNameFa ?: card?.planNameFa ?: getString(R.string.geek_brand)
+            shop.renew(subscriptionId, title, card?.tier)
+            openShop()
+        }
         override fun onAddSubscription() = startActivity(Intent(this@HomeActivity, SubEditActivity::class.java))
         override fun onImportClipboard() {
             val clipboard = getSystemService(ClipboardManager::class.java)
@@ -244,7 +392,7 @@ class HomeActivity : HelperBaseComponentActivity() {
     }
 
     private fun accountActions(openServers: () -> Unit, openRoute: () -> Unit) = object : AccountActions {
-        override fun onWallet() = openBot()
+        override fun onWallet() = shop.openWallet()
         override fun onServers() = openServers()
         override fun onRoute() = openRoute()
         override fun onAdvanced() = startActivity(Intent(this@HomeActivity, MainActivity::class.java))
@@ -269,4 +417,10 @@ class HomeActivity : HelperBaseComponentActivity() {
     }
 
     private fun showMessage(text: Int) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+
+    companion object {
+        /** Set by `PaymentReturnActivity`: ok | pending | failed | unknown. */
+        const val EXTRA_PAYMENT_RESULT = "com.geekvpn.extra.PAYMENT_RESULT"
+        private const val STATE_TAB = "geek_tab"
+    }
 }

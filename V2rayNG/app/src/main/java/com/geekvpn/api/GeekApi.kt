@@ -1,7 +1,9 @@
 package com.geekvpn.api
 
+import com.geekvpn.shop.ShopApi
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
+import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,10 +22,20 @@ import java.util.concurrent.TimeUnit
  * null when the server was never reached (or answered with something that is
  * not the promised JSON).
  */
-class ApiException(val status: Int?, message: String, cause: Throwable? = null) :
-    IOException(message, cause) {
+class ApiException(
+    val status: Int?,
+    message: String,
+    cause: Throwable? = null,
+    /** The problem's machine code (`title`), e.g. `insufficient_funds`. */
+    val code: String? = null,
+    /** The server's own Persian sentence for the failure, when it sent one. */
+    val messageFa: String? = null,
+) : IOException(message, cause) {
     val isNetwork: Boolean get() = status == null
 }
+
+/** The part of a problem+json body the app shows. */
+private data class Problem(val title: String?, @SerializedName("message_fa") val messageFa: String?)
 
 /**
  * Where the client keeps its tokens. Implemented by `SessionStore`; an
@@ -62,7 +74,7 @@ class GeekApi(
     private val tokens: TokenHolder,
     private val gson: Gson = Gson(),
     baseClient: OkHttpClient = OkHttpClient(),
-) : LinkApi {
+) : LinkApi, ShopApi {
     private val refreshLock = Any()
 
     /** Without the authenticator: used for sign-in and for refresh itself. */
@@ -99,11 +111,57 @@ class GeekApi(
         post<Any>(authorized, "/api/v1/auth/logout", emptyMap<String, String>())
     }
 
-    suspend fun wallet(): WalletSnapshot =
+    override suspend fun wallet(): WalletSnapshot =
         get(authorized, "/api/miniapp/wallet", object : TypeToken<WalletSnapshot>() {})
 
     suspend fun subscriptions(): List<SubscriptionCard> =
         get(authorized, "/api/miniapp/subscriptions", object : TypeToken<List<SubscriptionCard>>() {})
+
+    override suspend fun storefront(): Storefront =
+        get(authorized, "/api/miniapp/storefront", object : TypeToken<Storefront>() {})
+
+    override suspend fun quote(request: PlanRequest): Quote = post(authorized, "/api/miniapp/quote", request)
+
+    override suspend fun previewCoupon(request: CouponRequest): CouponPreview =
+        post(authorized, "/api/miniapp/coupon/preview", request)
+
+    override suspend fun paymentMethods(): List<PaymentMethodOption> =
+        get(authorized, "/api/miniapp/payment-methods", object : TypeToken<List<PaymentMethodOption>>() {})
+
+    override suspend fun checkoutWallet(request: PlanRequest): WalletCheckout =
+        post(authorized, "/api/miniapp/checkout/wallet", request)
+
+    override suspend fun checkoutCard(request: PlanRequest): PaymentStart =
+        post(authorized, "/api/miniapp/checkout/card", request)
+
+    override suspend fun checkoutGateway(request: GatewayPlanRequest): PaymentStart =
+        post(authorized, "/api/miniapp/checkout/gateway", request)
+
+    override suspend fun topup(request: TopupRequest): PaymentStart = post(authorized, "/api/miniapp/wallet/topup", request)
+
+    override suspend fun walletTransactions(pageSize: Int): WalletTransactions =
+        get(
+            authorized,
+            "/api/miniapp/wallet/transactions?page=1&page_size=$pageSize",
+            object : TypeToken<WalletTransactions>() {},
+        )
+
+    override suspend fun pendingPayments(): List<PaymentView> =
+        get(authorized, "/api/miniapp/payments/pending", object : TypeToken<List<PaymentView>>() {})
+
+    /** The receipt image itself is the body; the server hands it to the operator through the bot. */
+    override suspend fun uploadReceipt(paymentId: String, image: ByteArray, contentType: String): PendingPayment =
+        execute(
+            authorized,
+            request("/api/miniapp/payments/$paymentId/receipt-photo")
+                .post(image.toRequestBody(contentType.toMediaType()))
+                .build(),
+            object : TypeToken<PendingPayment>() {},
+        )
+
+    override suspend fun trialOffer(): TrialOffer = get(authorized, "/api/miniapp/trial", object : TypeToken<TrialOffer>() {})
+
+    override suspend fun claimTrial(): TrialClaim = post(authorized, "/api/miniapp/trial", emptyMap<String, String>())
 
     private suspend inline fun <reified T> post(client: OkHttpClient, path: String, body: Any): T =
         execute(client, request(path).post(gson.toJson(body).toRequestBody(JSON)).build(), object : TypeToken<T>() {})
@@ -124,7 +182,19 @@ class GeekApi(
             }
             response.use {
                 if (!it.isSuccessful) {
-                    throw ApiException(it.code, "HTTP ${it.code} on ${request.url.encodedPath}")
+                    val problem = try {
+                        gson.fromJson(it.body.string(), Problem::class.java)
+                    } catch (_: JsonParseException) {
+                        null
+                    } catch (_: IOException) {
+                        null
+                    }
+                    throw ApiException(
+                        it.code,
+                        "HTTP ${it.code} on ${request.url.encodedPath}",
+                        code = problem?.title,
+                        messageFa = problem?.messageFa?.takeIf { text -> text.isNotBlank() },
+                    )
                 }
                 val text = it.body.string()
                 try {

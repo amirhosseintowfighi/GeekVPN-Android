@@ -42,7 +42,11 @@ import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
 import com.geekvpn.ui.theme.SpaceGrotesk
 import com.v2ray.ang.R
+import android.icu.text.DateFormat
+import android.icu.util.ULocale
+import com.geekvpn.connection.ServiceStatus
 import java.text.NumberFormat
+import java.util.Date
 import java.util.Locale
 
 /** The app language's locale: it picks Persian or Latin digits. */
@@ -51,6 +55,16 @@ fun appLocale(): Locale = LocalLocale.current.platformLocale
 
 /** "۱۲٬۵۰۰" in Persian, "12,500" in English. */
 fun formatNumber(value: Long, locale: Locale): String = NumberFormat.getIntegerInstance(locale).format(value)
+
+/**
+ * A server timestamp as a short date: "۱۴۰۵/۰۷/۰۲" (Solar Hijri) in Persian,
+ * the locale's own calendar otherwise. Null when [iso] does not parse.
+ */
+fun formatDate(iso: String?, locale: Locale): String? {
+    val instant = ServiceStatus.parseInstant(iso) ?: return null
+    val uLocale = if (locale.language == "fa") ULocale("fa_IR@calendar=persian") else ULocale.forLocale(locale)
+    return DateFormat.getDateInstance(DateFormat.SHORT, uLocale).format(Date(instant.toEpochMilli()))
+}
 
 /** One decimal, dropped when it is zero: "۱۲٫۴", "۴۰". */
 fun formatGib(value: Double, locale: Locale): String {
@@ -84,30 +98,37 @@ fun GeekHeader(balance: Long?, onWallet: (() -> Unit)?) {
         // The brand word stays beside the logo; the wallet chip goes to the far end.
         Spacer(Modifier.weight(1f))
         if (onWallet != null) {
-            val locale = appLocale()
-            GlassSurface(
-                kind = GlassKind.Clear,
-                shape = Geek.shapes.pill,
-                modifier = Modifier.clickable(role = Role.Button, onClick = onWallet),
+            WalletChip(balance, onWallet)
+        }
+    }
+}
+
+/** The balance on clear glass, opening the wallet (Home-Off.html, Shop.html). */
+@Composable
+fun WalletChip(balance: Long?, onClick: () -> Unit) {
+    val colors = Geek.colors
+    val locale = appLocale()
+    GlassSurface(
+        kind = GlassKind.Clear,
+        shape = Geek.shapes.pill,
+        modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
+    ) {
+        Row(
+            modifier = Modifier.height(44.dp).padding(start = 6.dp, end = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Box(
+                Modifier.size(28.dp).clip(RoundedCornerShape(9.dp)).background(colors.onBackground),
+                contentAlignment = Alignment.Center,
             ) {
-                Row(
-                    modifier = Modifier.height(40.dp).padding(start = 6.dp, end = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Box(
-                        Modifier.size(28.dp).clip(RoundedCornerShape(9.dp)).background(colors.onBackground),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(GeekIcons.Wallet, contentDescription = null, tint = colors.action, modifier = Modifier.size(16.dp))
-                    }
-                    Text(
-                        text = stringResource(R.string.geek_home_balance, formatNumber(balance ?: 0, locale)),
-                        style = Geek.type.caption.copy(fontWeight = FontWeight.Bold),
-                        color = colors.onBackground,
-                    )
-                }
+                Icon(GeekIcons.Wallet, contentDescription = null, tint = colors.action, modifier = Modifier.size(16.dp))
             }
+            Text(
+                text = stringResource(R.string.geek_home_balance, formatNumber(balance ?: 0, locale)),
+                style = Geek.type.caption.copy(fontWeight = FontWeight.Bold),
+                color = colors.onBackground,
+            )
         }
     }
 }

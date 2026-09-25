@@ -60,6 +60,9 @@ import com.v2ray.ang.R
 /** What the Services tab can ask of the activity. */
 interface ServicesActions {
     fun onBuy()
+
+    /** "تمدید": buy more of this service in the shop. */
+    fun onRenew(subscriptionId: String)
     fun onAddSubscription()
     fun onImportClipboard()
     fun onUse(subscriptionId: String)
@@ -216,6 +219,7 @@ private fun ServiceCard(
                         modifier = Modifier.weight(1f),
                     )
                 }
+                SquareButton(GeekIcons.Bag, stringResource(R.string.geek_services_renew_description)) { actions.onRenew(service.subscriptionId) }
                 SquareButton(GeekIcons.Refresh, stringResource(R.string.geek_services_refresh_description), enabled = !updating, onClick = actions::onRefresh)
                 val url = service.subscriptionUrl
                 if (url != null) {

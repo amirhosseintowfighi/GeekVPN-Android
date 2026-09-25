@@ -122,6 +122,16 @@ if xy=$(center_of "$OUT/login-again.xml" "شروع سریع بدون ثبت‌ن
         echo "::error::guest mode did not open the home screen"
         LOGIN_FAILED=1
     fi
+
+    # The gateway's way back in: the link opens the shop tab, which for a
+    # guest asks them to sign in (no account, so nothing to refresh).
+    adb shell am start -W -a android.intent.action.VIEW -d "geekvpn://payment/result?payment=0&result=ok" >/dev/null
+    shot payment-return 6
+    alive "opening the payment return link"
+    if ! grep -q "وارد حسابت شو" "$OUT/payment-return.xml"; then
+        echo "::error::the payment return link did not open the shop"
+        LOGIN_FAILED=1
+    fi
 fi
 adb shell am force-stop "$PKG"
 
@@ -140,11 +150,11 @@ if [[ "$probe" != *Error* ]]; then
         alive "previewing $1"
         adb shell am force-stop "$PKG"
     }
-    for screen in waiting create syncing username home-off home-on services account; do
+    for screen in waiting create syncing username home-off home-on services account shop wallet deposit; do
         preview "$screen" false
         preview "$screen" true
     done
-    for screen in home-empty servers route shop; do
+    for screen in home-empty servers route shop-guest checkout; do
         preview "$screen" false
     done
 fi

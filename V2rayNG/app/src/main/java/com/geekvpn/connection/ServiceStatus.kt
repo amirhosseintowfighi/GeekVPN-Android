@@ -49,20 +49,24 @@ data class ServiceStatus(
 
         /** Whole days until [expiresAt], rounded up so "3 hours left" reads 1 day. */
         fun daysLeft(expiresAt: String?, now: Instant): Int? {
-            if (expiresAt.isNullOrBlank()) return null
-            val end = try {
-                OffsetDateTime.parse(expiresAt).toInstant()
-            } catch (_: DateTimeParseException) {
-                try {
-                    // The backend's naive UTC form, "2026-10-01T12:00:00".
-                    Instant.parse("${expiresAt}Z")
-                } catch (_: DateTimeParseException) {
-                    return null
-                }
-            }
+            val end = parseInstant(expiresAt) ?: return null
             val millis = Duration.between(now, end).toMillis()
             if (millis <= 0) return 0
             return ceil(millis / 86_400_000.0).toInt()
+        }
+
+        /** A backend timestamp, with an offset or in its naive UTC form ("2026-10-01T12:00:00"). */
+        fun parseInstant(value: String?): Instant? {
+            if (value.isNullOrBlank()) return null
+            return try {
+                OffsetDateTime.parse(value).toInstant()
+            } catch (_: DateTimeParseException) {
+                try {
+                    Instant.parse("${value}Z")
+                } catch (_: DateTimeParseException) {
+                    null
+                }
+            }
         }
     }
 }

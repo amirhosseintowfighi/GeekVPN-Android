@@ -77,7 +77,7 @@ fun AccountScreen(
         Identity(state.session)
 
         if (signedIn != null) {
-            WalletCard(state.balance, hasBot, actions)
+            WalletCard(state.balance, actions)
         }
 
         SectionLabel(stringResource(R.string.geek_account_connection))
@@ -217,7 +217,7 @@ private fun Identity(session: Session) {
 }
 
 @Composable
-private fun WalletCard(balance: Long?, hasBot: Boolean, actions: AccountActions) {
+private fun WalletCard(balance: Long?, actions: AccountActions) {
     val colors = Geek.colors
     val locale = appLocale()
     Box(
@@ -236,23 +236,21 @@ private fun WalletCard(balance: Long?, hasBot: Boolean, actions: AccountActions)
                 Text(formatNumber(balance ?: 0, locale), style = Geek.type.pageTitle, color = colors.onAction)
                 Text(stringResource(R.string.geek_account_toman), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onAction, modifier = Modifier.padding(bottom = 6.dp))
             }
-            if (hasBot) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    WalletButton(
-                        text = stringResource(R.string.geek_account_topup),
-                        icon = GeekIcons.Plus,
-                        primary = true,
-                        onClick = actions::onWallet,
-                        modifier = Modifier.weight(2f),
-                    )
-                    WalletButton(
-                        text = stringResource(R.string.geek_account_transactions),
-                        icon = null,
-                        primary = false,
-                        onClick = actions::onWallet,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                WalletButton(
+                    text = stringResource(R.string.geek_account_topup),
+                    icon = GeekIcons.Plus,
+                    primary = true,
+                    onClick = actions::onWallet,
+                    modifier = Modifier.weight(2f),
+                )
+                WalletButton(
+                    text = stringResource(R.string.geek_account_transactions),
+                    icon = null,
+                    primary = false,
+                    onClick = actions::onWallet,
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
