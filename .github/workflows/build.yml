@@ -93,7 +93,10 @@ jobs:
     - name: Test cfscan
       if: steps.cache-libv2ray.outputs.cache-hit != 'true'
       working-directory: cfscan
-      run: go test ./...
+      # CFSCAN_LIVE: also scan the real Cloudflare edge from the runner.
+      env:
+        CFSCAN_LIVE: "1"
+      run: go test -race -v ./...
 
     - name: Upload libv2ray.aar
       uses: actions/upload-artifact@v7

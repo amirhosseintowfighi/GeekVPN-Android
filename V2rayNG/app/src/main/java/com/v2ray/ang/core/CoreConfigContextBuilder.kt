@@ -1,6 +1,7 @@
 package com.v2ray.ang.core
 
 import android.content.Context
+import com.geekvpn.scanner.IpOverrides
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.dto.CoreConfigContext
 import com.v2ray.ang.dto.entities.ProfileItem
@@ -29,7 +30,9 @@ object CoreConfigContextBuilder {
      * Null is returned only when the selected profile cannot be loaded.
      */
     fun build(context: Context, guid: String): CoreConfigContext? {
-        val config = MmkvManager.decodeServerConfig(guid) ?: return null
+        // GeekVPN: a clean Cloudflare address found by the scanner replaces the
+        // address here, for this build only; the stored profile never changes.
+        val config = MmkvManager.decodeServerConfig(guid)?.let { IpOverrides.apply(context, it) } ?: return null
 
         // CUSTOM: return immediately — CoreConfigManager handles this path on its own.
         if (config.configType == EConfigType.CUSTOM) {

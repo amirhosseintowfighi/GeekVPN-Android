@@ -17,6 +17,13 @@ import com.geekvpn.connection.ExitIp
 import com.geekvpn.connection.RouteMode
 import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.connection.TrafficMeter
+import com.geekvpn.scanner.CdnTarget
+import com.geekvpn.scanner.CleanIp
+import com.geekvpn.scanner.CleanIpTarget
+import com.geekvpn.scanner.IpOverride
+import com.geekvpn.scanner.NetworkIdentity
+import com.geekvpn.scanner.ScanRecord
+import com.geekvpn.scanner.ScanState
 import com.geekvpn.shop.ShopCatalog
 import com.geekvpn.shop.Tier
 import com.geekvpn.ui.account.AccountUiState
@@ -24,11 +31,13 @@ import com.geekvpn.ui.account.ThemeChoice
 import com.geekvpn.ui.home.HomeUiState
 import com.geekvpn.ui.home.ManualGroup
 import com.geekvpn.ui.home.ServerRow
+import com.geekvpn.ui.scanner.ScannerUiState
 import com.geekvpn.ui.shop.CheckoutPurpose
 import com.geekvpn.ui.shop.DepositInfo
 import com.geekvpn.ui.shop.ShopSheet
 import com.geekvpn.ui.shop.ShopUiState
 import com.geekvpn.ui.shop.WalletUiState
+import com.v2ray.ang.R
 
 /** Sample data for [ScreenPreviewActivity]: the design's own numbers where it has them. */
 internal object PreviewSamples {
@@ -168,5 +177,31 @@ internal object PreviewSamples {
                 reviewNote = "معمولاً کمتر از ۱۵ دقیقه بررسی می‌شود.",
             )
         ),
+    )
+
+    /** A fixed "now", two hours after the kept scan, so "last scan" reads the same every run. */
+    val scannerNow = 1_790_000_000_000L
+
+    private val cleanTarget = CleanIpTarget(
+        guid = "g1",
+        title = "Germany · Frankfurt",
+        target = CdnTarget(sni = "de1.cdn.geekvpn.example", host = "de1.cdn.geekvpn.example", port = 443),
+    )
+
+    private val cleanIps = listOf(
+        CleanIp("104.18.32.47", 443, 38, 212, 6.4, 0, "FRA"),
+        CleanIp("172.64.155.20", 443, 41, 236, 9.8, 0, "FRA"),
+        CleanIp("104.21.48.133", 443, 55, 298, 14.2, 0, "AMS"),
+    )
+
+    val scanner = ScannerUiState(
+        target = cleanTarget,
+        network = NetworkIdentity("mobile:43235", NetworkIdentity.Kind.Mobile, R.string.geek_operator_irancell),
+        record = ScanRecord(cleanIps, scannerNow - 2 * 60 * 60 * 1000L),
+        override = IpOverride("104.18.32.47", scannerNow - 2 * 60 * 60 * 1000L, 212),
+    )
+
+    val scannerRunning = scanner.copy(
+        scan = ScanState(running = true, guid = "g1", tested = 118, total = 300, results = cleanIps.take(2)),
     )
 }

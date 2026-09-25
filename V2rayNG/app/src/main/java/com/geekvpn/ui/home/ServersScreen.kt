@@ -64,6 +64,8 @@ fun ServersScreen(
     onTest: () -> Unit,
     onUpdate: () -> Unit,
     updating: Boolean,
+    /** Opens the clean-IP scanner; null when it does not apply to the selected config. */
+    onCleanIp: (() -> Unit)? = null,
 ) {
     val colors = Geek.colors
     var query by rememberSaveable { mutableStateOf("") }
@@ -112,6 +114,9 @@ fun ServersScreen(
             ) {
                 item(key = "search") { SearchField(query, { query = it }) }
                 item(key = "auto") { AutoCard(state.autoServer, onAutoServerChange) }
+                if (onCleanIp != null) {
+                    item(key = "clean-ip") { CleanIpCard(onCleanIp) }
+                }
                 if (state.servers.isEmpty()) {
                     item(key = "empty") { EmptyLine(stringResource(R.string.geek_servers_empty)) }
                 } else if (visible.isEmpty()) {
@@ -190,6 +195,31 @@ private fun AutoCard(auto: Boolean, onChange: (Boolean) -> Unit) {
                 Text(stringResource(R.string.geek_servers_auto_hint), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted)
             }
             GeekSwitch(checked = auto, onCheckedChange = null)
+        }
+    }
+}
+
+/** Servers.html's second tile: the way into the clean-IP scanner, for a CDN-fronted direct config. */
+@Composable
+private fun CleanIpCard(onOpen: () -> Unit) {
+    val colors = Geek.colors
+    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.tileLarge, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(role = Role.Button, onClick = onOpen)
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                Icon(GeekIcons.Sparkle, contentDescription = null, tint = colors.logoBlue, modifier = Modifier.size(22.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.geek_scan_title), style = Geek.type.row, color = colors.onGlass)
+                Text(stringResource(R.string.geek_scan_entry_hint), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.link)
+            }
+            Icon(GeekIcons.ChevronStart, contentDescription = null, tint = colors.onGlassMuted, modifier = Modifier.size(18.dp))
         }
     }
 }

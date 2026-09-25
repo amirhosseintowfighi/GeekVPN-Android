@@ -17,6 +17,7 @@ import com.geekvpn.connection.ServerNames
 import com.geekvpn.connection.ServiceSignal
 import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.connection.TrafficMeter
+import com.geekvpn.scanner.CleanIpTarget
 import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
@@ -83,6 +84,8 @@ data class HomeUiState(
     val manualGroups: List<ManualGroup> = emptyList(),
     /** An account sync or import is running. */
     val updating: Boolean = false,
+    /** The selected config, when the clean-IP scanner applies to it. */
+    val cleanIp: CleanIpTarget? = null,
 )
 
 sealed interface HomeEvent {
@@ -409,6 +412,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         state.update { it.copy(testing = false, phase = ConnectionPhase.Off) }
     }
 
+    /** The config changed underneath the connection (a clean IP applied): reconnect to use it. */
+    fun reconnectIfRunning() = restartIfRunning()
+
     private fun restartIfRunning() {
         if (state.value.phase == ConnectionPhase.On) LauncherManager.restartService(app)
     }
@@ -446,6 +452,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     servers = snapshot.servers,
                     selected = snapshot.selected,
                     manualGroups = snapshot.manual,
+                    cleanIp = snapshot.cleanIp,
                 )
             }
         }
@@ -458,6 +465,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val servers: List<ServerRow>,
         val selected: ServerRow?,
         val manual: List<ManualGroup>,
+        val cleanIp: CleanIpTarget?,
     )
 
     private fun loadServers(): Snapshot {
@@ -505,7 +513,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     ?.let { listOf(ManualGroup(AppConfig.DEFAULT_SUBSCRIPTION_ID, null, it)) }
                     .orEmpty()
             )
-        return Snapshot(services, active, groupId, rows, selected, manual)
+        val cleanIp = selected?.let { row ->
+            val profile = MmkvManager.decodeServerConfig(row.guid) ?: return@let null
+            val isAccount = groupId?.let { SubscriptionPlan.isAccountGuid(it) } == true
+            CleanIpTarget.of(row.guid, row.title, profile, active?.tier, isAccount)
+        }
+        return Snapshot(services, active, groupId, rows, selected, manual, cleanIp)
     }
 
     private fun delayOf(guid: String): Long = MmkvManager.decodeServerAffiliationInfo(guid)?.testDelayMillis ?: 0L

@@ -50,6 +50,9 @@ interface AccountActions {
     fun onWallet()
     fun onServers()
     fun onRoute()
+
+    /** The clean-IP scanner, offered only where it applies. */
+    fun onCleanIp()
     fun onAdvanced()
     fun onProfiles()
     fun onSupport()
@@ -64,6 +67,8 @@ fun AccountScreen(
     autoServer: Boolean,
     logoutAsked: Boolean,
     actions: AccountActions,
+    /** The selected config is a CDN-fronted direct one: offer the scanner. */
+    showCleanIp: Boolean = false,
     onAutoUpdate: (Boolean) -> Unit,
     onTheme: (ThemeChoice) -> Unit,
     onAskLogout: (Boolean) -> Unit,
@@ -105,6 +110,15 @@ fun AccountScreen(
                 hint = stringResource(route.label),
                 onClick = actions::onRoute,
             )
+            if (showCleanIp) {
+                SettingsDivider()
+                SettingRow(
+                    icon = GeekIcons.Sparkle,
+                    title = stringResource(R.string.geek_scan_title),
+                    hint = stringResource(R.string.geek_scan_entry_hint),
+                    onClick = actions::onCleanIp,
+                )
+            }
             SettingsDivider()
             SettingRow(
                 icon = GeekIcons.Sliders,

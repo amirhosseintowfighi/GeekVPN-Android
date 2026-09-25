@@ -39,6 +39,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
+import com.geekvpn.scanner.CleanIp
 import com.geekvpn.shop.Tier
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
@@ -50,6 +51,10 @@ import com.geekvpn.ui.components.GeekTab
 import com.geekvpn.ui.login.LaunchActivity
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
+import com.geekvpn.ui.scanner.ScannerActions
+import com.geekvpn.ui.scanner.ScannerEvent
+import com.geekvpn.ui.scanner.ScannerScreen
+import com.geekvpn.ui.scanner.ScannerViewModel
 import com.geekvpn.ui.shop.CheckoutSheet
 import com.geekvpn.ui.shop.DepositSheet
 import com.geekvpn.ui.shop.ReceiptImage
@@ -78,7 +83,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** What covers the tab content: the servers page or the route sheet. */
-private enum class Overlay { None, Servers, Route }
+private enum class Overlay { None, Servers, Route, Scanner }
 
 /**
  * GeekVPN's main screen: the four tabs of the design (خانه، سرویس‌ها،
@@ -89,6 +94,7 @@ class HomeActivity : HelperBaseComponentActivity() {
     private val home: HomeViewModel by viewModels()
     private val account: AccountViewModel by viewModels()
     private val shop: ShopViewModel by viewModels()
+    private val scanner: ScannerViewModel by viewModels()
 
     /** The open tab. Here rather than in composition so shop events can switch it. */
     private var tab by mutableStateOf(GeekTab.Home)
@@ -121,6 +127,14 @@ class HomeActivity : HelperBaseComponentActivity() {
                     }
                 }
                 launch { shop.events.collect { onShopEvent(it) } }
+                launch {
+                    scanner.events.collect { event ->
+                        when (event) {
+                            // The override is read when the config is built: a live connection needs rebuilding.
+                            ScannerEvent.AddressChanged -> home.reconnectIfRunning()
+                        }
+                    }
+                }
                 launch {
                     // Signed out here, by the server, or from guest mode: back to the login screens.
                     GeekGraph.session.session.collect { session ->
@@ -210,11 +224,22 @@ class HomeActivity : HelperBaseComponentActivity() {
             val logoutAsked by account.logoutAsked.collectAsStateWithLifecycle()
             val shopState by shop.uiState.collectAsStateWithLifecycle()
             var overlay by rememberSaveable { mutableStateOf(Overlay.None) }
+            // Where the scanner's back button goes: Servers, or the tab it was opened from.
+            var scannerBack by rememberSaveable { mutableStateOf(Overlay.None) }
+            val scannerState by scanner.uiState.collectAsStateWithLifecycle()
+            val openScanner: (() -> Unit)? = state.cleanIp?.let { target ->
+                {
+                    scanner.open(target)
+                    scannerBack = overlay
+                    overlay = Overlay.Scanner
+                }
+            }
             val signedIn = accountState.session is Session.SignedIn
 
             BackHandler(enabled = shopState.sheet != null || overlay != Overlay.None || tab != GeekTab.Home) {
                 when {
                     shopState.sheet != null -> shop.closeSheet()
+                    overlay == Overlay.Scanner -> overlay = scannerBack
                     overlay != Overlay.None -> overlay = Overlay.None
                     else -> tab = GeekTab.Home
                 }
@@ -233,6 +258,21 @@ class HomeActivity : HelperBaseComponentActivity() {
                         onTest = home::testServers,
                         onUpdate = home::refreshAccount,
                         updating = state.updating,
+                        onCleanIp = openScanner,
+                    )
+                } else if (overlay == Overlay.Scanner) {
+                    ScannerScreen(
+                        state = scannerState,
+                        actions = object : ScannerActions {
+                            override fun onBack() {
+                                overlay = scannerBack
+                            }
+                            override fun onStart() = scanner.start()
+                            override fun onStop() = scanner.stop()
+                            override fun onDownloadTest(enabled: Boolean) = scanner.setDownloadTest(enabled)
+                            override fun onUse(ip: CleanIp) = scanner.use(ip)
+                            override fun onRevert() = scanner.revert()
+                        },
                     )
                 } else {
                     Column(
@@ -275,7 +315,9 @@ class HomeActivity : HelperBaseComponentActivity() {
                                 actions = accountActions(
                                     openServers = { overlay = Overlay.Servers },
                                     openRoute = { overlay = Overlay.Route },
+                                    openCleanIp = { openScanner?.invoke() },
                                 ),
+                                showCleanIp = openScanner != null,
                                 onAutoUpdate = account::setAutoUpdate,
                                 onTheme = account::setTheme,
                                 onAskLogout = account::askLogout,
@@ -391,10 +433,11 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onUseManual(groupId: String) = home.selectGroup(groupId)
     }
 
-    private fun accountActions(openServers: () -> Unit, openRoute: () -> Unit) = object : AccountActions {
+    private fun accountActions(openServers: () -> Unit, openRoute: () -> Unit, openCleanIp: () -> Unit) = object : AccountActions {
         override fun onWallet() = shop.openWallet()
         override fun onServers() = openServers()
         override fun onRoute() = openRoute()
+        override fun onCleanIp() = openCleanIp()
         override fun onAdvanced() = startActivity(Intent(this@HomeActivity, MainActivity::class.java))
         override fun onProfiles() = startActivity(Intent(this@HomeActivity, SubSettingActivity::class.java))
         override fun onSupport() = openBot()

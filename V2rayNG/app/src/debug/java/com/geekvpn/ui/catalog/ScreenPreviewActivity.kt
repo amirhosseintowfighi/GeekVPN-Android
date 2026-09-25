@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.geekvpn.connection.RouteMode
+import com.geekvpn.scanner.CleanIp
 import com.geekvpn.shop.Tier
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
@@ -30,6 +31,8 @@ import com.geekvpn.ui.login.LinkPurpose
 import com.geekvpn.ui.login.SyncingScreen
 import com.geekvpn.ui.login.UsernameScreen
 import com.geekvpn.ui.login.WaitingScreen
+import com.geekvpn.ui.scanner.ScannerActions
+import com.geekvpn.ui.scanner.ScannerScreen
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
 import com.geekvpn.ui.shop.CheckoutSheet
@@ -74,7 +77,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_USERNAME = "username"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
-            "shop", "shop-guest", "checkout", "wallet", "deposit",
+            "shop", "shop-guest", "checkout", "wallet", "deposit", "scanner", "scanner-running",
         )
     }
 }
@@ -93,6 +96,15 @@ private fun TabPreview(screen: String) {
                 onTest = none,
                 onUpdate = none,
                 updating = false,
+                onCleanIp = none,
+            )
+            return@GeekBackdrop
+        }
+        if (screen == "scanner" || screen == "scanner-running") {
+            ScannerScreen(
+                state = if (screen == "scanner") PreviewSamples.scanner else PreviewSamples.scannerRunning,
+                actions = PreviewScannerActions,
+                now = PreviewSamples.scannerNow,
             )
             return@GeekBackdrop
         }
@@ -142,6 +154,7 @@ private fun TabPreview(screen: String) {
                     autoServer = state.autoServer,
                     logoutAsked = false,
                     actions = PreviewActions,
+                    showCleanIp = true,
                     onAutoUpdate = {},
                     onTheme = {},
                     onAskLogout = {},
@@ -185,6 +198,7 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onWallet() = Unit
     override fun onServers() = Unit
     override fun onRoute() = Unit
+    override fun onCleanIp() = Unit
     override fun onAdvanced() = Unit
     override fun onProfiles() = Unit
     override fun onSupport() = Unit
@@ -204,4 +218,13 @@ private object PreviewShopActions : ShopActions {
     override fun onCancelRenew() = Unit
     override fun onPay() = Unit
     override fun onTrial() = Unit
+}
+
+private object PreviewScannerActions : ScannerActions {
+    override fun onBack() = Unit
+    override fun onStart() = Unit
+    override fun onStop() = Unit
+    override fun onDownloadTest(enabled: Boolean) = Unit
+    override fun onUse(ip: CleanIp) = Unit
+    override fun onRevert() = Unit
 }

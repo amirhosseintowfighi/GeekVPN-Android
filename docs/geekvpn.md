@@ -32,6 +32,7 @@ git submodule update --init --recursive
 | `res/values*/strings.xml` | `app_name` و چند برچسب برند |
 | آیکن‌ها (`mipmap-*`، `drawable-*dpi/ic_stat_*`) | خروجی `branding/gen_icons.py`؛ بعد از merge دوباره اجرایش کن |
 | `res/xml/shortcuts.xml` | `targetPackage` |
+| `core/CoreConfigContextBuilder.kt` | یک خط: پروفایل قبل از ساخت کانفیگ از `IpOverrides.apply` رد می‌شود (اسکنر) |
 
 بعد از merge، اگر `AndroidLibXrayLite` جلو رفته باشد، CI خودش AAR را دوباره می‌سازد
 (کلید cache به gitlink submodule بسته است).
@@ -171,6 +172,38 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 - تست رایگان (`/api/miniapp/trial`) فقط برای کاربر واردشده است و یک بار برای هر
   حساب داده می‌شود: ۵۰ مگابایت و ۲ روز، یک سرویس تونل و یک سرویس مستقیم.
 - مهمان در فروشگاه فقط دکمه‌ی ورود را می‌بیند.
+
+## اسکنر IP تمیز کلادفلر (`cfscan/`، `com.geekvpn.scanner`)
+
+- موتور در Go است (`cfscan/`) و منطقش از cf-scanner (MIT) آمده است: ping،
+  TCP، uTLS با fingerprint کروم، درخواست `GET /cdn-cgi/trace` با SNI و Host
+  دامنه‌ی خود کانفیگ (جواب باید ۲۰۰ و `Server: cloudflare` باشد، `colo` از همین
+  جواب خوانده می‌شود)، jitter و تست دانلود اختیاری. API برای gomobile ساخته شده
+  است: `NewScanner()`، `Start(configJSON, ranges, Listener)`، `Stop()`.
+- هر اسکن حداکثر ۳۰۰ IP را امتحان می‌کند که به‌صورت تصادفی و به نسبت اندازه‌ی
+  رنج‌ها از `assets/cfscan/ipv4.txt` انتخاب می‌شوند. با پیدا شدن ۵ IP سالم تمام
+  می‌شود. IPهایی که اسکن قبلی پیدا کرده اول دوباره تست می‌شوند.
+- اگر ping روی دستگاه اجرا نشود، یا بعد از ۳۰ بار هیچ جوابی نیاید، ping برای بقیه‌ی
+  اسکن کنار گذاشته می‌شود و فقط TCP و TLS می‌ماند.
+- `protect()` لازم نیست: `CoreVpnService` همیشه پکیج خود اپ را از VPN بیرون
+  می‌گذارد، پس سوکت‌های اسکنر مستقیم روی شبکه‌ی گوشی می‌روند، چه VPN وصل باشد
+  چه نباشد.
+- اسکن در یک foreground service کوتاه (`ScanService`، نوع `dataSync`) در پروسه‌ی
+  اصلی اجرا می‌شود و از نوتیفیکیشن قابل توقف است. WorkManager خود v2rayNG در
+  پروسه‌ی `:bg` است و پیشرفت اسکن را به صفحه نمی‌رساند.
+- کارت و گزینه‌ی اسکنر فقط برای سرویس `direct` حساب یا لینک دستی نشان داده
+  می‌شود، آن هم وقتی کانفیگ پشت CDN باشد (`CdnTarget`): transport یکی از ws،
+  grpc، xhttp یا httpupgrade، امنیت TLS، و SNI و Host یک دامنه.
+- بهترین IP خودکار اعمال می‌شود، ولی نه با عوض کردن کانفیگ: یک override برای هر
+  کانفیگ و هر شبکه در MMKV (`GEEK_SCAN`) ذخیره می‌شود. کلید کانفیگ از subscription،
+  نام، آدرس و پورت اصلی ساخته می‌شود تا بعد از refresh اشتراک هم بماند. در
+  `CoreConfigContextBuilder` آدرس با IP عوض می‌شود و SNI و Host دامنه می‌مانند. این
+  برای اتصال و real-delay test یکسان است. «بازگشت به IP اصلی» override را پاک
+  می‌کند. اگر وصل باشی، اتصال دوباره ساخته می‌شود.
+- شبکه: موبایل با MCC+MNC (بدون مجوز). Wi-Fi با DNS و domain که DHCP داده است،
+  چون SSID مجوز location می‌خواهد. نتیجه‌ها بعد از ۲۴ ساعت کهنه حساب می‌شوند.
+- `CFSCAN_LIVE=1 go test ./...` (در CI روشن است) یک اسکن واقعی روی edge
+  کلادفلر از رانر انجام می‌دهد.
 
 ## رانرها
 

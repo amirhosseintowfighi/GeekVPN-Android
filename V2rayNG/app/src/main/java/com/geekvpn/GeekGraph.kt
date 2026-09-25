@@ -11,7 +11,6 @@ import com.geekvpn.auth.SecureStore
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.SessionStore
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.util.LogUtil
@@ -23,7 +22,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import java.io.File
 
 /**
  * The GeekVPN account objects, one per process, built on first use (after
@@ -38,15 +36,7 @@ object GeekGraph {
         )
     }
 
-    /**
-     * Outside MMKV's default directory on purpose: v2rayNG's backup copies
-     * every file there (`MMKV.backupAllToDirectory`) into a zip the user can
-     * share, and the account, device ID and tokens must not go with it.
-     */
-    private fun storage(id: String): MMKV {
-        val root = File(AngApplication.application.filesDir, "geek_mmkv").absolutePath
-        return MMKV.mmkvWithID(id, MMKV.MULTI_PROCESS_MODE, null, root)
-    }
+    private fun storage(id: String): MMKV = GeekStorage.open(id)
 
     val api: GeekApi by lazy {
         GeekApi(

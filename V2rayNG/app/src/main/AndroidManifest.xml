@@ -37,6 +37,10 @@
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
         android:minSdkVersion="34" />
+    <!-- GeekVPN: the clean-IP scan runs in a short dataSync foreground service. -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        android:minSdkVersion="34" />
     <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -83,6 +87,10 @@
             android:exported="false"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize" />
+        <service
+            android:name="com.geekvpn.scanner.ScanService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
         <!-- The bank's page sends the customer back here after an online payment. -->
         <activity
             android:name="com.geekvpn.ui.shop.PaymentReturnActivity"
