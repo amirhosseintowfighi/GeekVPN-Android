@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -79,8 +80,9 @@ fun GeekHeader(balance: Long?, onWallet: (() -> Unit)?) {
                 textDirection = TextDirection.Ltr,
             ),
             color = colors.onBackground,
-            modifier = Modifier.weight(1f),
         )
+        // The brand word stays beside the logo; the wallet chip goes to the far end.
+        Spacer(Modifier.weight(1f))
         if (onWallet != null) {
             val locale = appLocale()
             GlassSurface(
