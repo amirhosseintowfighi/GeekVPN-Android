@@ -30,14 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.os.ConfigurationCompat
 import com.geekvpn.ui.components.GeekPrimaryButton
 import com.geekvpn.ui.components.GeekSecondaryButton
 import com.geekvpn.ui.components.GlassKind
@@ -203,5 +202,4 @@ private fun Step(number: Int, text: String) {
 
 /** The app language (per-app locale), which picks Persian or Latin digits. */
 @Composable
-private fun currentLocale(): Locale =
-    ConfigurationCompat.getLocales(LocalConfiguration.current)[0] ?: Locale.getDefault()
+private fun currentLocale(): Locale = LocalLocale.current.platformLocale
