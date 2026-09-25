@@ -156,8 +156,6 @@
     <string name="geek_account_route">Traffic route</string>
     <string name="geek_account_advanced">Advanced settings</string>
     <string name="geek_account_advanced_hint">Core, DNS, tunnel and rules</string>
-    <string name="geek_account_profiles">Profiles</string>
-    <string name="geek_account_profiles_hint">Add a manual subscription link</string>
     <string name="geek_account_appearance">Appearance</string>
     <string name="geek_theme_auto">Auto</string>
     <string name="geek_theme_light">Light</string>
@@ -322,4 +320,40 @@
     <string name="geek_advanced_default">Default</string>
     <string name="geek_advanced_empty_default">Leave empty for the default.</string>
     <string name="geek_advanced_save">Save</string>
+
+    <!-- Per-app proxy -->
+    <string name="geek_perapp_selected">Selected: %1$d</string>
+    <string name="geek_perapp_enable_hint">Only the apps chosen below are affected</string>
+    <string name="geek_perapp_mode_proxy">The chosen apps go through the VPN; the rest go direct</string>
+    <string name="geek_perapp_mode_bypass">The chosen apps go direct; the rest go through the VPN</string>
+    <string name="geek_perapp_note">Changes apply on the next connection.</string>
+    <string name="geek_perapp_search">Search apps</string>
+
+    <!-- Subscription links the customer adds -->
+    <string name="geek_links_add_title">Add a subscription link</string>
+    <string name="geek_links_edit_title">Edit link</string>
+    <string name="geek_links_delete">Delete link</string>
+    <string name="geek_links_delete_text">The link and its servers are removed from this phone.</string>
+    <string name="geek_links_name">Name</string>
+    <string name="geek_links_url">Subscription address</string>
+    <string name="geek_links_enabled">Active</string>
+    <string name="geek_links_auto_update">Update automatically</string>
+    <string name="geek_links_interval">Update every (minutes)</string>
+    <string name="geek_links_more">More options</string>
+    <string name="geek_links_err_name">Give the link a name.</string>
+    <string name="geek_links_err_url">This is not a valid address.</string>
+    <string name="geek_links_err_insecure">The address is not https. Turn on "allow insecure" under more options to use it.</string>
+    <string name="geek_links_err_interval">At least 15 minutes.</string>
+    <string name="geek_links_saved">Link saved.</string>
+    <string name="geek_links_saved_not_fetched">Link saved, but its servers could not be fetched now. Try refreshing later.</string>
+    <string name="geek_links_deleted">Link deleted.</string>
+
+    <!-- About -->
+    <string name="geek_about_license">Free software under the GPL-3.0 license.</string>
+    <string name="geek_about_built_on">Built on</string>
+    <string name="geek_about_role_v2rayng">The app GeekVPN is built from</string>
+    <string name="geek_about_role_xray">The connection core</string>
+    <string name="geek_about_role_hev">The VPN tunnel</string>
+    <string name="geek_about_role_cfscan">The clean IP scanner\'s method</string>
+    <string name="geek_about_licenses_hint">Every library in the app and its license</string>
 </resources>

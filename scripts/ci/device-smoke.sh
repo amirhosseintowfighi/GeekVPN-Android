@@ -201,7 +201,7 @@ if ! grep -q "تنظیمات پیشرفته" "$OUT/advanced.xml"; then
     LOGIN_FAILED=1
 fi
 
-adb shell am start -W -n "$PKG/com.v2ray.ang.ui.AboutActivity" >/dev/null
+adb shell am start -W -n "$PKG/com.geekvpn.ui.about.AboutActivity" >/dev/null
 shot about
 alive "opening About"
 
@@ -248,7 +248,7 @@ fi
 # catalog are not ours to hold to it.
 DPI=$(adb shell wm density | tr -d '\r' | tail -1 | grep -Eo '[0-9]+$')
 shopt -s nullglob
-A11Y_DUMPS=("$OUT"/advanced.xml "$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
+A11Y_DUMPS=("$OUT"/about.xml "$OUT"/advanced.xml "$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
 shopt -u nullglob
 if ! python3 "$(dirname "$0")/a11y-check.py" "$DPI" "$PKG" "${A11Y_DUMPS[@]}" > "$OUT/a11y.txt"; then
     echo "::error::accessibility problems, see a11y.txt"

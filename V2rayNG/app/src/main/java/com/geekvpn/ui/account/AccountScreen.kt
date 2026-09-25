@@ -54,7 +54,6 @@ interface AccountActions {
     /** The clean-IP scanner, offered only where it applies. */
     fun onCleanIp()
     fun onAdvanced()
-    fun onProfiles()
     fun onSupport()
     fun onAbout()
     fun onLogin()
@@ -125,13 +124,6 @@ fun AccountScreen(
                 title = stringResource(R.string.geek_account_advanced),
                 hint = stringResource(R.string.geek_account_advanced_hint),
                 onClick = actions::onAdvanced,
-            )
-            SettingsDivider()
-            SettingRow(
-                icon = GeekIcons.Folder,
-                title = stringResource(R.string.geek_account_profiles),
-                hint = stringResource(R.string.geek_account_profiles_hint),
-                onClick = actions::onProfiles,
             )
         }
 

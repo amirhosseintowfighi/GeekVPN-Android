@@ -35,6 +35,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,6 +73,7 @@ interface ServicesActions {
     fun onRefresh()
     fun onCopy(url: String)
     fun onUseManual(groupId: String)
+    fun onEditManual(groupId: String)
 }
 
 /** Services.html: the account's services as cards, then the manual links. */
@@ -117,7 +120,13 @@ fun ServicesScreen(state: HomeUiState, isSignedIn: Boolean, actions: ServicesAct
             ManualHint()
         } else {
             state.manualGroups.forEach { group ->
-                ManualRow(group, selected = state.groupId == group.guid) { actions.onUseManual(group.guid) }
+                ManualRow(
+                    group = group,
+                    selected = state.groupId == group.guid,
+                    onClick = { actions.onUseManual(group.guid) },
+                    // Configs imported one by one live in v2rayNG's default group, which has no link to edit.
+                    onEdit = if (group.name != null) ({ actions.onEditManual(group.guid) }) else null,
+                )
             }
         }
     }
@@ -369,7 +378,7 @@ private fun ManualHint() {
 }
 
 @Composable
-private fun ManualRow(group: ManualGroup, selected: Boolean, onClick: () -> Unit) {
+private fun ManualRow(group: ManualGroup, selected: Boolean, onClick: () -> Unit, onEdit: (() -> Unit)?) {
     val colors = Geek.colors
     GlassSurface(
         kind = if (selected) GlassKind.Milk else GlassKind.Clear,
@@ -396,6 +405,19 @@ private fun ManualRow(group: ManualGroup, selected: Boolean, onClick: () -> Unit
                 style = Geek.type.caption,
                 color = if (selected) colors.onGlassMuted else colors.onBackgroundMuted,
             )
+            if (onEdit != null) {
+                val label = stringResource(R.string.geek_links_edit_title)
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(role = Role.Button, onClickLabel = label, onClick = onEdit)
+                        .semantics { contentDescription = label },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(GeekIcons.Pencil, contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
+                }
+            }
         }
     }
 }

@@ -181,6 +181,13 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   `SettingsActivity` گزینه‌ی جدیدی گرفت، باید به `AdvancedSettings.sections` هم اضافه
   شود. هر تغییر `SettingsChangeManager` را خبر می‌کند و `HomeActivity` در `onStart`
   اتصال در حال اجرا را دوباره می‌سازد.
+- بقیه‌ی صفحه‌هایی که قبلاً از v2rayNG باز می‌شدند هم طراحی GeekVPN دارند و منطق
+  خود v2rayNG را صدا می‌زنند: «تونل تفکیکی برنامه‌ها» (`ui.perapp.PerAppActivity` روی
+  `PerAppProxyViewModel`)، افزودن و ویرایش لینک اشتراک (`ui.links.LinkEditActivity`
+  با همان بررسی‌های `SubEditActivity`؛ لینک جدید بلافاصله سرورهایش را می‌گیرد) و
+  «درباره» (`ui.about.AboutActivity`، با نسخه‌ی هسته و cfscan و attribution
+  پروژه‌های متن‌باز). ردیف «پروفایل‌ها» حذف شد؛ لینک‌های دستی در تب «سرویس‌ها» هستند
+  و هر کدام دکمه‌ی ویرایش دارد. هیچ مسیری از UI به صفحه‌های خود v2rayNG نمی‌رسد.
 - کاری که صفحه‌ی اصلی v2rayNG موقع باز شدن می‌کند، اینجا `HomeViewModel` انجام
   می‌دهد و هر اتصال منتظرش می‌ماند: کپی `geosite.dat` و `geoip.dat` (بدون آن‌ها Xray
   قانون‌های `geosite:ir` مسیر هوشمند را نمی‌سازد و بالا نمی‌آید) و زمان‌بندی
