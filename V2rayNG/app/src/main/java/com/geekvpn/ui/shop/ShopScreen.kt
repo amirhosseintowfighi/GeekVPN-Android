@@ -238,6 +238,8 @@ private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> U
                     .heightIn(min = 44.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (isSelected) colors.chip else colors.soft)
+                    // In the dark theme chip and soft are close shades; the edge tells them apart.
+                    .then(if (isSelected) Modifier.border(1.dp, colors.link, RoundedCornerShape(12.dp)) else Modifier)
                     .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tier) }),
                 contentAlignment = Alignment.Center,
             ) {
