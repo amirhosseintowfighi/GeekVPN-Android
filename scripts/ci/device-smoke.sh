@@ -87,6 +87,15 @@ night no
 launch
 shot login 10
 alive "launch"
+
+# Exactly one icon on the phone. A debug build once added the catalog as a
+# second GeekVPN icon, and a tester opened that instead of the app.
+launchers=$(adb shell cmd package query-activities --brief -a android.intent.action.MAIN \
+    -c android.intent.category.LAUNCHER 2>/dev/null | tr -d '\r' | grep -c "^ *$PKG/" || true)
+if [[ "$launchers" != "1" ]]; then
+    echo "::error::$PKG has $launchers launcher entries, want 1"
+    LOGIN_FAILED=1
+fi
 if ! grep -q "ورود با تلگرام" "$OUT/login.xml"; then
     echo "::error::a fresh install did not open the login screen in Persian"
     LOGIN_FAILED=1
@@ -159,8 +168,7 @@ if [[ "$probe" != *Error* ]]; then
     done
 fi
 
-# By component: the main screen is behind the login gate, and debug builds
-# have a second launcher entry (the catalog).
+# By component: the main screen is behind the login gate.
 adb shell am start -W -n "$PKG/com.v2ray.ang.ui.main.MainActivity" >/dev/null
 shot main 10
 alive "launch"
@@ -180,10 +188,12 @@ alive "opening About"
 read -r W H < <(adb shell wm size | tr -d '\r' | tail -1 | sed -E 's/.*: ([0-9]+)x([0-9]+).*/\1 \2/')
 scroll() { adb shell input swipe $((W / 2)) $((H * 8 / 10)) $((W / 2)) $((H * 2 / 10)) 400; }
 
-# Debug builds carry the component catalog; shoot it in both themes.
+# Debug builds carry the component catalog (adb only); shoot it in both themes.
 CATALOG="$PKG/com.geekvpn.ui.catalog.CatalogActivity"
-if adb shell cmd package resolve-activity --brief -n "$CATALOG" 2>/dev/null | grep -q catalog \
-    || adb shell pm dump "$PKG" | grep -q "com.geekvpn.ui.catalog.CatalogActivity"; then
+# Probed by starting it, like the previews: it has no intent-filter.
+catalog_probe=$(adb shell am start -W -n "$CATALOG" 2>&1 || true)
+adb shell am force-stop "$PKG"
+if [[ "$catalog_probe" != *Error* ]]; then
     adb shell am start -W -n "$CATALOG" --ez dark false >/dev/null
     shot catalog-light
     alive "opening the catalog"
