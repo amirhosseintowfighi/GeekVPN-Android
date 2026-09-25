@@ -60,6 +60,9 @@ shot() {
 alive() {
     if [[ -z "$(adb shell pidof "$PKG" | tr -d '\r')" ]]; then
         echo "::error::$PKG is not running after $1"
+        # Keep the evidence: the log is otherwise only saved at the end.
+        adb logcat -d > "$OUT/logcat.txt" 2>/dev/null || true
+        grep -A30 -E "FATAL EXCEPTION|AndroidRuntime" "$OUT/logcat.txt" | head -80 || true
         return 1
     fi
 }
