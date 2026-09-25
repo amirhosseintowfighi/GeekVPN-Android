@@ -1,6 +1,6 @@
 package com.geekvpn.smartconnect
 
-/** One way to connect: a config, and the clean address it uses instead of its own (null: as it stands). */
+/** One way to connect: a config, and the clean address it uses instead of its own (null: its own). */
 data class Choice(val guid: String, val ip: String? = null)
 
 /** A [Choice] and its real delay: > 0 milliseconds, anything else failed. */
@@ -37,8 +37,11 @@ interface SmartConnectPorts {
     /** The GUIDs of [groupId]'s configs, in list order. */
     fun servers(groupId: String): List<String>
 
-    /** The clean-IP scanner applies to this config (a CDN-fronted direct service or manual link). */
-    fun scannable(guid: String): Boolean
+    /**
+     * The clean-IP scanner applies to this config: a direct service or manual
+     * link whose domain is verified to be on Cloudflare. May resolve DNS.
+     */
+    suspend fun scannable(guid: String): Boolean
 
     /** Clean addresses already found for [guid] on this network and still fresh, best first. */
     fun freshIps(guid: String): List<String>
@@ -46,8 +49,8 @@ interface SmartConnectPorts {
     /** A short scan for [guid]'s domain; the addresses it found, best first. May find none. */
     suspend fun quickScan(guid: String): List<String>
 
-    /** Make [guid] use [ip] on this network from now on (connection and delay test alike). */
-    fun useIp(guid: String, ip: String, delayMs: Long)
+    /** Make [guid] use [ip] on this network from now on (connection and delay test alike); null: its own address. */
+    fun useIp(guid: String, ip: String?, delayMs: Long)
 
     /** v2rayNG's real-delay test of [guids], each with whatever address it now uses. */
     suspend fun measure(guids: List<String>): Map<String, Long>
@@ -61,8 +64,9 @@ interface SmartConnectPorts {
  *
  * 1. For CDN-fronted configs, clean addresses for this network: the fresh
  *    cached ones, else a short scan.
- * 2. v2rayNG's real-delay test over every config, and every config × address
- *    for the CDN-fronted ones.
+ * 2. v2rayNG's real-delay test over every config on its own address, then
+ *    every config × clean address for the CDN-fronted ones, so a clean
+ *    address is only used where it beats the config's own.
  * 3. Connect with the best, then the next, [maxAttempts] at most.
  */
 class SmartConnectUseCase(
@@ -87,7 +91,7 @@ class SmartConnectUseCase(
         attempts.forEachIndexed { index, measured ->
             onStage(SmartStage.Connecting(index + 1, attempts.size))
             val choice = measured.choice
-            if (choice.ip != null) ports.useIp(choice.guid, choice.ip, measured.delayMs)
+            if (choice.guid in lastScannable) ports.useIp(choice.guid, choice.ip, measured.delayMs)
             if (ports.connect(choice.guid)) return SmartResult.Connected(choice, measured.delayMs)
         }
         return SmartResult.Failed(attempts.size)
@@ -100,6 +104,7 @@ class SmartConnectUseCase(
      */
     suspend fun rank(guids: List<String>, onStage: (SmartStage) -> Unit = {}): List<Measured> {
         val scannable = guids.filter { ports.scannable(it) }
+        lastScannable = scannable.toSet()
         var ips = scannable.flatMap { ports.freshIps(it) }.distinct().take(maxIps)
         if (scannable.isNotEmpty() && ips.isEmpty()) {
             onStage(SmartStage.FindingIp)
@@ -107,30 +112,27 @@ class SmartConnectUseCase(
         }
         onStage(SmartStage.Testing)
         val measured = mutableListOf<Measured>()
-        if (ips.isEmpty()) {
-            val delays = ports.measure(guids)
-            guids.forEach { measured += Measured(Choice(it), delays[it] ?: 0) }
-        } else {
-            // One round per address: the override is per config, so a config
-            // can only be tested with one address at a time.
-            val plain = guids.filter { it !in scannable }
-            ips.forEachIndexed { index, ip ->
-                scannable.forEach { ports.useIp(it, ip, 0) }
-                val round = if (index == 0) guids else scannable
-                val delays = ports.measure(round)
-                round.forEach { guid ->
-                    measured += Measured(Choice(guid, if (guid in plain) null else ip), delays[guid] ?: 0)
-                }
-            }
-            val answered = measured.filter { it.delayMs > 0 }
-            scannable.forEach { guid ->
-                val best = answered.filter { it.choice.guid == guid }.minByOrNull { it.delayMs }
-                val ip = best?.choice?.ip ?: ips.first()
-                ports.useIp(guid, ip, best?.delayMs ?: 0)
-            }
+        // Round 0: every config on its own address.
+        scannable.forEach { ports.useIp(it, null, 0) }
+        val own = ports.measure(guids)
+        guids.forEach { measured += Measured(Choice(it), own[it] ?: 0) }
+        // Then one round per clean address: the override is per config, so a
+        // config can only be tested with one address at a time.
+        ips.forEach { ip ->
+            scannable.forEach { ports.useIp(it, ip, 0) }
+            val delays = ports.measure(scannable)
+            scannable.forEach { measured += Measured(Choice(it, ip), delays[it] ?: 0) }
+        }
+        val answered = measured.filter { it.delayMs > 0 }
+        scannable.forEach { guid ->
+            val best = answered.filter { it.choice.guid == guid }.minByOrNull { it.delayMs }
+            ports.useIp(guid, best?.choice?.ip, best?.delayMs ?: 0)
         }
         return best(measured)
     }
+
+    /** The configs the last [rank] treated as CDN-fronted; only their address is ever changed. */
+    private var lastScannable: Set<String> = emptySet()
 
     companion object {
         /** Clean addresses tried per config: each is one more round of the delay test. */

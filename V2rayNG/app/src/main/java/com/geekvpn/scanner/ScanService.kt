@@ -71,7 +71,9 @@ class ScanService : Service() {
     private fun begin(guid: String, download: Boolean, timeoutMs: Long) {
         val profile = MmkvManager.decodeServerConfig(guid)
         val target = profile?.let { CdnTarget.of(it) }
-        if (profile == null || target == null) {
+        // Checked before scanning: /cdn-cgi/trace answers on any Cloudflare
+        // address whatever the domain, so the scan itself cannot tell.
+        if (profile == null || target == null || CleanIps.verify(this, guid) == false) {
             finish(getString(R.string.geek_scan_err_not_cdn), null)
             return
         }
@@ -115,7 +117,7 @@ class ScanService : Service() {
 
                     override fun onFinish(error: String?) {
                         val results = synchronized(found) { found.toList() }
-                        val applied = if (results.isNotEmpty()) save(profile, target, network, results) else null
+                        val applied = if (results.isNotEmpty()) save(guid, profile, target, network, results) else null
                         finish(error?.let { getString(R.string.geek_scan_err_generic) }, applied)
                         if (error != null) LogUtil.w(AppConfig.TAG, "Scan: finished with error: $error")
                     }
@@ -137,6 +139,7 @@ class ScanService : Service() {
 
     /** Keeps the best addresses for this network and puts the best one in place. */
     private fun save(
+        guid: String,
         profile: ProfileItem,
         target: CdnTarget,
         network: NetworkIdentity,
@@ -146,6 +149,8 @@ class ScanService : Service() {
         val now = System.currentTimeMillis()
         val record = store.saveResults(target, network.key, found, now)
         val best = record.results.firstOrNull() ?: return null
+        // The customer ran this scan; where DNS gave no verdict, take the domain as Cloudflare's.
+        CleanIps.trustAfterScan(guid)
         store.setOverride(ProfileKey.of(profile), network.key, IpOverride(best.ip, now, best.latencyMs))
         return best
     }

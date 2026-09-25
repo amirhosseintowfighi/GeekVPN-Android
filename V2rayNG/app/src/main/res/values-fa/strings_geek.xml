@@ -152,8 +152,6 @@
     <string name="geek_account_route">مسیر ترافیک</string>
     <string name="geek_account_advanced">تنظیمات پیشرفته</string>
     <string name="geek_account_advanced_hint">هسته، DNS، تونل و قوانین</string>
-    <string name="geek_account_profiles">پروفایل‌ها</string>
-    <string name="geek_account_profiles_hint">افزودن لینک اشتراک دستی</string>
     <string name="geek_account_appearance">ظاهر</string>
     <string name="geek_theme_auto">خودکار</string>
     <string name="geek_theme_light">روشن</string>
@@ -310,4 +308,48 @@
     <string name="geek_failover_3s">۳ ثانیه</string>
     <string name="geek_failover_hint">اگر اتصال قطع شود یا کندتر از این بماند، سرورها در پس‌زمینه دوباره تست می‌شوند و بهترین جایگزین می‌شود.</string>
     <string name="geek_failover_hint_off">اتصال روی همان سروری که با آن وصل شدی می‌ماند.</string>
+
+    <!-- تنظیمات پیشرفته -->
+    <string name="geek_advanced_subtitle">هسته، DNS و تونل. تغییرها از اتصال بعدی اعمال می‌شوند.</string>
+    <string name="geek_advanced_expanded">باز</string>
+    <string name="geek_advanced_collapsed">بسته</string>
+    <string name="geek_advanced_default">پیش‌فرض</string>
+    <string name="geek_advanced_empty_default">برای مقدار پیش‌فرض خالی بگذار.</string>
+    <string name="geek_advanced_save">ذخیره</string>
+
+    <!-- تونل تفکیکی برنامه‌ها -->
+    <string name="geek_perapp_selected">انتخاب‌شده: %1$d</string>
+    <string name="geek_perapp_enable_hint">فقط برنامه‌هایی که پایین انتخاب می‌کنی تحت تأثیرند</string>
+    <string name="geek_perapp_mode_proxy">برنامه‌های انتخاب‌شده از VPN رد می‌شوند؛ بقیه مستقیم</string>
+    <string name="geek_perapp_mode_bypass">برنامه‌های انتخاب‌شده مستقیم می‌روند؛ بقیه از VPN</string>
+    <string name="geek_perapp_note">تغییرها از اتصال بعدی اعمال می‌شوند.</string>
+    <string name="geek_perapp_search">جستجوی برنامه</string>
+
+    <!-- لینک‌های اشتراکی که کاربر اضافه می‌کند -->
+    <string name="geek_links_add_title">افزودن لینک اشتراک</string>
+    <string name="geek_links_edit_title">ویرایش لینک</string>
+    <string name="geek_links_delete">حذف لینک</string>
+    <string name="geek_links_delete_text">لینک و سرورهایش از این گوشی پاک می‌شوند.</string>
+    <string name="geek_links_name">نام</string>
+    <string name="geek_links_url">آدرس اشتراک</string>
+    <string name="geek_links_enabled">فعال</string>
+    <string name="geek_links_auto_update">بروزرسانی خودکار</string>
+    <string name="geek_links_interval">هر چند دقیقه بروزرسانی شود</string>
+    <string name="geek_links_more">گزینه‌های بیشتر</string>
+    <string name="geek_links_err_name">برای لینک یک نام بگذار.</string>
+    <string name="geek_links_err_url">این آدرس معتبر نیست.</string>
+    <string name="geek_links_err_insecure">آدرس https نیست. برای استفاده، «اجازه‌ی آدرس ناامن» را در گزینه‌های بیشتر روشن کن.</string>
+    <string name="geek_links_err_interval">حداقل ۱۵ دقیقه.</string>
+    <string name="geek_links_saved">لینک ذخیره شد.</string>
+    <string name="geek_links_saved_not_fetched">لینک ذخیره شد، ولی الان سرورهایش دریافت نشد. بعداً بروزرسانی کن.</string>
+    <string name="geek_links_deleted">لینک حذف شد.</string>
+
+    <!-- درباره -->
+    <string name="geek_about_license">نرم‌افزار آزاد تحت لایسنس GPL-3.0.</string>
+    <string name="geek_about_built_on">ساخته‌شده بر پایه‌ی</string>
+    <string name="geek_about_role_v2rayng">اپی که GeekVPN از آن ساخته شده</string>
+    <string name="geek_about_role_xray">هسته‌ی اتصال</string>
+    <string name="geek_about_role_hev">تونل VPN</string>
+    <string name="geek_about_role_cfscan">روش اسکنر IP تمیز</string>
+    <string name="geek_about_licenses_hint">همه‌ی کتابخانه‌های اپ و لایسنس‌شان</string>
 </resources>

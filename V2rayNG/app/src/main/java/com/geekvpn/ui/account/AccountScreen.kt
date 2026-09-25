@@ -54,7 +54,6 @@ interface AccountActions {
     /** The clean-IP scanner, offered only where it applies. */
     fun onCleanIp()
     fun onAdvanced()
-    fun onProfiles()
     fun onSupport()
     fun onAbout()
     fun onLogin()
@@ -125,13 +124,6 @@ fun AccountScreen(
                 title = stringResource(R.string.geek_account_advanced),
                 hint = stringResource(R.string.geek_account_advanced_hint),
                 onClick = actions::onAdvanced,
-            )
-            SettingsDivider()
-            SettingRow(
-                icon = GeekIcons.Folder,
-                title = stringResource(R.string.geek_account_profiles),
-                hint = stringResource(R.string.geek_account_profiles_hint),
-                onClick = actions::onProfiles,
             )
         }
 
@@ -277,7 +269,9 @@ private fun WalletButton(text: String, icon: ImageVector?, primary: Boolean, onC
         modifier = modifier
             .height(46.dp)
             .clip(Geek.shapes.button)
-            .background(if (primary) colors.logoBlue else colors.onAction.copy(alpha = 0.12f))
+            // The card is colors.action; its inverse stays visible in both themes
+            // (logoBlue is the dark theme's action colour, so it vanished there).
+            .background(if (primary) colors.onAction else colors.onAction.copy(alpha = 0.12f))
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

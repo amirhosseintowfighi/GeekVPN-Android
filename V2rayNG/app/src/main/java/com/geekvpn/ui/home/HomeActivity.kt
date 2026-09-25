@@ -41,14 +41,18 @@ import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
 import com.geekvpn.scanner.CleanIp
 import com.geekvpn.shop.Tier
+import com.geekvpn.ui.about.AboutActivity
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
 import com.geekvpn.ui.account.AccountViewModel
+import com.geekvpn.ui.advanced.AdvancedActivity
 import com.geekvpn.ui.common.GeekHeader
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
 import com.geekvpn.ui.components.GeekTab
+import com.geekvpn.ui.links.LinkEditActivity
 import com.geekvpn.ui.login.LaunchActivity
+import com.geekvpn.ui.perapp.PerAppActivity
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
 import com.geekvpn.ui.scanner.ScannerActions
@@ -71,12 +75,8 @@ import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.enums.PermissionType
 import com.v2ray.ang.handler.SettingsManager
-import com.v2ray.ang.ui.AboutActivity
+import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.ui.base.HelperBaseComponentActivity
-import com.v2ray.ang.ui.main.MainActivity
-import com.v2ray.ang.ui.perappproxy.PerAppProxyActivity
-import com.v2ray.ang.ui.subscription.SubEditActivity
-import com.v2ray.ang.ui.subscription.SubSettingActivity
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -156,6 +156,8 @@ class HomeActivity : HelperBaseComponentActivity() {
     override fun onStart() {
         super.onStart()
         home.onForeground(true)
+        // v2rayNG's "a setting changed" signal: rebuild a running connection with it.
+        if (SettingsChangeManager.consumeRestartService()) home.reconnectIfRunning()
         // Back from a gateway's page without its link: refresh anyway.
         shop.onReturn(null)
     }
@@ -346,7 +348,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                                 home.setRoute(it)
                                 overlay = Overlay.None
                             },
-                            onPerApp = { startActivity(Intent(this@HomeActivity, PerAppProxyActivity::class.java)) },
+                            onPerApp = { startActivity(Intent(this@HomeActivity, PerAppActivity::class.java)) },
                             onDismiss = { overlay = Overlay.None },
                         )
                     }
@@ -422,7 +424,7 @@ class HomeActivity : HelperBaseComponentActivity() {
             shop.renew(subscriptionId, title, card?.tier)
             openShop()
         }
-        override fun onAddSubscription() = startActivity(Intent(this@HomeActivity, SubEditActivity::class.java))
+        override fun onAddSubscription() = startActivity(LinkEditActivity.intent(this@HomeActivity))
         override fun onImportClipboard() {
             val clipboard = getSystemService(ClipboardManager::class.java)
             val text = clipboard?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(this@HomeActivity)?.toString()
@@ -437,6 +439,7 @@ class HomeActivity : HelperBaseComponentActivity() {
             showMessage(R.string.geek_services_copied)
         }
         override fun onUseManual(groupId: String) = home.selectGroup(groupId)
+        override fun onEditManual(groupId: String) = startActivity(LinkEditActivity.intent(this@HomeActivity, groupId))
     }
 
     private fun accountActions(openServers: () -> Unit, openRoute: () -> Unit, openCleanIp: () -> Unit) = object : AccountActions {
@@ -444,8 +447,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onServers() = openServers()
         override fun onRoute() = openRoute()
         override fun onCleanIp() = openCleanIp()
-        override fun onAdvanced() = startActivity(Intent(this@HomeActivity, MainActivity::class.java))
-        override fun onProfiles() = startActivity(Intent(this@HomeActivity, SubSettingActivity::class.java))
+        override fun onAdvanced() = startActivity(Intent(this@HomeActivity, AdvancedActivity::class.java))
         override fun onSupport() = openBot()
         override fun onAbout() = startActivity(Intent(this@HomeActivity, AboutActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()

@@ -22,6 +22,9 @@ object IpOverrides {
     fun apply(context: Context, profile: ProfileItem): ProfileItem {
         return try {
             val target = CdnTarget.of(profile) ?: return profile
+            // Only where the domain is known to be on Cloudflare: a clean address
+            // in front of a server the CDN does not carry breaks the config.
+            if (store.cdnVerdict(target)?.behind != true) return profile
             val network = NetworkIdentity.current(context)
             val override = store.override(ProfileKey.of(profile), network.key) ?: return profile
             withAddress(profile, target, override.ip)

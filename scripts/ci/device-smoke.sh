@@ -192,7 +192,16 @@ if ! grep -q "متصل نیست" "$OUT/main.xml"; then
     LOCALE_FAILED=1
 fi
 
-adb shell am start -W -n "$PKG/com.v2ray.ang.ui.AboutActivity" >/dev/null
+# GeekVPN's advanced settings (v2rayNG's settings in GeekVPN's design).
+adb shell am start -W -n "$PKG/com.geekvpn.ui.advanced.AdvancedActivity" >/dev/null
+shot advanced 4
+alive "opening advanced settings"
+if ! grep -q "تنظیمات پیشرفته" "$OUT/advanced.xml"; then
+    echo "::error::advanced settings did not open"
+    LOGIN_FAILED=1
+fi
+
+adb shell am start -W -n "$PKG/com.geekvpn.ui.about.AboutActivity" >/dev/null
 shot about
 alive "opening About"
 
@@ -239,7 +248,7 @@ fi
 # catalog are not ours to hold to it.
 DPI=$(adb shell wm density | tr -d '\r' | tail -1 | grep -Eo '[0-9]+$')
 shopt -s nullglob
-A11Y_DUMPS=("$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
+A11Y_DUMPS=("$OUT"/about.xml "$OUT"/advanced.xml "$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
 shopt -u nullglob
 if ! python3 "$(dirname "$0")/a11y-check.py" "$DPI" "$PKG" "${A11Y_DUMPS[@]}" > "$OUT/a11y.txt"; then
     echo "::error::accessibility problems, see a11y.txt"

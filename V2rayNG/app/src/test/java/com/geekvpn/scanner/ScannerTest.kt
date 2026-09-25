@@ -151,3 +151,43 @@ class ScannerTest {
         assertNotEquals(home.key, NetworkIdentity.wifi(listOf("10.0.0.1"), null).key)
     }
 }
+
+class CloudflareCheckTest {
+    private val table = CloudflareCheck.parse(
+        """
+        104.16.0.0/13
+        # comment
+        172.64.0.0/13
+        1.1.1.0/24
+        not an ip
+        8.8.8.8
+        """.trimIndent()
+    )
+
+    private fun ip(text: String) = CloudflareCheck.parseIpv4(text)!!
+
+    @Test
+    fun addresses_inside_the_listed_ranges_are_cloudflare() {
+        assertTrue(CloudflareCheck.contains(table, ip("104.16.0.1")))
+        assertTrue(CloudflareCheck.contains(table, ip("104.23.255.255")))
+        assertTrue(CloudflareCheck.contains(table, ip("172.67.1.2")))
+        assertTrue(CloudflareCheck.contains(table, ip("1.1.1.1")))
+        assertTrue(CloudflareCheck.contains(table, ip("8.8.8.8")))
+    }
+
+    @Test
+    fun addresses_outside_are_not() {
+        assertFalse(CloudflareCheck.contains(table, ip("104.24.0.0")))
+        assertFalse(CloudflareCheck.contains(table, ip("185.220.101.7")))
+        assertFalse(CloudflareCheck.contains(table, ip("1.1.2.1")))
+        assertFalse(CloudflareCheck.contains(table, ip("0.0.0.1")))
+    }
+
+    @Test
+    fun a_filtered_answer_is_private_and_no_verdict() {
+        assertTrue(CloudflareCheck.isPrivate(ip("10.10.34.35")))
+        assertTrue(CloudflareCheck.isPrivate(ip("127.0.0.1")))
+        assertTrue(CloudflareCheck.isPrivate(ip("192.168.1.1")))
+        assertFalse(CloudflareCheck.isPrivate(ip("104.16.1.1")))
+    }
+}
