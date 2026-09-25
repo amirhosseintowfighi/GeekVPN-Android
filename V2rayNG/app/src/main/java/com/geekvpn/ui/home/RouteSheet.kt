@@ -32,6 +32,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,11 +57,14 @@ fun BoxScope.RouteSheet(
     onDismiss: () -> Unit,
 ) {
     val colors = Geek.colors
+    val dismissLabel = stringResource(R.string.geek_sheet_close)
     var choice by rememberSaveable { mutableStateOf(current) }
     Box(
         Modifier
             .fillMaxSize()
             .background(colors.scrim)
+            // TalkBack reads the backdrop as a button; name it like the sheet's own close.
+            .semantics { contentDescription = dismissLabel }
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onDismiss),
     )
     GlassSurface(

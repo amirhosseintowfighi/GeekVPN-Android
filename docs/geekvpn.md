@@ -86,17 +86,55 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 `.github/workflows/build.yml` روی هر push اجرا می‌شود:
 
 - `libv2ray`: AAR را می‌سازد (یا از cache برمی‌دارد) و تست‌های `cfscan` را اجرا می‌کند.
-- `app`: `./gradlew lint test assembleDebug` را اجرا می‌کند و APKها را آپلود
-  می‌کند: `arm64-v8a`، `armeabi-v7a` و `universal`.
+- `app`: `./gradlew lint test assembleDebug assembleRelease` را اجرا می‌کند و APKهای
+  debug را آپلود می‌کند: `arm64-v8a`، `armeabi-v7a` و `universal`. اگر کلید
+  release تنظیم شده باشد، APKهای امضاشده‌ی `prod` و `mapping.txt` هم زیر اسم
+  `release` آپلود می‌شوند (بخش «release» پایین را ببین).
 
-- `device-smoke`: همان APK `universal` را روی Emulator با API 24، 30 و 35 نصب و
-  اجرا می‌کند (`scripts/ci/device-smoke.sh`). اگر اپ crash کند، یا صفحه‌ی «درباره»
-  نسخه‌ی `cfscan` را نشان ندهد، job قرمز می‌شود.
+- `device-smoke`: روی Emulator با API 24، 30، 35 و 37 اول APK `universal` debug و
+  بعد همان APK release (با R8) را نصب و اجرا می‌کند (`scripts/ci/device-smoke.sh`).
+  نتیجه‌ی release در پوشه‌ی `apiNN-release` است. job قرمز می‌شود اگر:
+  - اپ crash کند؛
+  - صفحه‌ی «درباره» نسخه‌ی `cfscan` را نشان ندهد؛
+  - `scripts/ci/a11y-check.py` روی صفحه‌های GeekVPN چیزی پیدا کند: هر چیز
+    قابل لمس باید حداقل ۴۴dp باشد و متن یا contentDescription داشته باشد.
+    گزارشش `a11y.txt` است.
 - `publish-screenshots`: اسکرین‌شات‌ها، dump صفحه و logcat هر API را در branch
   `ci/screenshots` زیر پوشه‌ای به اسم branch منبع می‌گذارد (`/` به `_` تبدیل
   می‌شود) و با هر اجرا جایگزینشان می‌کند. `RUN.txt` می‌گوید از کدام commit و run آمده‌اند.
 
-امضای release در فاز ۹ اضافه می‌شود.
+## release
+
+- build release با R8 کوچک و obfuscate می‌شود (`isMinifyEnabled`،
+  `isShrinkResources`). قانون‌ها در `V2rayNG/app/proguard-rules.pro` هستند. کد
+  v2rayNG، bindingهای gomobile (`go.*`، `libv2ray.*`، `cfscan.*`) و MMKV کامل نگه
+  داشته می‌شوند. از کد GeekVPN فقط فیلدها و constructorها می‌مانند، چون همه‌ی
+  مدل‌های API و MMKV با Gson خوانده می‌شوند و اسم فیلدها همان فرمت ذخیره است.
+- `versionCode` شماره‌ی run در CI است و `versionName` اسم tag (بدون `v`).
+- کلید امضا فقط از GitHub Secrets می‌آید، هیچ‌وقت از ریپو:
+
+  | Secret | مقدار |
+  |---|---|
+  | `GEEK_RELEASE_KEYSTORE` | فایل `.jks` به base64 (`base64 -w0 release.jks`) |
+  | `GEEK_RELEASE_STORE_PASSWORD` | رمز keystore |
+  | `GEEK_RELEASE_KEY_ALIAS` | alias کلید |
+  | `GEEK_RELEASE_KEY_PASSWORD` | رمز کلید |
+
+  ساخت کلید (یک بار، روی سیستم خودت؛ فایل و رمزها را جای امن نگه دار، بدون آن‌ها
+  آپدیت اپ ممکن نیست):
+
+  ```bash
+  keytool -genkeypair -v -keystore release.jks -alias geekvpn \
+    -keyalg RSA -keysize 4096 -validity 10000
+  ```
+
+  برای بیلد محلی همین چهار اسم در `V2rayNG/local.properties` می‌آیند، با
+  `GEEK_RELEASE_STORE_FILE=<مسیر فایل>` به‌جای base64.
+- بدون کلید، release با کلید debug امضا می‌شود تا CI بتواند نسخه‌ی R8 را روی
+  Emulator تست کند. این APK آپلود یا منتشر نمی‌شود.
+- انتشار: یک tag `v*` push کن (مثلاً `git tag v1.0.0 && git push origin v1.0.0`).
+  اگر کلید تنظیم شده باشد و همه‌ی تست‌ها سبز باشند، job `publish-release` یک
+  GitHub Release با APKهای امضاشده‌ی `prod` می‌سازد.
 
 ## ورود و حساب (`com.geekvpn.auth`، `com.geekvpn.account`)
 

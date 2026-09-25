@@ -2,8 +2,9 @@ name: Build APK
 
 # GeekVPN: builds libv2ray.aar from source (Xray core + cfscan in one gomobile
 # bind, see scripts/build-libv2ray.sh), then lints, tests and assembles the
-# debug APKs, then smoke-tests them on emulators and publishes the screenshots
-# to the ci/screenshots branch. Release signing arrives with phase 9.
+# debug and the R8-minified release APKs, then smoke-tests both on emulators
+# and publishes the screenshots to the ci/screenshots branch. A v* tag also
+# publishes the signed release APKs as a GitHub Release (docs/geekvpn.md).
 #
 # Everything here runs on GitHub-hosted runners. The self-hosted "iran" runner
 # is reserved for Iran-network tests and must never be reachable from a
@@ -15,6 +16,8 @@ on:
     branches-ignore:
       # The screenshot branch is written by this workflow; building it would loop.
       - 'ci/**'
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
@@ -164,9 +167,30 @@ jobs:
         java-version: '21'
         cache: 'gradle'
 
+    - name: Release keystore
+      id: keystore
+      env:
+        KEYSTORE_B64: ${{ secrets.GEEK_RELEASE_KEYSTORE }}
+      run: |
+        # Without the secret the release build falls back to the debug key:
+        # still minified and smoke-tested, never uploaded or published.
+        if [ -n "$KEYSTORE_B64" ]; then
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "GEEK_RELEASE_STORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          echo "SIGNED=true" >> "$GITHUB_ENV"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "::notice::GEEK_RELEASE_KEYSTORE is not set; the release APK is signed with the debug key and not published"
+        fi
+
     - name: Lint, test and assemble
       working-directory: V2rayNG
       env:
+        GEEK_RELEASE_STORE_PASSWORD: ${{ secrets.GEEK_RELEASE_STORE_PASSWORD }}
+        GEEK_RELEASE_KEY_ALIAS: ${{ secrets.GEEK_RELEASE_KEY_ALIAS }}
+        GEEK_RELEASE_KEY_PASSWORD: ${{ secrets.GEEK_RELEASE_KEY_PASSWORD }}
+        GEEK_VERSION_CODE: ${{ github.run_number }}
+        GEEK_VERSION_NAME: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
         # Unset secrets fall back to placeholder hosts; the build still refuses non-https.
         GEEK_API_BASE_STAGING: ${{ secrets.GEEK_API_BASE_STAGING }}
         GEEK_API_BASE_PROD: ${{ secrets.GEEK_API_BASE_PROD }}
@@ -175,7 +199,7 @@ jobs:
       run: |
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
-        ./gradlew --continue -PndkVersion=${NDK_VERSION} lint test assembleDebug
+        ./gradlew --continue -PndkVersion=${NDK_VERSION} lint test assembleDebug assembleRelease
 
     - name: Print lint errors
       if: ${{ failure() }}
@@ -211,6 +235,28 @@ jobs:
         path: V2rayNG/app/build/outputs/apk/*/debug/*universal*.apk
         if-no-files-found: error
 
+    # For the emulators only: may be signed with the debug key.
+    - name: Upload release APK for the smoke test
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-smoke
+        path: V2rayNG/app/build/outputs/apk/playstoreProd/release/*universal*.apk
+        if-no-files-found: error
+        retention-days: 3
+
+    - name: Upload signed release APKs
+      if: ${{ env.SIGNED == 'true' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: release
+        path: |
+          V2rayNG/app/build/outputs/apk/playstoreProd/release/*.apk
+          V2rayNG/app/build/outputs/mapping/playstoreProdRelease/mapping.txt
+        if-no-files-found: error
+
+    outputs:
+      signed: ${{ steps.keystore.outputs.signed }}
+
   device-smoke:
     needs: app
     runs-on: ubuntu-latest
@@ -227,6 +273,8 @@ jobs:
             profile: pixel_6
           - api-level: 35
             profile: pixel_6
+          - api-level: 37
+            profile: pixel_6
     steps:
     - name: Checkout code
       uses: actions/checkout@v7
@@ -236,6 +284,12 @@ jobs:
       with:
         name: universal
         path: apk
+
+    - name: Download release APK
+      uses: actions/download-artifact@v8
+      with:
+        name: release-smoke
+        path: apk-release
 
     - name: Enable KVM
       run: |
@@ -252,7 +306,12 @@ jobs:
         profile: ${{ matrix.profile }}
         disable-animations: true
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-        script: bash scripts/ci/device-smoke.sh "$(find apk -path '*playstoreProd*' -name '*universal*.apk' | head -1)" out/api${{ matrix.api-level }}
+        # Debug first (previews, catalog), then the R8 release build: another
+        # signature, so the debug install goes first.
+        script: |
+          bash scripts/ci/device-smoke.sh "$(find apk -path '*playstoreProd*' -name '*universal*.apk' | head -1)" out/api${{ matrix.api-level }}
+          adb uninstall com.geekvpn.app
+          bash scripts/ci/device-smoke.sh "$(find apk-release -name '*universal*.apk' | head -1)" out/api${{ matrix.api-level }}-release
 
     - name: Upload smoke results
       if: ${{ always() }}
@@ -303,3 +362,25 @@ jobs:
         git add -A
         git commit -q -m "Screenshots for $SOURCE_REF @ ${GITHUB_SHA::8}" || exit 0
         git push -q origin ci/screenshots
+
+  # A v* tag with the release key set: publish the signed prod APKs.
+  publish-release:
+    needs: [app, device-smoke]
+    if: ${{ github.ref_type == 'tag' && needs.app.outputs.signed == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Download signed release APKs
+      uses: actions/download-artifact@v8
+      with:
+        name: release
+        path: release
+
+    - name: Create GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+      run: |
+        gh release create "$TAG" --repo "${{ github.repository }}" --title "GeekVPN $TAG" --generate-notes \
+          $(find release -name '*.apk' | sort)

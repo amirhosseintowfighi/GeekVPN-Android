@@ -161,11 +161,11 @@ if [[ "$probe" != *Error* ]]; then
         alive "previewing $1"
         adb shell am force-stop "$PKG"
     }
-    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner; do
+    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout; do
         preview "$screen" false
         preview "$screen" true
     done
-    for screen in home-empty servers route shop-guest checkout scanner-running home-finding-ip home-attempt; do
+    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt; do
         preview "$screen" false
     done
     # A name the preview activity does not know falls back to the waiting screen.
@@ -231,7 +231,20 @@ if ! grep -Eo 'cfscan [0-9]+\.[0-9]+\.[0-9]+' "$OUT/about.xml"; then
     exit 1
 fi
 
-if [[ -n "${LOCALE_FAILED:-}" || -n "${LOGIN_FAILED:-}" ]]; then
+# Accessibility (44dp touch targets, a label on everything tappable) on
+# GeekVPN's own screens; v2rayNG's screens (main, About) and the component
+# catalog are not ours to hold to it.
+DPI=$(adb shell wm density | tr -d '\r' | tail -1 | grep -Eo '[0-9]+$')
+shopt -s nullglob
+A11Y_DUMPS=("$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
+shopt -u nullglob
+if ! python3 "$(dirname "$0")/a11y-check.py" "$DPI" "$PKG" "${A11Y_DUMPS[@]}" > "$OUT/a11y.txt"; then
+    echo "::error::accessibility problems, see a11y.txt"
+    cat "$OUT/a11y.txt"
+    A11Y_FAILED=1
+fi
+
+if [[ -n "${LOCALE_FAILED:-}" || -n "${LOGIN_FAILED:-}" || -n "${A11Y_FAILED:-}" ]]; then
     exit 1
 fi
 

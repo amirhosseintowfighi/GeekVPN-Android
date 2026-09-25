@@ -39,8 +39,9 @@ android {
         applicationId = "com.geekvpn.app"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        // CI sets these: the run number, and the tag on a release build.
+        versionCode = geekProperty("GEEK_VERSION_CODE", "1").toInt()
+        versionName = geekProperty("GEEK_VERSION_NAME", "0.1.0").removePrefix("v")
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {
@@ -72,9 +73,29 @@ android {
         buildConfigField("String", "BOT_USERNAME", "\"$botUsername\"")
     }
 
+    // GeekVPN: the release key comes from GitHub Secrets (see docs/geekvpn.md),
+    // never from the repo. Without it a release build is signed with the debug
+    // key, so CI can still install and smoke-test the minified APK; such an APK
+    // is never published.
+    val releaseStoreFile = geekProperty("GEEK_RELEASE_STORE_FILE", "")
+    signingConfigs {
+        if (releaseStoreFile.isNotEmpty()) {
+            create("release") {
+                storeFile = file(releaseStoreFile)
+                storePassword = geekProperty("GEEK_RELEASE_STORE_PASSWORD", "")
+                keyAlias = geekProperty("GEEK_RELEASE_KEY_ALIAS", "")
+                keyPassword = geekProperty("GEEK_RELEASE_KEY_PASSWORD", "")
+                enableV1Signing = true
+                enableV2Signing = true
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
