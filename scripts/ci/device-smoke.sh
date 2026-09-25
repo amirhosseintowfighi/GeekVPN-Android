@@ -21,6 +21,13 @@ adb wait-for-device
 adb root >/dev/null 2>&1 || true
 adb wait-for-device
 
+# The emulator's own launcher ANRs after boot on API 35, and its dialog then
+# covers every screen, over and over. Nothing here goes through a launcher
+# (every screen is started by component), so switch it off.
+for launcher in com.google.android.apps.nexuslauncher com.android.launcher3; do
+    adb shell pm disable-user --user 0 "$launcher" >/dev/null 2>&1 || true
+done
+
 adb install -r -g "$APK"
 adb logcat -c
 
