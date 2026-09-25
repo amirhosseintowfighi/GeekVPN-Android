@@ -67,12 +67,18 @@ class LoginViewModelTest {
         override fun logFailure(message: String, e: Throwable) = Unit
     }
 
+    /**
+     * The ViewModel and an event collector on the test scheduler. Not in
+     * `backgroundScope`: `advanceUntilIdle()` stops once only background work
+     * is left, so a collector there would never see the events.
+     */
     private class Harness(scope: TestScope, val backend: FakeBackend = FakeBackend()) {
-        val viewModel = LoginViewModel(backend, CoroutineScope(SupervisorJob() + StandardTestDispatcher(scope.testScheduler)))
+        private val dispatcher = StandardTestDispatcher(scope.testScheduler)
+        val viewModel = LoginViewModel(backend, CoroutineScope(SupervisorJob() + dispatcher))
         val events = mutableListOf<LoginEvent>()
 
         init {
-            scope.backgroundScope.launch(StandardTestDispatcher(scope.testScheduler)) {
+            CoroutineScope(SupervisorJob() + dispatcher).launch {
                 viewModel.events.toList(events)
             }
         }
