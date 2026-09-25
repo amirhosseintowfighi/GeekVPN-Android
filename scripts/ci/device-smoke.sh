@@ -103,6 +103,21 @@ if xy=$(center_of "$OUT/login.xml" "ورود با تلگرام"); then
 fi
 adb shell am force-stop "$PKG"
 
+# The waiting and syncing screens with sample data (debug builds): the real
+# flow above only gets there when this emulator can reach the API.
+PREVIEW="$PKG/com.geekvpn.ui.catalog.ScreenPreviewActivity"
+if adb shell pm dump "$PKG" | grep -q "com.geekvpn.ui.catalog.ScreenPreviewActivity"; then
+    for screen in waiting create syncing; do
+        for dark in false true; do
+            name="preview-$screen"; [[ "$dark" == true ]] && name="$name-dark"
+            adb shell am start -W -n "$PREVIEW" --es screen "$screen" --ez dark "$dark" >/dev/null
+            shot "$name" 4
+            alive "previewing $screen"
+            adb shell am force-stop "$PKG"
+        done
+    done
+fi
+
 # By component: the main screen is behind the login gate, and debug builds
 # have a second launcher entry (the catalog).
 adb shell am start -W -n "$PKG/com.v2ray.ang.ui.main.MainActivity" >/dev/null
