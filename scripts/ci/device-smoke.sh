@@ -90,9 +90,11 @@ alive "launch"
 
 # Exactly one icon on the phone. A debug build once added the catalog as a
 # second GeekVPN icon, and a tester opened that instead of the app.
-launchers=$(adb shell cmd package query-activities --brief -a android.intent.action.MAIN \
-    -c android.intent.category.LAUNCHER 2>/dev/null | tr -d '\r' | grep -c "^ *$PKG/" || true)
-if [[ "$launchers" != "1" ]]; then
+launcher_list=$(adb shell cmd package query-activities --brief -a android.intent.action.MAIN \
+    -c android.intent.category.LAUNCHER 2>/dev/null | tr -d '\r' || true)
+launchers=$(grep -c "$PKG/" <<<"$launcher_list" || true)
+# Older images may not answer query-activities at all; only a real answer counts.
+if [[ -n "$launcher_list" && "$launchers" != "1" ]]; then
     echo "::error::$PKG has $launchers launcher entries, want 1"
     LOGIN_FAILED=1
 fi
