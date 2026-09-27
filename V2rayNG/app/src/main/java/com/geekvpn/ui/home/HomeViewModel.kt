@@ -229,7 +229,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun smartConnect(groupId: String, current: HomeUiState) {
         val signals = Channel<ServiceSignal>(Channel.UNLIMITED)
         smartSignals = signals
-        val ports = HomePorts(signals, current)
+        val ports = HomePorts(signals)
         state.update { it.copy(phase = ConnectionPhase.Testing, stage = SmartStage.Testing) }
         try {
             val result = SmartConnectUseCase(ports).run(groupId, current.selected?.guid) { stage ->
@@ -536,7 +536,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     /** Smart connect on this screen: v2rayNG's test service, `LauncherManager` and the daemon's reports. */
     private inner class HomePorts(
         private val signals: Channel<ServiceSignal>,
-        private val snapshot: HomeUiState,
     ) : SmartConnectPorts {
         /** A start was sent, so a failure or cancel must stop the daemon. */
         var started = false
@@ -549,8 +548,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         override suspend fun scannable(guid: String): Boolean = withContext(Dispatchers.IO) {
             val profile = MmkvManager.decodeServerConfig(guid) ?: return@withContext false
-            val isAccount = snapshot.groupId?.let { SubscriptionPlan.isAccountGuid(it) } == true
-            CleanIpTarget.of(guid, "", profile, snapshot.activeService?.tier, isAccount) != null &&
+            CleanIpTarget.of(guid, "", profile, ScanController.store.scanAllowed(profile.subscriptionId)) != null &&
                 // Never scanned for automatically unless the domain is known to be Cloudflare's.
                 CleanIps.verify(app, guid) == true
         }
@@ -740,8 +738,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             )
         val cleanIp = selected?.let { row ->
             val profile = MmkvManager.decodeServerConfig(row.guid) ?: return@let null
-            val isAccount = groupId?.let { SubscriptionPlan.isAccountGuid(it) } == true
-            CleanIpTarget.of(row.guid, row.title, profile, active?.tier, isAccount)
+            CleanIpTarget.of(row.guid, row.title, profile, ScanController.store.scanAllowed(profile.subscriptionId))
                 ?.takeIf { CleanIps.knownBehindCloudflare(row.guid) != false }
         }
         return Snapshot(services, active, groupId, rows, selected, manual, cleanIp)

@@ -64,13 +64,19 @@ class ScannerTest {
 
     @Test
     fun the_scanner_is_offered_only_for_direct_services_and_manual_links() {
+        val direct = setOf("geek-d1")
+        assertTrue(ScanStore.allows("geek-d1", direct))
+        // A tunnel or elite service, or one not (yet) known to be direct.
+        assertFalse(ScanStore.allows("geek-t1", direct))
+        assertFalse(ScanStore.allows("geek-d1", emptySet()))
+        // Links the customer added by hand, and v2rayNG's default group.
+        assertTrue(ScanStore.allows("a3f0c2", direct))
+        assertTrue(ScanStore.allows("", direct))
+
         val p = profile()
-        assertEquals("g", CleanIpTarget.of("g", "t", p, "direct", isAccountService = true)?.guid)
-        assertNull(CleanIpTarget.of("g", "t", p, "tunnel", isAccountService = true))
-        assertNull(CleanIpTarget.of("g", "t", p, "elite", isAccountService = true))
-        assertNull(CleanIpTarget.of("g", "t", p, null, isAccountService = true))
-        assertEquals("g", CleanIpTarget.of("g", "t", p, null, isAccountService = false)?.guid)
-        assertNull(CleanIpTarget.of("g", "t", profile(network = "tcp"), null, isAccountService = false))
+        assertEquals("g", CleanIpTarget.of("g", "t", p, scanAllowed = true)?.guid)
+        assertNull(CleanIpTarget.of("g", "t", p, scanAllowed = false))
+        assertNull(CleanIpTarget.of("g", "t", profile(network = "tcp"), scanAllowed = true))
     }
 
     @Test

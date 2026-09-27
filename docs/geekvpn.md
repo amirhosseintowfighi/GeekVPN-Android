@@ -70,8 +70,16 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 2. داده‌های geo را مثل workflow خود upstream دانلود می‌کند (`gen_assets.sh`).
 3. `go mod tidy` را اجرا می‌کند. بعد ماژول `cfscan` را با یک `replace` محلی به
    گراف ماژول هسته اضافه می‌کند تا هر دو با یک نسخه از وابستگی‌ها ساخته شوند.
-4. `gomobile bind -androidapi 24 ./ <cfscan>` را اجرا می‌کند و خروجی را در
-   `V2rayNG/app/libs/libv2ray.aar` می‌گذارد.
+4. `xray-core` را با همان نسخه‌ای که `go.mod` می‌گوید کپی می‌کند، patchهای
+   `scripts/xray-patches/` را رویش اعمال می‌کند، تست‌های همان پوشه را اجرا می‌کند و
+   با یک `replace` جای ماژول اصلی می‌گذارد. patchی که دیگر اعمال نشود بیلد را می‌شکند.
+   فعلاً یک patch داریم: VLESS بدون TLS را دوباره مجاز می‌کند، چون سرویس‌های تونل
+   هنوز این شکل را دارند و Xray جدید ردش می‌کند (توضیح و شرط حذفش در README همان پوشه).
+5. `gomobile bind -androidapi 24 ./ <cfscan>` را اجرا می‌کند و خروجی را در
+   `V2rayNG/app/libs/libv2ray.aar` می‌گذارد. قبل و بعد از bind بررسی می‌کند که هر سه
+   فایل geo (`geosite.dat`، `geoip.dat`، `geoip-only-cn-private.dat`) در AAR باشند؛
+   v2rayNG هر قانون `geoip:private` را به فایل سوم می‌برد و بدون آن مسیریابی Xray
+   ساخته نمی‌شود (`failed to build routing configuration`).
 
 در کاتلین، هسته `libv2ray.Libv2ray` است و اسکنر `cfscan.Cfscan`. فقط
 `com.geekvpn.scanner.CfScanNative` به `cfscan.*` دست می‌زند.
@@ -251,8 +259,13 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 - اسکن در یک foreground service کوتاه (`ScanService`، نوع `dataSync`) در پروسه‌ی
   اصلی اجرا می‌شود و از نوتیفیکیشن قابل توقف است. WorkManager خود v2rayNG در
   پروسه‌ی `:bg` است و پیشرفت اسکن را به صفحه نمی‌رساند.
-- کارت و گزینه‌ی اسکنر فقط برای سرویس `direct` حساب یا لینک دستی نشان داده
-  می‌شود، آن هم وقتی کانفیگ پشت CDN باشد (`CdnTarget`): transport یکی از ws،
+- اسکنر فقط برای سرویس `direct` حساب یا لینک دستی است. tier هر سرویس از جواب
+  API می‌آید و `AccountSync` فهرست GUID سرویس‌های `direct` را در `GEEK_SCAN` می‌نویسد
+  (`ScanStore.directServices`)، چون پروسه‌ی VPN هم آن را می‌خواند. تصمیم بر اساس
+  subscription خود کانفیگ است، نه سرویسی که الان انتخاب شده. `IpOverrides.apply`،
+  اسکن دستی، اتصال هوشمند و failover همه همین را چک می‌کنند؛ پس override قدیمی روی
+  سرویس تونل هم دیگر اعمال نمی‌شود. کارت و گزینه‌ی اسکنر هم فقط وقتی نشان داده
+  می‌شود که کانفیگ پشت CDN باشد (`CdnTarget`): transport یکی از ws،
   grpc، xhttp یا httpupgrade، امنیت TLS، و SNI و Host یک دامنه.
 - شکل کانفیگ کافی نیست: قبل از هر اسکن و هر override، دامنه‌های SNI و Host resolve
   می‌شوند و باید در رنج‌های کلادفلر (`ipv4.txt`) باشند (`CloudflareCheck`). جواب
@@ -293,6 +306,14 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 pip install cairosvg pillow
 python3 branding/gen_icons.py
 ```
+
+پس‌زمینه‌ی صفحه‌ها (`GeekBackdrop`) فقط دو هاله و حلقه‌ها را دارد. لوگوی کم‌رنگ پایین
+طراحی عمداً حذف شده است.
+
+انیمیشن‌ها در `ui/components/Motion.kt` هستند: جابه‌جایی تب‌ها و صفحه‌ها در جهت
+خواندن (در فارسی صفحه‌ی بعدی از چپ می‌آید)، کاشی نوار پایین با فنر، sheetها از پایین،
+و کارت‌هایی که با حالت اتصال می‌آیند و می‌روند. همه با تنظیم «حذف انیمیشن‌ها»ی
+سیستم خاموش می‌شوند.
 
 ## اتصال هوشمند و failover (`com.geekvpn.smartconnect`)
 

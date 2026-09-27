@@ -1,6 +1,7 @@
 package com.geekvpn.account
 
 import com.geekvpn.api.GeekApi
+import com.geekvpn.scanner.ScanController
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.dto.entities.SubscriptionCache
 import com.v2ray.ang.handler.AngConfigManager
@@ -31,6 +32,11 @@ class AccountSync(
     suspend fun sync(): Result = mutex.withLock {
         val remote = api.subscriptions()
         store.saveServices(remote)
+        // Read by the scanner in both processes; see ScanStore.allows.
+        ScanController.store.directServices = remote
+            .filter { it.tier == TIER_DIRECT }
+            .mapNotNull { card -> card.subscriptionId?.takeIf { it.isNotBlank() }?.let(SubscriptionPlan::guidOf) }
+            .toSet()
         // The balance is extra: a failure here must not undo the services.
         try {
             api.wallet().balance?.let(store::saveBalance)
@@ -84,9 +90,14 @@ class AccountSync(
      */
     fun removeAllNow() {
         store.clear()
+        ScanController.store.directServices = emptySet()
         MmkvManager.decodeSubscriptions()
             .map { it.guid }
             .filter { SubscriptionPlan.isAccountGuid(it) }
             .forEach { SettingsManager.removeSubscriptionWithDefault(it) }
+    }
+
+    private companion object {
+        const val TIER_DIRECT = "direct"
     }
 }

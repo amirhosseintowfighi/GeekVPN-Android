@@ -70,12 +70,11 @@ object ProfileKey {
 data class CleanIpTarget(val guid: String, val title: String, val target: CdnTarget) {
     companion object {
         /**
-         * Only for `direct` account services and for manual links: tunnel and
-         * elite services go through our own servers, where a Cloudflare
-         * address means nothing. And only for a CDN-fronted config.
+         * Only where [ScanStore.allows] says so (a `direct` account service or a
+         * manual link), and only for a CDN-fronted config.
          */
-        fun of(guid: String, title: String, profile: ProfileItem, accountTier: String?, isAccountService: Boolean): CleanIpTarget? {
-            if (isAccountService && accountTier != "direct") return null
+        fun of(guid: String, title: String, profile: ProfileItem, scanAllowed: Boolean): CleanIpTarget? {
+            if (!scanAllowed) return null
             val target = CdnTarget.of(profile) ?: return null
             return CleanIpTarget(guid, title, target)
         }

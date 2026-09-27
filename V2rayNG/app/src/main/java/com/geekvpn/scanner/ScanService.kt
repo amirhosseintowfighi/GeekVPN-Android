@@ -70,7 +70,7 @@ class ScanService : Service() {
 
     private fun begin(guid: String, download: Boolean, timeoutMs: Long) {
         val profile = MmkvManager.decodeServerConfig(guid)
-        val target = profile?.let { CdnTarget.of(it) }
+        val target = profile?.takeIf { ScanController.store.scanAllowed(it.subscriptionId) }?.let { CdnTarget.of(it) }
         // Checked before scanning: /cdn-cgi/trace answers on any Cloudflare
         // address whatever the domain, so the scan itself cannot tell.
         if (profile == null || target == null || CleanIps.verify(this, guid) == false) {

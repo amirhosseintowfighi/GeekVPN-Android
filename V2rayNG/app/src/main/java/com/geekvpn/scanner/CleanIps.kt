@@ -68,5 +68,7 @@ object CleanIps {
 
     private const val VERDICT_MAX_AGE_MS = 24 * 60 * 60 * 1000L
 
-    private fun targetOf(guid: String): CdnTarget? = MmkvManager.decodeServerConfig(guid)?.let { CdnTarget.of(it) }
+    /** Null also for a config of a tunnel or elite service ([ScanStore.allows]). */
+    private fun targetOf(guid: String): CdnTarget? =
+        MmkvManager.decodeServerConfig(guid)?.takeIf { store.scanAllowed(it.subscriptionId) }?.let { CdnTarget.of(it) }
 }
