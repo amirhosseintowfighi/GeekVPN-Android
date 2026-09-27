@@ -385,6 +385,11 @@ jobs:
     permissions:
       contents: write
     steps:
+    - name: Checkout release notes
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: docs/release-notes
+
     - name: Download signed release APKs
       uses: actions/download-artifact@v8
       with:
@@ -396,5 +401,13 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ github.ref_name }}
       run: |
-        gh release create "$TAG" --repo "${{ github.repository }}" --title "GeekVPN $TAG" --generate-notes \
+        # The app shows these notes in its update sheet: Persian ones from
+        # docs/release-notes/<tag>.md when that file exists, else GitHub's list.
+        NOTES_FILE="docs/release-notes/$TAG.md"
+        if [[ -f "$NOTES_FILE" ]]; then
+          NOTES=(--notes-file "$NOTES_FILE")
+        else
+          NOTES=(--generate-notes)
+        fi
+        gh release create "$TAG" --repo "${{ github.repository }}" --title "GeekVPN $TAG" "${NOTES[@]}" \
           $(find release -name '*.apk' | sort)

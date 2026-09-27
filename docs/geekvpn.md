@@ -31,7 +31,8 @@ git submodule update --init --recursive
 | `.github/workflows/build.yml` | کاملاً بازنویسی شده (پایین را ببین) |
 | `res/values*/strings.xml` | `app_name` و چند برچسب برند |
 | آیکن‌ها (`mipmap-*`، `drawable-*dpi/ic_stat_*`) | خروجی `branding/gen_icons.py`؛ بعد از merge دوباره اجرایش کن |
-| `res/xml/shortcuts.xml` | `targetPackage` |
+| `res/xml/shortcuts.xml` | `targetPackage`؛ میانبر «اسکن QR» حذف شده |
+| `AndroidManifest.xml` | مجوز `CAMERA` با `tools:node="remove"` حذف شده (اسکن QR v2rayNG از هیچ جای UI در دسترس نیست)؛ `REQUEST_INSTALL_PACKAGES` برای به‌روزرسانی |
 | `core/CoreConfigContextBuilder.kt` | یک خط: پروفایل قبل از ساخت کانفیگ از `IpOverrides.apply` رد می‌شود (اسکنر) |
 | `service/RealPingWorkerService.kt` | یک خط: پیش‌تست TCP هم به IP تمیز (override) می‌رود، نه آدرس خود کانفیگ |
 | `core/CoreServiceManager.kt` | `FailoverMonitor` بعد از شروع هسته ساخته و قبل از توقفش متوقف می‌شود (`startFailoverMonitor`) |
@@ -145,7 +146,52 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   Emulator تست کند. این APK آپلود یا منتشر نمی‌شود.
 - انتشار: یک tag `v*` push کن (مثلاً `git tag v1.0.0 && git push origin v1.0.0`).
   اگر کلید تنظیم شده باشد و همه‌ی تست‌ها سبز باشند، job `publish-release` یک
-  GitHub Release با APKهای امضاشده‌ی `prod` می‌سازد.
+  GitHub Release با APKهای امضاشده‌ی `prod` می‌سازد. متن release از
+  `docs/release-notes/<tag>.md` می‌آید اگر باشد (همان «تغییرات» پنجره‌ی به‌روزرسانی).
+
+## به‌روزرسانی از داخل اپ (`com.geekvpn.update`)
+
+- اپ در Google Play نیست، پس خودش نسخه‌ی جدید را پیدا می‌کند. `AppUpdater` هر بار
+  که `HomeActivity` جلو می‌آید (حداکثر هر ۶ ساعت یک بار) `GET /api/app/version` را از
+  بک‌اند می‌پرسد. بک‌اند آخرین GitHub Release همین ریپو را می‌خواند
+  (`APP_RELEASE__GITHUB_REPO`)، cache می‌کند و برای هر ABI آدرس APK و SHA-256 آن را
+  برمی‌گرداند. `APP_RELEASE__MIRROR_BASE_URL` فایل‌ها را از یک mirror داخل ایران
+  می‌دهد و `APP_RELEASE__MIN_VERSION` نسخه‌های قدیمی‌تر را «اجباری» می‌کند (بنر
+  بسته نمی‌شود).
+- انتخاب APK و مقایسه‌ی نسخه در `UpdatePlan` است (خالص، با تست): ABI گوشی به ترتیب
+  `Build.SUPPORTED_ABIS`، وگرنه `universal`؛ فقط `https`.
+- دانلود در cache (`cache/updates`)، بعد SHA-256 چک می‌شود و با
+  `getPackageArchiveInfo` بررسی می‌شود که همین پکیج با همان نسخه باشد. نصب با
+  نصب‌کننده‌ی خود اندروید از طریق FileProvider موجود (`${applicationId}.cache`). اگر
+  «نصب برنامه‌های ناشناس» برای اپ روشن نباشد، صفحه‌ی همان تنظیم باز می‌شود.
+- فقط build `prod` و release خودش را به‌روز می‌کند؛ debug و staging کلید یا پکیج
+  دیگری دارند.
+- UI: بنر بالای خانه، ردیف «به‌روزرسانی برنامه» در حساب، و پنجره‌ی
+  `ui/update/UpdateSheet`.
+
+## گزارش مشکل (`com.geekvpn.support`، `ui.support.ReportActivity`)
+
+- «حساب ← گزارش مشکل»: کاربر مشکل را می‌نویسد و اپ یک گزارش فنی ضمیمه می‌کند:
+  نسخه‌ی اپ و اندروید، مدل گوشی، نوع شبکه (برای موبایل MCC-MNC اپراتور)، حالت،
+  مسیر، هسته، شکل کانفیگ انتخاب‌شده (پروتکل، transport، امنیت، پورت، نوع سرویس)،
+  آخرین خطای شروع اتصال (`ConnectionPrefs.lastFailure`) و آخرین خط‌های logcat خود اپ.
+- قبل از ارسال `ProblemReport.redact` لینک‌ها، UUID، IPv4/IPv6، hostها، ایمیل و
+  رشته‌های کلیدمانند را با placeholder عوض می‌کند (با تست). کاربر گزارش فنی را قبل
+  از ارسال می‌بیند.
+- ارسال با `POST /api/miniapp/tickets` (همان تیکت مینی‌اپ، دسته‌ی `connection`)؛
+  ادمین در پنل و ربات جواب می‌دهد. کاربر مهمان حساب ندارد، پس گزارش کپی می‌شود و
+  ربات باز می‌شود.
+
+## هشدار تمام شدن سرویس (`account.UsageAlerts`، `UsageNotifier`)
+
+- وقتی ۸۰٪ حجم یک سرویس مصرف شده یا ۳ روز یا کمتر مانده، یک نوتیفیکیشن با دکمه‌ی
+  «تمدید» می‌آید که تمدید همان سرویس را در فروشگاه باز می‌کند
+  (`HomeActivity.EXTRA_RENEW`).
+- بعد از هر sync حساب چک می‌شود، و هر ۱۲ ساعت هم یک worker در پروسه‌ی `:bg`
+  همان داده‌ی ذخیره‌شده را چک می‌کند (API فقط مال پروسه‌ی اصلی است). هشدار زمان
+  همیشه دقیق است؛ هشدار حجم به تازگی آخرین sync است.
+- هر هشدار یک بار فرستاده می‌شود؛ کلیدش حجم یا تاریخ انقضا را دارد، پس بعد از
+  تمدید دوباره فعال می‌شود.
 
 ## ورود و حساب (`com.geekvpn.auth`، `com.geekvpn.account`)
 

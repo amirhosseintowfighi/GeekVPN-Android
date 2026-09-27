@@ -1,5 +1,9 @@
 package com.geekvpn.ui.catalog
 
+import com.geekvpn.ui.update.UpdateActions
+import com.geekvpn.ui.update.UpdateBanner
+import com.geekvpn.ui.update.UpdateSheet
+import com.geekvpn.update.UpdateState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,7 +82,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
             "shop", "shop-guest", "checkout", "wallet", "deposit", "scanner", "scanner-running",
-            "home-finding-ip", "home-attempt",
+            "home-finding-ip", "home-attempt", "update", "update-downloading",
         )
     }
 }
@@ -122,6 +126,11 @@ private fun TabPreview(screen: String) {
             "deposit" -> PreviewSamples.deposit
             else -> PreviewSamples.shop
         }
+        val update = when (screen) {
+            "update" -> UpdateState.Available(PreviewSamples.updateOffer)
+            "update-downloading" -> UpdateState.Downloading(PreviewSamples.updateOffer, 0.42f)
+            else -> null
+        }
         val state = when (screen) {
             "home-on" -> PreviewSamples.homeOn
             "home-empty" -> PreviewSamples.homeEmpty
@@ -139,6 +148,7 @@ private fun TabPreview(screen: String) {
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             if (tab == GeekTab.Home) GeekHeader(balance = state.balance, onWallet = none)
+            if (update != null) UpdateBanner(update.offer!!, onOpen = none, onClose = none)
             when (tab) {
                 GeekTab.Home -> HomeScreen(
                     state = state,
@@ -158,6 +168,7 @@ private fun TabPreview(screen: String) {
                     logoutAsked = false,
                     actions = PreviewActions,
                     showCleanIp = true,
+                    update = UpdateState.UpToDate,
                     onAutoUpdate = {},
                     onTheme = {},
                     onAskLogout = {},
@@ -177,6 +188,11 @@ private fun TabPreview(screen: String) {
                 DepositSheet(sheet.info, uploading = false, onCopy = { _, _ -> }, onSendReceipt = none, onDismiss = none)
             }
             null -> Unit
+        }
+        if (update != null) {
+            Box(Modifier.fillMaxSize()) {
+                UpdateSheet(update, needsPermission = false, actions = PreviewUpdateActions)
+            }
         }
         if (screen == "route") {
             Box(Modifier.fillMaxSize()) {
@@ -207,6 +223,16 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onSupport() = Unit
     override fun onAbout() = Unit
     override fun onLogin() = Unit
+    override fun onUpdate() = Unit
+    override fun onReport() = Unit
+}
+
+private object PreviewUpdateActions : UpdateActions {
+    override fun onDownload() = Unit
+    override fun onCancel() = Unit
+    override fun onInstall() = Unit
+    override fun onLater() = Unit
+    override fun onDismiss() = Unit
 }
 
 private object PreviewShopActions : ShopActions {

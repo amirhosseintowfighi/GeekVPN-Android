@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
+import com.geekvpn.account.UsageNotifier
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
 import com.geekvpn.scanner.CleanIp
@@ -52,6 +55,7 @@ import com.geekvpn.ui.advanced.AdvancedActivity
 import com.geekvpn.ui.common.GeekHeader
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
+import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GeekTab
 import com.geekvpn.ui.components.geekPage
 import com.geekvpn.ui.links.LinkEditActivity
@@ -73,7 +77,12 @@ import com.geekvpn.ui.shop.ShopSheet
 import com.geekvpn.ui.shop.ShopUiState
 import com.geekvpn.ui.shop.ShopViewModel
 import com.geekvpn.ui.shop.WalletSheet
+import com.geekvpn.ui.support.ReportActivity
 import com.geekvpn.ui.theme.GeekTheme
+import com.geekvpn.ui.update.UpdateActions
+import com.geekvpn.ui.update.UpdateBanner
+import com.geekvpn.ui.update.UpdateSheet
+import com.geekvpn.update.AppUpdater
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
@@ -119,6 +128,8 @@ class HomeActivity : HelperBaseComponentActivity() {
         savedInstanceState?.getString(STATE_TAB)?.let { saved -> GeekTab.entries.firstOrNull { it.name == saved }?.let { tab = it } }
         GeekGraph.syncOnLaunch()
         handlePaymentReturn(intent)
+        handleRenew(intent)
+        UsageNotifier.schedule(this)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -164,16 +175,26 @@ class HomeActivity : HelperBaseComponentActivity() {
         if (SettingsChangeManager.consumeRestartService()) home.reconnectIfRunning()
         // Back from a gateway's page without its link: refresh anyway.
         shop.onReturn(null)
+        // Not on Google Play: this is how a customer learns of a new version.
+        AppUpdater.check()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handlePaymentReturn(intent)
+        handleRenew(intent)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(STATE_TAB, tab.name)
+    }
+
+    /** From a "running out" notification: that service's renewal, in the shop. */
+    private fun handleRenew(intent: Intent?) {
+        val subscriptionId = intent?.getStringExtra(EXTRA_RENEW) ?: return
+        intent.removeExtra(EXTRA_RENEW)
+        servicesActions(openShop = { tab = GeekTab.Shop }).onRenew(subscriptionId)
     }
 
     private fun handlePaymentReturn(intent: Intent?) {
@@ -246,9 +267,16 @@ class HomeActivity : HelperBaseComponentActivity() {
                 }
             }
             val signedIn = accountState.session is Session.SignedIn
+            val update by AppUpdater.state.collectAsStateWithLifecycle()
+            var updateOpen by rememberSaveable { mutableStateOf(false) }
+            var dismissedVersion by remember { mutableStateOf(AppUpdater.dismissedVersion()) }
+            // Install tapped before GeekVPN may install apps: say what to allow.
+            var installNeedsPermission by remember { mutableStateOf(false) }
+            val bannerOffer = update.offer?.takeIf { it.required || it.versionName != dismissedVersion }
 
-            BackHandler(enabled = shopState.sheet != null || overlay != Overlay.None || tab != GeekTab.Home) {
+            BackHandler(enabled = shopState.sheet != null || updateOpen || overlay != Overlay.None || tab != GeekTab.Home) {
                 when {
+                    updateOpen -> updateOpen = false
                     shopState.sheet != null -> shop.closeSheet()
                     overlay == Overlay.Scanner -> overlay = scannerBack
                     overlay != Overlay.None -> overlay = Overlay.None
@@ -318,6 +346,18 @@ class HomeActivity : HelperBaseComponentActivity() {
                                             balance = state.balance,
                                             onWallet = if (signedIn) shop::openWallet else null,
                                         )
+                                        AnimatedVisibility(bannerOffer != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+                                            bannerOffer?.let { offer ->
+                                                UpdateBanner(
+                                                    offer = offer,
+                                                    onOpen = { updateOpen = true },
+                                                    onClose = {
+                                                        AppUpdater.dismiss(offer)
+                                                        dismissedVersion = offer.versionName
+                                                    },
+                                                )
+                                            }
+                                        }
                                     }
                                     when (shownTab) {
                                         GeekTab.Home -> HomeScreen(
@@ -344,8 +384,12 @@ class HomeActivity : HelperBaseComponentActivity() {
                                                 openServers = { overlay = Overlay.Servers },
                                                 openRoute = { overlay = Overlay.Route },
                                                 openCleanIp = { openScanner?.invoke() },
+                                                openUpdate = {
+                                                    if (update.offer != null) updateOpen = true else AppUpdater.check(force = true)
+                                                },
                                             ),
                                             showCleanIp = openScanner != null,
+                                            update = if (AppUpdater.enabled) update else null,
                                             onAutoUpdate = account::setAutoUpdate,
                                             onTheme = account::setTheme,
                                             onAskLogout = account::askLogout,
@@ -363,6 +407,31 @@ class HomeActivity : HelperBaseComponentActivity() {
                     }
                 }
                 ShopSheetHost(shopState)
+                if (updateOpen && update.offer != null) {
+                    Box(Modifier.fillMaxSize()) {
+                        UpdateSheet(
+                            state = update,
+                            needsPermission = installNeedsPermission,
+                            actions = object : UpdateActions {
+                                override fun onDownload() = AppUpdater.download(this@HomeActivity)
+                                override fun onCancel() = AppUpdater.cancelDownload()
+                                override fun onInstall() {
+                                    installNeedsPermission = !AppUpdater.install(this@HomeActivity)
+                                }
+                                override fun onLater() {
+                                    update.offer?.let { offer ->
+                                        AppUpdater.dismiss(offer)
+                                        dismissedVersion = offer.versionName
+                                    }
+                                    updateOpen = false
+                                }
+                                override fun onDismiss() {
+                                    updateOpen = false
+                                }
+                            },
+                        )
+                    }
+                }
                 if (overlay == Overlay.Route) {
                     Box(Modifier.fillMaxSize()) {
                         RouteSheet(
@@ -465,7 +534,12 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onEditManual(groupId: String) = startActivity(LinkEditActivity.intent(this@HomeActivity, groupId))
     }
 
-    private fun accountActions(openServers: () -> Unit, openRoute: () -> Unit, openCleanIp: () -> Unit) = object : AccountActions {
+    private fun accountActions(
+        openServers: () -> Unit,
+        openRoute: () -> Unit,
+        openCleanIp: () -> Unit,
+        openUpdate: () -> Unit,
+    ) = object : AccountActions {
         override fun onWallet() = shop.openWallet()
         override fun onServers() = openServers()
         override fun onRoute() = openRoute()
@@ -473,6 +547,8 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onAdvanced() = startActivity(Intent(this@HomeActivity, AdvancedActivity::class.java))
         override fun onSupport() = openBot()
         override fun onAbout() = startActivity(Intent(this@HomeActivity, AboutActivity::class.java))
+        override fun onUpdate() = openUpdate()
+        override fun onReport() = startActivity(Intent(this@HomeActivity, ReportActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 
@@ -495,6 +571,9 @@ class HomeActivity : HelperBaseComponentActivity() {
     companion object {
         /** Set by `PaymentReturnActivity`: ok | pending | failed | unknown. */
         const val EXTRA_PAYMENT_RESULT = "com.geekvpn.extra.PAYMENT_RESULT"
+
+        /** Set by `UsageNotifier`: the subscription whose renewal to open. */
+        const val EXTRA_RENEW = "com.geekvpn.extra.RENEW"
         private const val STATE_TAB = "geek_tab"
     }
 }

@@ -159,6 +159,13 @@ class GeekApi(
             object : TypeToken<PendingPayment>() {},
         )
 
+    /** Public: a signed-out app still has to learn that it is out of date. */
+    suspend fun appVersion(): AppVersionResponse =
+        get(anonymous, "/api/app/version", object : TypeToken<AppVersionResponse>() {})
+
+    /** A support ticket, as the Mini App opens one; the operator answers in the bot. */
+    suspend fun openTicket(request: OpenTicketRequest): TicketCard = post(authorized, "/api/miniapp/tickets", request)
+
     override suspend fun trialOffer(): TrialOffer = get(authorized, "/api/miniapp/trial", object : TypeToken<TrialOffer>() {})
 
     override suspend fun claimTrial(): TrialClaim = post(authorized, "/api/miniapp/trial", emptyMap<String, String>())

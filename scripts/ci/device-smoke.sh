@@ -164,11 +164,11 @@ if [[ "$probe" != *Error* ]]; then
         alive "previewing $1"
         adb shell am force-stop "$PKG"
     }
-    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout; do
+    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update; do
         preview "$screen" false
         preview "$screen" true
     done
-    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt; do
+    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt update-downloading; do
         preview "$screen" false
     done
     # A name the preview activity does not know falls back to the waiting screen.
@@ -198,6 +198,15 @@ shot advanced 4
 alive "opening advanced settings"
 if ! grep -q "تنظیمات پیشرفته" "$OUT/advanced.xml"; then
     echo "::error::advanced settings did not open"
+    LOGIN_FAILED=1
+fi
+
+# "گزارش مشکل": signed out on this emulator, so it offers to copy the report.
+adb shell am start -W -n "$PKG/com.geekvpn.ui.support.ReportActivity" >/dev/null
+shot report 4
+alive "opening the problem report"
+if ! grep -q "گزارش مشکل" "$OUT/report.xml"; then
+    echo "::error::the problem report did not open"
     LOGIN_FAILED=1
 fi
 
@@ -248,7 +257,7 @@ fi
 # catalog are not ours to hold to it.
 DPI=$(adb shell wm density | tr -d '\r' | tail -1 | grep -Eo '[0-9]+$')
 shopt -s nullglob
-A11Y_DUMPS=("$OUT"/about.xml "$OUT"/advanced.xml "$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
+A11Y_DUMPS=("$OUT"/about.xml "$OUT"/advanced.xml "$OUT"/report.xml "$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
 shopt -u nullglob
 if ! python3 "$(dirname "$0")/a11y-check.py" "$DPI" "$PKG" "${A11Y_DUMPS[@]}" > "$OUT/a11y.txt"; then
     echo "::error::accessibility problems, see a11y.txt"

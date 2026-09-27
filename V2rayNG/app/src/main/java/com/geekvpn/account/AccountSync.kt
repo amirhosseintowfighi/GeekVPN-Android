@@ -2,6 +2,7 @@ package com.geekvpn.account
 
 import com.geekvpn.api.GeekApi
 import com.geekvpn.scanner.ScanController
+import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.dto.entities.SubscriptionCache
 import com.v2ray.ang.handler.AngConfigManager
@@ -32,6 +33,7 @@ class AccountSync(
     suspend fun sync(): Result = mutex.withLock {
         val remote = api.subscriptions()
         store.saveServices(remote)
+        UsageNotifier.check(AngApplication.application)
         // Read by the scanner in both processes; see ScanStore.allows.
         ScanController.store.directServices = remote
             .filter { it.tier == TIER_DIRECT }

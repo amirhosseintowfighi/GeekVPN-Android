@@ -352,4 +352,56 @@
     <string name="geek_about_role_hev">تونل VPN</string>
     <string name="geek_about_role_cfscan">روش اسکنر IP تمیز</string>
     <string name="geek_about_licenses_hint">همه‌ی کتابخانه‌های اپ و لایسنس‌شان</string>
+    <!-- به‌روزرسانی از داخل برنامه -->
+    <string name="geek_update_title">به‌روزرسانی برنامه</string>
+    <string name="geek_update_available">نسخه‌ی %1$s آماده است</string>
+    <string name="geek_update_required">این نسخه دیگر پشتیبانی نمی‌شود. لطفاً به‌روزرسانی کن.</string>
+    <string name="geek_update_banner_hint">برای دیدن تغییرات و نصب بزن</string>
+    <string name="geek_update_dismiss_description">بستن اعلان به‌روزرسانی</string>
+    <string name="geek_update_checking">در حال بررسی…</string>
+    <string name="geek_update_up_to_date">آخرین نسخه را داری (%1$s)</string>
+    <string name="geek_update_check_hint">نسخه‌ی %1$s · برای بررسی به‌روزرسانی بزن</string>
+    <string name="geek_update_downloading">در حال دانلود… %1$d٪</string>
+    <string name="geek_update_downloading_unknown">در حال دانلود…</string>
+    <string name="geek_update_notes">تغییرات</string>
+    <string name="geek_update_cancel">لغو دانلود</string>
+    <string name="geek_update_permission_hint">در صفحه‌ای که باز شد، «نصب برنامه‌های ناشناس» را برای GeekVPN روشن کن، برگرد و دوباره «نصب» را بزن.</string>
+    <string name="geek_update_install">نصب</string>
+    <string name="geek_update_retry">دوباره امتحان کن</string>
+    <string name="geek_update_download_size">دانلود (%1$s مگابایت)</string>
+    <string name="geek_update_download">دانلود</string>
+    <string name="geek_update_later">بعداً</string>
+    <string name="geek_update_err_check">بررسی نسخه‌ی جدید ممکن نشد. اتصال اینترنت را چک کن.</string>
+    <string name="geek_update_err_download">دانلود کامل نشد. دوباره امتحان کن.</string>
+    <string name="geek_update_err_corrupt">فایل دانلودشده تأیید نشد و نصب نشد.</string>
+    <string name="geek_update_err_install">نصب‌کننده‌ی اندروید باز نشد.</string>
+
+    <!-- گزارش مشکل -->
+    <string name="geek_report_title">گزارش مشکل</string>
+    <string name="geek_report_entry_hint">یک گزارش فنی برای پشتیبانی می‌فرستد</string>
+    <string name="geek_report_intro">بگو چه مشکلی پیش آمد. یک گزارش فنی هم همراهش می‌رود تا پشتیبانی علت را زودتر پیدا کند. جواب را در ربات تلگرام می‌گیری.</string>
+    <string name="geek_report_describe">چه اتفاقی افتاد؟</string>
+    <string name="geek_report_too_short">مشکل را در چند کلمه توضیح بده.</string>
+    <string name="geek_report_privacy">گزارش شامل نسخه‌ی برنامه و اندروید، مدل گوشی، نوع شبکه، نوع کانفیگ و آخرین خطای اتصال است. آدرس سرورها، UUID و لینک‌ها از آن حذف می‌شوند.</string>
+    <string name="geek_report_show_technical">نمایش گزارش فنی</string>
+    <string name="geek_report_hide_technical">پنهان کردن گزارش فنی</string>
+    <string name="geek_report_guest">وارد حساب نشده‌ای، پس گزارش کپی می‌شود تا در ربات پشتیبانی بفرستی‌اش.</string>
+    <string name="geek_report_send">ارسال به پشتیبانی</string>
+    <string name="geek_report_copy">کپی گزارش</string>
+    <string name="geek_report_sent">گزارش ارسال شد. پشتیبانی در ربات جواب می‌دهد.</string>
+    <string name="geek_report_sent_ref">گزارش %1$s ارسال شد. پشتیبانی در ربات جواب می‌دهد.</string>
+    <string name="geek_report_copied">گزارش کپی شد. آن را در ربات پشتیبانی بفرست.</string>
+    <string name="geek_report_err_network">سرور در دسترس نبود. اتصال را چک کن و دوباره امتحان کن.</string>
+    <string name="geek_report_err_server">گزارش ارسال نشد. کمی بعد دوباره امتحان کن.</string>
+
+    <!-- هشدار پایان سرویس -->
+    <string name="geek_alert_channel">تمام شدن سرویس</string>
+    <string name="geek_alert_quota_title">حجم %1$s رو به اتمام است</string>
+    <string name="geek_alert_quota_text">%1$d٪ حجم مصرف شده. برای قطع نشدن، تمدید کن.</string>
+    <plurals name="geek_alert_expiry_title">
+        <item quantity="one">%2$d روز تا پایان %1$s</item>
+        <item quantity="other">%2$d روز تا پایان %1$s</item>
+    </plurals>
+    <string name="geek_alert_expiry_text">همین حالا تمدید کن تا اتصال قطع نشود.</string>
+    <string name="geek_alert_renew">تمدید</string>
 </resources>

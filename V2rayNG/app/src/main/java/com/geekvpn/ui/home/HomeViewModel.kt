@@ -427,6 +427,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // -- daemon events ---------------------------------------------------------
 
     private fun onServiceEvent(event: MainServiceEvent) {
+        if (event is MainServiceEvent.StateStartFailure) {
+            prefs.recordFailure(event.message?.takeIf { it.isNotBlank() } ?: "start failure (no message)")
+        }
         val smart = smartSignals
         if (smart != null) {
             val forwarded = when (event) {

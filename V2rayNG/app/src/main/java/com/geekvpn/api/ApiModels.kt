@@ -264,3 +264,42 @@ data class TrialClaim(
     /** Services still being built; they arrive with a later sync. */
     val pending: Int?,
 )
+
+/* -- app updates and support ------------------------------------------- */
+
+/** `/api/app/version` (public). */
+data class AppVersionResponse(
+    /** Null while updates are switched off server-side or nothing is published. */
+    val latest: AppLatest?,
+    /** Older versions must update; empty when none must. */
+    val minVersion: String?,
+)
+
+data class AppLatest(
+    val versionName: String?,
+    val notes: String?,
+    val publishedAt: String?,
+    val apks: List<AppApk>?,
+)
+
+data class AppApk(
+    /** arm64-v8a | armeabi-v7a | x86 | x86_64 | universal */
+    val abi: String?,
+    val fileName: String?,
+    val url: String?,
+    /** Lowercase hex; null when the server has none for this file. */
+    val sha256: String?,
+    val sizeBytes: Long?,
+)
+
+/** `POST /api/miniapp/tickets`. A topic that is a category key sets the category. */
+data class OpenTicketRequest(
+    val topic: String,
+    val message: String,
+)
+
+data class TicketCard(
+    val ticketId: String?,
+    /** Printed in every bot message about the ticket, e.g. `SUP-1405-000123`. */
+    val reference: String?,
+)

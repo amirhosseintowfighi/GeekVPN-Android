@@ -1,5 +1,7 @@
 package com.geekvpn.ui.catalog
 
+import com.geekvpn.update.UpdateApk
+import com.geekvpn.update.UpdateOffer
 import com.geekvpn.api.AppUser
 import com.geekvpn.api.PaymentCard
 import com.geekvpn.api.PaymentMethodOption
@@ -186,6 +188,19 @@ internal object PreviewSamples {
 
     /** A fixed "now", two hours after the kept scan, so "last scan" reads the same every run. */
     val scannerNow = 1_790_000_000_000L
+
+    val updateOffer = UpdateOffer(
+        versionName = "1.3.0",
+        notes = "- اتصال سرویس‌های تونل درست شد\n- به‌روزرسانی از داخل برنامه\n- گزارش مشکل به پشتیبانی",
+        apk = UpdateApk(
+            abi = "arm64-v8a",
+            fileName = "GeekVPN_1.3.0_arm64-v8a.apk",
+            url = "https://example.invalid/GeekVPN_1.3.0_arm64-v8a.apk",
+            sha256 = null,
+            sizeBytes = 32_700_000,
+        ),
+        required = false,
+    )
 
     private val cleanTarget = CleanIpTarget(
         guid = "g1",

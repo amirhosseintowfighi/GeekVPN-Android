@@ -47,6 +47,20 @@ class ConnectionPrefs(private val storage: MMKV) {
             storage.encode(KEY_FAILOVER, value.key)
         }
 
+    /**
+     * The daemon's last "could not start" message and when it came, for the
+     * problem report; empty when none was seen. Kept, not just shown, because
+     * the customer reports the problem after the toast is gone.
+     */
+    val lastFailure: Pair<String, Long>?
+        get() = storage.decodeString(KEY_LAST_FAILURE)?.takeIf { it.isNotBlank() }
+            ?.let { it to storage.decodeLong(KEY_LAST_FAILURE_AT, 0L) }
+
+    fun recordFailure(message: String, at: Long = System.currentTimeMillis()) {
+        storage.encode(KEY_LAST_FAILURE, message.take(MAX_FAILURE_CHARS))
+        storage.encode(KEY_LAST_FAILURE_AT, at)
+    }
+
     companion object {
         private const val STORE_ID = "GEEK_CONNECTION"
 
@@ -57,5 +71,8 @@ class ConnectionPrefs(private val storage: MMKV) {
         private const val KEY_AUTO_UPDATE = "auto_update"
         private const val KEY_ROUTE = "route_mode"
         private const val KEY_CONNECTED_SINCE = "connected_since"
+        private const val KEY_LAST_FAILURE = "last_failure"
+        private const val KEY_LAST_FAILURE_AT = "last_failure_at"
+        private const val MAX_FAILURE_CHARS = 600
     }
 }

@@ -356,4 +356,56 @@
     <string name="geek_about_role_hev">The VPN tunnel</string>
     <string name="geek_about_role_cfscan">The clean IP scanner\'s method</string>
     <string name="geek_about_licenses_hint">Every library in the app and its license</string>
+    <!-- In-app update -->
+    <string name="geek_update_title">App update</string>
+    <string name="geek_update_available">Version %1$s is available</string>
+    <string name="geek_update_required">This version is no longer supported. Please update.</string>
+    <string name="geek_update_banner_hint">Tap to see what\'s new and install</string>
+    <string name="geek_update_dismiss_description">Dismiss update notice</string>
+    <string name="geek_update_checking">Checking…</string>
+    <string name="geek_update_up_to_date">You\'re on the latest version (%1$s)</string>
+    <string name="geek_update_check_hint">Version %1$s · tap to check for updates</string>
+    <string name="geek_update_downloading">Downloading… %1$d%%</string>
+    <string name="geek_update_downloading_unknown">Downloading…</string>
+    <string name="geek_update_notes">What\'s new</string>
+    <string name="geek_update_cancel">Cancel download</string>
+    <string name="geek_update_permission_hint">Allow GeekVPN to install unknown apps in the screen that just opened, come back and tap Install again.</string>
+    <string name="geek_update_install">Install</string>
+    <string name="geek_update_retry">Try again</string>
+    <string name="geek_update_download_size">Download (%1$s MB)</string>
+    <string name="geek_update_download">Download</string>
+    <string name="geek_update_later">Later</string>
+    <string name="geek_update_err_check">Couldn\'t check for updates. Check your connection.</string>
+    <string name="geek_update_err_download">The download didn\'t finish. Try again.</string>
+    <string name="geek_update_err_corrupt">The downloaded file failed verification and was not installed.</string>
+    <string name="geek_update_err_install">Android\'s installer couldn\'t be opened.</string>
+
+    <!-- Report a problem -->
+    <string name="geek_report_title">Report a problem</string>
+    <string name="geek_report_entry_hint">Sends support a technical report</string>
+    <string name="geek_report_intro">Tell us what went wrong. A technical report goes with it so support can find the cause faster; the answer comes in the Telegram bot.</string>
+    <string name="geek_report_describe">What happened?</string>
+    <string name="geek_report_too_short">Describe the problem in a few words.</string>
+    <string name="geek_report_privacy">The report has the app and Android version, phone model, network type, the kind of config and the last connection error. Server addresses, UUIDs and links are removed.</string>
+    <string name="geek_report_show_technical">Show the technical report</string>
+    <string name="geek_report_hide_technical">Hide the technical report</string>
+    <string name="geek_report_guest">You\'re not signed in, so the report is copied: paste it in the support bot.</string>
+    <string name="geek_report_send">Send to support</string>
+    <string name="geek_report_copy">Copy the report</string>
+    <string name="geek_report_sent">Report sent. Support will answer in the bot.</string>
+    <string name="geek_report_sent_ref">Report %1$s sent. Support will answer in the bot.</string>
+    <string name="geek_report_copied">Report copied. Paste it in the support bot.</string>
+    <string name="geek_report_err_network">Couldn\'t reach the server. Check your connection and try again.</string>
+    <string name="geek_report_err_server">The report couldn\'t be sent. Try again later.</string>
+
+    <!-- Usage alerts -->
+    <string name="geek_alert_channel">Service running out</string>
+    <string name="geek_alert_quota_title">%1$s is running out of traffic</string>
+    <string name="geek_alert_quota_text">%1$d%% of the traffic is used. Renew to stay connected.</string>
+    <plurals name="geek_alert_expiry_title">
+        <item quantity="one">%1$s ends in %2$d day</item>
+        <item quantity="other">%1$s ends in %2$d days</item>
+    </plurals>
+    <string name="geek_alert_expiry_text">Renew now so the connection doesn\'t stop.</string>
+    <string name="geek_alert_renew">Renew</string>
 </resources>

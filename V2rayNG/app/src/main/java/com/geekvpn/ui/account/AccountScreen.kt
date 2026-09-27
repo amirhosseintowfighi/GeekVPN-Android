@@ -42,6 +42,8 @@ import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.home.label
 import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
+import com.geekvpn.ui.update.updateHint
+import com.geekvpn.update.UpdateState
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
 
@@ -57,6 +59,12 @@ interface AccountActions {
     fun onSupport()
     fun onAbout()
     fun onLogin()
+
+    /** Opens the update sheet when a version waits, else checks now. */
+    fun onUpdate()
+
+    /** "گزارش مشکل": a support ticket with a technical report attached. */
+    fun onReport()
 }
 
 @Composable
@@ -68,6 +76,8 @@ fun AccountScreen(
     actions: AccountActions,
     /** The selected config is a CDN-fronted direct one: offer the scanner. */
     showCleanIp: Boolean = false,
+    /** Where the self-update stands; null in builds that cannot update themselves. */
+    update: UpdateState? = null,
     onAutoUpdate: (Boolean) -> Unit,
     onTheme: (ThemeChoice) -> Unit,
     onAskLogout: (Boolean) -> Unit,
@@ -138,6 +148,22 @@ fun AccountScreen(
                     title = stringResource(R.string.geek_account_support_telegram),
                     hint = stringResource(R.string.geek_account_support_hint),
                     onClick = actions::onSupport,
+                )
+                SettingsDivider()
+            }
+            SettingRow(
+                icon = GeekIcons.Receipt,
+                title = stringResource(R.string.geek_report_title),
+                hint = stringResource(R.string.geek_report_entry_hint),
+                onClick = actions::onReport,
+            )
+            SettingsDivider()
+            if (update != null) {
+                SettingRow(
+                    icon = GeekIcons.Refresh,
+                    title = stringResource(R.string.geek_update_title),
+                    hint = updateHint(update),
+                    onClick = actions::onUpdate,
                 )
                 SettingsDivider()
             }
