@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -73,15 +74,13 @@ class ReportViewModel(
     private val eventChannel = Channel<ReportEvent>(Channel.BUFFERED)
     val events = eventChannel.receiveAsFlow()
 
-    private var facts: ReportFacts? = null
-    private var log: List<String> = emptyList()
+    /** Facts and log, gathered once; sending waits for them rather than being refused. */
+    private val gathered = viewModelScope.async { withContext(io) { ports.facts() to ports.log() } }
 
     init {
         viewModelScope.launch {
-            val (gathered, lines) = withContext(io) { ports.facts() to ports.log() }
-            facts = gathered
-            log = lines
-            state.update { it.copy(technical = ProblemReport.compose("", gathered, lines).trim()) }
+            val (facts, log) = gathered.await()
+            state.update { it.copy(technical = ProblemReport.compose("", facts, log).trim()) }
         }
     }
 
@@ -91,19 +90,20 @@ class ReportViewModel(
 
     fun send() {
         val current = state.value
-        val gathered = facts ?: return
         if (current.sending) return
         if (current.description.trim().length < MIN_DESCRIPTION) {
             state.update { it.copy(tooShort = true) }
             return
         }
-        val text = ProblemReport.compose(current.description, gathered, log)
-        if (!current.signedIn) {
-            eventChannel.trySend(ReportEvent.Copy(text))
-            return
-        }
         viewModelScope.launch {
             state.update { it.copy(sending = true) }
+            val (facts, log) = gathered.await()
+            val text = ProblemReport.compose(current.description, facts, log)
+            if (!current.signedIn) {
+                state.update { it.copy(sending = false) }
+                eventChannel.send(ReportEvent.Copy(text))
+                return@launch
+            }
             val event = try {
                 ReportEvent.Sent(ports.send(TOPIC, text))
             } catch (e: ApiException) {

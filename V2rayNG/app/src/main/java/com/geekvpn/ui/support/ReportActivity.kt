@@ -150,7 +150,7 @@ fun ReportScreen(state: ReportUiState, onDescribe: (String) -> Unit, onSend: () 
                 Text(stringResource(R.string.geek_report_intro), style = Geek.type.body, color = colors.onGlassMuted)
 
                 Text(label, style = Geek.type.label, color = colors.onGlass, modifier = Modifier.padding(horizontal = 4.dp))
-                GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp)) {
+                GlassSurface(kind = GlassKind.Milk, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp)) {
                     Box(Modifier.fillMaxWidth().padding(14.dp)) {
                         BasicTextField(
                             value = state.description,
@@ -173,7 +173,7 @@ fun ReportScreen(state: ReportUiState, onDescribe: (String) -> Unit, onSend: () 
                     enabled = state.technical != null,
                 )
                 AnimatedVisibility(visible = showTechnical && state.technical != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
-                    GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+                    GlassSurface(kind = GlassKind.Milk, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
                         Text(
                             state.technical.orEmpty(),
                             style = Geek.type.caption.copy(fontSize = 11.sp, textDirection = TextDirection.Ltr),
@@ -190,7 +190,7 @@ fun ReportScreen(state: ReportUiState, onDescribe: (String) -> Unit, onSend: () 
                     text = stringResource(if (state.signedIn) R.string.geek_report_send else R.string.geek_report_copy),
                     icon = if (state.signedIn) GeekIcons.Check else GeekIcons.Copy,
                     onClick = onSend,
-                    enabled = !state.sending && state.technical != null,
+                    enabled = !state.sending,
                 )
             }
         }
