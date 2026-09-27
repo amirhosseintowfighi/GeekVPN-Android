@@ -56,6 +56,9 @@ interface ReportPorts {
 
     /** Opens a ticket and returns its reference. */
     suspend fun send(topic: String, message: String): String?
+
+    /** Logs why [send] failed; apart so the logic runs without Android's log. */
+    fun logFailure(error: ApiException)
 }
 
 class ReportViewModel(
@@ -104,7 +107,7 @@ class ReportViewModel(
             val event = try {
                 ReportEvent.Sent(ports.send(TOPIC, text))
             } catch (e: ApiException) {
-                LogUtil.w(AppConfig.TAG, "Report: opening the ticket failed (${e.status})", e)
+                ports.logFailure(e)
                 ReportEvent.Failed(
                     if (e.isNetwork) R.string.geek_report_err_network else R.string.geek_report_err_server,
                     e.messageFa,
@@ -130,6 +133,9 @@ class ReportViewModel(
                         override fun log() = ReportCollector.log()
                         override suspend fun send(topic: String, message: String) =
                             GeekGraph.api.openTicket(OpenTicketRequest(topic, message)).reference
+                        override fun logFailure(error: ApiException) {
+                            LogUtil.w(AppConfig.TAG, "Report: opening the ticket failed (${error.status})", error)
+                        }
                     },
                     io = Dispatchers.IO,
                 )

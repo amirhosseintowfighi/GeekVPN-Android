@@ -29,6 +29,7 @@ class ReportViewModelTest {
             sent += topic to message
             return "SUP-1405-000007"
         }
+        override fun logFailure(error: ApiException) = Unit
     }
 
     private fun TestScope.viewModel(ports: FakePorts): Pair<ReportViewModel, MutableList<ReportEvent>> {
