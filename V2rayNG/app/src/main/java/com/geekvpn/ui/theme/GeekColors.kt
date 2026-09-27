@@ -16,9 +16,8 @@ data class GeekColors(
     /** Filled circles of the backdrop. */
     val backdropGlow: Color,
     val backdropGlowStrong: Color,
-    /** Hairline rings of the backdrop and the faint logo watermark. */
+    /** Hairline rings of the backdrop. */
     val backdropLine: Color,
-    val watermark: Color,
     /** "logo blue": accents, switch knob, selected check. */
     val logoBlue: Color,
     /** Marks drawn on the [action] colour: the knob of an on switch, a check mark. */
@@ -85,7 +84,6 @@ internal val LightGeekColors = GeekColors(
     backdropGlow = Color(0x8C00ACFE), // #00ACFE @ 55%
     backdropGlowStrong = Color(0x7300ACFE), // #00ACFE @ 45%
     backdropLine = Color(0xFFFFFFFF),
-    watermark = Color(0x0FFFFFFF), // white @ 6%
     logoBlue = Color(0xFF00ACFE),
     actionAccent = Color(0xFF00ACFE),
     action = Color(0xFF062845),
@@ -138,7 +136,6 @@ internal val DarkGeekColors = GeekColors(
     backdropGlow = Color(0x5C0870D4), // bg @ 36%
     backdropGlowStrong = Color(0x4D00ACFE), // logo blue @ 30%
     backdropLine = Color(0xFFFFFFFF),
-    watermark = Color(0x0AFFFFFF), // white @ 4%
     logoBlue = Color(0xFF00ACFE),
     actionAccent = Color(0xFF031B33),
     action = Color(0xFF00ACFE),

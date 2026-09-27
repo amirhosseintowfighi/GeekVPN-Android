@@ -1,5 +1,8 @@
 package com.geekvpn.ui.advanced
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +56,7 @@ import com.geekvpn.ui.components.GeekCheckbox
 import com.geekvpn.ui.components.GeekPrimaryButton
 import com.geekvpn.ui.components.GeekSheet
 import com.geekvpn.ui.components.GeekSwitch
+import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.icons.GeekIcons
@@ -145,6 +149,7 @@ private fun SectionCard(
 ) {
     val colors = Geek.colors
     val stateText = stringResource(if (expanded) R.string.geek_advanced_expanded else R.string.geek_advanced_collapsed)
+    val chevron by animateFloatAsState(if (expanded) 90f else -90f, tween(GeekMotion.PAGE_MS), label = "chevron")
     GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
         Column {
             Row(
@@ -161,14 +166,16 @@ private fun SectionCard(
                     GeekIcons.ChevronStart,
                     contentDescription = null,
                     tint = colors.onGlassMuted,
-                    modifier = Modifier.size(18.dp).rotate(if (expanded) 90f else -90f),
+                    modifier = Modifier.size(18.dp).rotate(chevron),
                 )
             }
-            if (expanded) {
-                section.items.forEach { item ->
-                    if (item is AdvancedItem.Link && item.key == AdvancedSettings.LINK_SYSTEM_VPN && !state.systemVpnSettings) return@forEach
-                    SettingsDivider()
-                    ItemRow(item, state, onToggle, onEdit, onLink)
+            AnimatedVisibility(visible = expanded, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+                Column {
+                    section.items.forEach { item ->
+                        if (item is AdvancedItem.Link && item.key == AdvancedSettings.LINK_SYSTEM_VPN && !state.systemVpnSettings) return@forEach
+                        SettingsDivider()
+                        ItemRow(item, state, onToggle, onEdit, onLink)
+                    }
                 }
             }
         }

@@ -12,6 +12,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
@@ -50,6 +53,7 @@ import com.geekvpn.ui.common.GeekHeader
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
 import com.geekvpn.ui.components.GeekTab
+import com.geekvpn.ui.components.geekPage
 import com.geekvpn.ui.links.LinkEditActivity
 import com.geekvpn.ui.login.LaunchActivity
 import com.geekvpn.ui.perapp.PerAppActivity
@@ -87,8 +91,8 @@ private enum class Overlay { None, Servers, Route, Scanner }
 
 /**
  * GeekVPN's main screen: the four tabs of the design (خانه، سرویس‌ها،
- * فروشگاه، حساب) over the shared backdrop. v2rayNG's own screens stay
- * reachable from Account ("تنظیمات پیشرفته", "پروفایل‌ها").
+ * فروشگاه، حساب) over the shared backdrop, with Servers and the scanner
+ * opened on top of them.
  */
 class HomeActivity : HelperBaseComponentActivity() {
     private val home: HomeViewModel by viewModels()
@@ -255,89 +259,108 @@ class HomeActivity : HelperBaseComponentActivity() {
                 if (tab == GeekTab.Shop) shop.load()
             }
 
+            val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+            // The Route sheet opens over the tabs; only Servers and Scanner replace them.
+            val page = if (overlay == Overlay.Route) Overlay.None else overlay
             GeekBackdrop {
-                if (overlay == Overlay.Servers) {
-                    ServersScreen(
-                        state = state,
-                        onBack = { overlay = Overlay.None },
-                        onSelect = home::selectServer,
-                        onAutoServerChange = home::setAutoServer,
-                        onTest = home::testServers,
-                        onUpdate = home::refreshAccount,
-                        updating = state.updating,
-                        onCleanIp = openScanner,
-                        onFailoverChange = home::setFailover,
-                    )
-                } else if (overlay == Overlay.Scanner) {
-                    ScannerScreen(
-                        state = scannerState,
-                        actions = object : ScannerActions {
-                            override fun onBack() {
-                                overlay = scannerBack
-                            }
-                            override fun onStart() = scanner.start()
-                            override fun onStop() = scanner.stop()
-                            override fun onDownloadTest(enabled: Boolean) = scanner.setDownloadTest(enabled)
-                            override fun onUse(ip: CleanIp) = scanner.use(ip)
-                            override fun onRevert() = scanner.revert()
-                        },
-                    )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .statusBarsPadding()
-                            .navigationBarsPadding()
-                            // Room for the tab bar's dock above the system navigation bar.
-                            .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp),
-                        verticalArrangement = Arrangement.spacedBy(18.dp),
-                    ) {
-                        if (tab == GeekTab.Home) {
-                            GeekHeader(
-                                balance = state.balance,
-                                onWallet = if (signedIn) shop::openWallet else null,
-                            )
-                        }
-                        when (tab) {
-                            GeekTab.Home -> HomeScreen(
+                AnimatedContent(
+                    targetState = page,
+                    transitionSpec = { geekPage(forward = targetState.ordinal > initialState.ordinal, rtl = rtl) },
+                    modifier = Modifier.fillMaxSize(),
+                    label = "page",
+                ) { shownPage ->
+                    Box(Modifier.fillMaxSize()) {
+                        if (shownPage == Overlay.Servers) {
+                            ServersScreen(
                                 state = state,
-                                onConnect = ::requestConnect,
-                                onDisconnect = home::disconnect,
-                                onOpenServers = { overlay = Overlay.Servers },
-                                onOpenRoute = { overlay = Overlay.Route },
+                                onBack = { overlay = Overlay.None },
+                                onSelect = home::selectServer,
                                 onAutoServerChange = home::setAutoServer,
-                                onChooseService = { tab = GeekTab.Services },
+                                onTest = home::testServers,
+                                onUpdate = home::refreshAccount,
+                                updating = state.updating,
+                                onCleanIp = openScanner,
+                                onFailoverChange = home::setFailover,
                             )
-                            GeekTab.Services -> ServicesScreen(
-                                state = state,
-                                isSignedIn = signedIn,
-                                actions = servicesActions(openShop = { tab = GeekTab.Shop }),
+                        } else if (shownPage == Overlay.Scanner) {
+                            ScannerScreen(
+                                state = scannerState,
+                                actions = object : ScannerActions {
+                                    override fun onBack() {
+                                        overlay = scannerBack
+                                    }
+                                    override fun onStart() = scanner.start()
+                                    override fun onStop() = scanner.stop()
+                                    override fun onDownloadTest(enabled: Boolean) = scanner.setDownloadTest(enabled)
+                                    override fun onUse(ip: CleanIp) = scanner.use(ip)
+                                    override fun onRevert() = scanner.revert()
+                                },
                             )
-                            GeekTab.Shop -> ShopScreen(state = shopState, actions = shopActions)
-                            GeekTab.Account -> AccountScreen(
-                                state = accountState,
-                                route = state.route,
-                                autoServer = state.autoServer,
-                                logoutAsked = logoutAsked,
-                                actions = accountActions(
-                                    openServers = { overlay = Overlay.Servers },
-                                    openRoute = { overlay = Overlay.Route },
-                                    openCleanIp = { openScanner?.invoke() },
-                                ),
-                                showCleanIp = openScanner != null,
-                                onAutoUpdate = account::setAutoUpdate,
-                                onTheme = account::setTheme,
-                                onAskLogout = account::askLogout,
-                                onLogout = account::logout,
+                        } else {
+                            AnimatedContent(
+                                targetState = tab,
+                                transitionSpec = { geekPage(forward = targetState.ordinal > initialState.ordinal, rtl = rtl) },
+                                modifier = Modifier.fillMaxSize(),
+                                label = "tab",
+                            ) { shownTab ->
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(rememberScrollState())
+                                        .statusBarsPadding()
+                                        .navigationBarsPadding()
+                                        // Room for the tab bar's dock above the system navigation bar.
+                                        .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                                ) {
+                                    if (shownTab == GeekTab.Home) {
+                                        GeekHeader(
+                                            balance = state.balance,
+                                            onWallet = if (signedIn) shop::openWallet else null,
+                                        )
+                                    }
+                                    when (shownTab) {
+                                        GeekTab.Home -> HomeScreen(
+                                            state = state,
+                                            onConnect = ::requestConnect,
+                                            onDisconnect = home::disconnect,
+                                            onOpenServers = { overlay = Overlay.Servers },
+                                            onOpenRoute = { overlay = Overlay.Route },
+                                            onAutoServerChange = home::setAutoServer,
+                                            onChooseService = { tab = GeekTab.Services },
+                                        )
+                                        GeekTab.Services -> ServicesScreen(
+                                            state = state,
+                                            isSignedIn = signedIn,
+                                            actions = servicesActions(openShop = { tab = GeekTab.Shop }),
+                                        )
+                                        GeekTab.Shop -> ShopScreen(state = shopState, actions = shopActions)
+                                        GeekTab.Account -> AccountScreen(
+                                            state = accountState,
+                                            route = state.route,
+                                            autoServer = state.autoServer,
+                                            logoutAsked = logoutAsked,
+                                            actions = accountActions(
+                                                openServers = { overlay = Overlay.Servers },
+                                                openRoute = { overlay = Overlay.Route },
+                                                openCleanIp = { openScanner?.invoke() },
+                                            ),
+                                            showCleanIp = openScanner != null,
+                                            onAutoUpdate = account::setAutoUpdate,
+                                            onTheme = account::setTheme,
+                                            onAskLogout = account::askLogout,
+                                            onLogout = account::logout,
+                                        )
+                                    }
+                                }
+                            }
+                            GeekBottomNav(
+                                selected = tab,
+                                onSelect = { tab = it },
+                                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
                             )
                         }
                     }
-                    GeekBottomNav(
-                        selected = tab,
-                        onSelect = { tab = it },
-                        modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-                    )
                 }
                 ShopSheetHost(shopState)
                 if (overlay == Overlay.Route) {

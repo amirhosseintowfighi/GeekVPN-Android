@@ -1,9 +1,13 @@
 package com.geekvpn.ui.components
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,15 +19,18 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
 import com.v2ray.ang.R
@@ -39,7 +46,8 @@ enum class GeekTab(@StringRes val label: Int, val icon: ImageVector) {
 /**
  * Floating tab bar: the selected tab is a 60dp milk-glass tile with its label
  * under it; the others are 52dp clear-glass tiles whose labels are kept (for
- * layout) but invisible, as in the design.
+ * layout) but invisible, as in the design. Switching tabs animates between
+ * the two.
  *
  * The tiles sit on a nearly opaque dock. Without it, a card scrolling under the
  * bar showed through the clear tiles in the same colour and the tabs got lost.
@@ -76,6 +84,14 @@ fun GeekBottomNav(
 private fun NavItem(tab: GeekTab, selected: Boolean, onClick: () -> Unit) {
     val colors = Geek.colors
     val label = stringResource(tab.label)
+    // 0 = the clear 52dp tile, 1 = the milk 60dp one. A soft spring, so the
+    // tile grows with a small bounce; colours and alphas use it clamped.
+    val progress by animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        animationSpec = spring(dampingRatio = 0.62f, stiffness = Spring.StiffnessMediumLow),
+        label = "nav-${tab.name}",
+    )
+    val shown = progress.coerceIn(0f, 1f)
     Column(
         modifier = Modifier
             // selectable merges the label below into one Tab node, even when the label is invisible.
@@ -83,43 +99,34 @@ private fun NavItem(tab: GeekTab, selected: Boolean, onClick: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        if (selected) {
-            GlassSurface(
-                kind = GlassKind.Milk,
-                shape = Geek.shapes.tileLarge,
-                modifier = Modifier.size(60.dp),
-            ) {
-                Icon(
-                    tab.icon,
-                    contentDescription = null,
-                    tint = colors.onGlass,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.Center),
-                )
-            }
-        } else {
+        Box(
+            modifier = Modifier
+                .padding(top = lerp(4.dp, 0.dp, shown))
+                .size(lerp(52.dp, 60.dp, progress)),
+        ) {
             GlassSurface(
                 kind = GlassKind.Clear,
                 shape = Geek.shapes.tile,
+                modifier = Modifier.matchParentSize().graphicsLayer { alpha = 1f - shown },
+            ) {}
+            GlassSurface(
+                kind = GlassKind.Milk,
+                shape = Geek.shapes.tileLarge,
+                modifier = Modifier.matchParentSize().graphicsLayer { alpha = shown },
+            ) {}
+            Icon(
+                tab.icon,
+                contentDescription = null,
+                tint = lerp(colors.onBackground, colors.onGlass, shown),
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .size(52.dp),
-            ) {
-                Icon(
-                    tab.icon,
-                    contentDescription = null,
-                    tint = colors.onBackground,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .align(Alignment.Center),
-                )
-            }
+                    .size(lerp(22.dp, 24.dp, shown))
+                    .align(Alignment.Center),
+            )
         }
         Text(
             text = label,
             style = Geek.type.micro,
-            color = if (selected) colors.onBackground else Color.Transparent,
+            color = colors.onBackground.copy(alpha = shown),
         )
     }
 }

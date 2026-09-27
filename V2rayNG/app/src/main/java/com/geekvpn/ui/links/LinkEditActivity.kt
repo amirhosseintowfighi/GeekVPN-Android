@@ -1,5 +1,8 @@
 package com.geekvpn.ui.links
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -52,6 +55,7 @@ import com.geekvpn.ui.common.SettingsDivider
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekPrimaryButton
 import com.geekvpn.ui.components.GeekSwitch
+import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.icons.GeekIcons
@@ -178,14 +182,16 @@ fun LinkEditScreen(
                 }
 
                 MoreHeader(more) { more = !more }
-                if (more) {
-                    Field(stringResource(R.string.sub_setting_filter), form.filter) { v -> onEdit { it.copy(filter = v) } }
-                    Field(stringResource(R.string.sub_setting_user_agent), form.userAgent) { v -> onEdit { it.copy(userAgent = v) } }
-                    Field(stringResource(R.string.sub_setting_request_headers), form.headers, singleLine = false) { v -> onEdit { it.copy(headers = v) } }
-                    Field(stringResource(R.string.sub_setting_pre_profile), form.prevProfile) { v -> onEdit { it.copy(prevProfile = v) } }
-                    Field(stringResource(R.string.sub_setting_next_profile), form.nextProfile) { v -> onEdit { it.copy(nextProfile = v) } }
-                    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
-                        ToggleRow(stringResource(R.string.sub_allow_insecure_url), form.allowInsecure) { v -> onEdit { it.copy(allowInsecure = v) } }
+                AnimatedVisibility(visible = more, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Field(stringResource(R.string.sub_setting_filter), form.filter) { v -> onEdit { it.copy(filter = v) } }
+                        Field(stringResource(R.string.sub_setting_user_agent), form.userAgent) { v -> onEdit { it.copy(userAgent = v) } }
+                        Field(stringResource(R.string.sub_setting_request_headers), form.headers, singleLine = false) { v -> onEdit { it.copy(headers = v) } }
+                        Field(stringResource(R.string.sub_setting_pre_profile), form.prevProfile) { v -> onEdit { it.copy(prevProfile = v) } }
+                        Field(stringResource(R.string.sub_setting_next_profile), form.nextProfile) { v -> onEdit { it.copy(nextProfile = v) } }
+                        GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
+                            ToggleRow(stringResource(R.string.sub_allow_insecure_url), form.allowInsecure) { v -> onEdit { it.copy(allowInsecure = v) } }
+                        }
                     }
                 }
 
@@ -281,6 +287,7 @@ private fun ToggleRow(title: String, on: Boolean, onChange: (Boolean) -> Unit) {
 @Composable
 private fun MoreHeader(open: Boolean, onClick: () -> Unit) {
     val colors = Geek.colors
+    val chevron by animateFloatAsState(if (open) 90f else -90f, tween(GeekMotion.PAGE_MS), label = "chevron")
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -291,6 +298,6 @@ private fun MoreHeader(open: Boolean, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(stringResource(R.string.geek_links_more), style = Geek.type.label, color = colors.link, modifier = Modifier.weight(1f))
-        Icon(GeekIcons.ChevronStart, contentDescription = null, tint = colors.link, modifier = Modifier.size(16.dp).rotate(if (open) 90f else -90f))
+        Icon(GeekIcons.ChevronStart, contentDescription = null, tint = colors.link, modifier = Modifier.size(16.dp).rotate(chevron))
     }
 }
