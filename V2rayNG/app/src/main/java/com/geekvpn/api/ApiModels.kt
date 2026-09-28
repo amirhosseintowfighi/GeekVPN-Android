@@ -292,14 +292,37 @@ data class AppApk(
     val sizeBytes: Long?,
 )
 
-/** `POST /api/miniapp/tickets`. A topic that is a category key sets the category. */
+/**
+ * `POST /api/miniapp/tickets`. A topic that is a category key sets the
+ * category; a non-empty [subject] is the ticket's title instead of the topic.
+ */
 data class OpenTicketRequest(
     val topic: String,
     val message: String,
+    val subject: String = "",
 )
 
+/** One row of `GET /api/miniapp/tickets`, and the answer to opening one. */
 data class TicketCard(
     val ticketId: String?,
     /** Printed in every bot message about the ticket, e.g. `SUP-1405-000123`. */
     val reference: String?,
+    val topicFa: String? = null,
+    /** open | waiting (support answered, the customer's turn) | answered | closed */
+    val state: String? = null,
+    val createdAt: String? = null,
+    val lastReplyAt: String? = null,
+    val lastMessageFa: String? = null,
+    val unreadCount: Int? = null,
 )
+
+/** One message of `GET /api/miniapp/tickets/{id}/messages`, oldest first. */
+data class TicketMessage(
+    val messageId: String?,
+    val fromSupport: Boolean?,
+    val bodyFa: String?,
+    val createdAt: String?,
+)
+
+/** `POST /api/miniapp/tickets/{id}/messages`. */
+data class TicketReplyRequest(val message: String)

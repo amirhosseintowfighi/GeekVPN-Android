@@ -8,6 +8,8 @@ import com.geekvpn.api.PaymentMethodOption
 import com.geekvpn.api.PaymentView
 import com.geekvpn.api.Quote
 import com.geekvpn.api.StoreCategory
+import com.geekvpn.api.TicketCard
+import com.geekvpn.api.TicketMessage
 import com.geekvpn.api.StorePlan
 import com.geekvpn.api.StoreProduct
 import com.geekvpn.api.Storefront
@@ -40,6 +42,8 @@ import com.geekvpn.ui.shop.DepositInfo
 import com.geekvpn.ui.shop.ShopSheet
 import com.geekvpn.ui.shop.ShopUiState
 import com.geekvpn.ui.shop.WalletUiState
+import com.geekvpn.ui.support.TicketsPage
+import com.geekvpn.ui.support.TicketsUiState
 import com.v2ray.ang.R
 
 /** Sample data for [ScreenPreviewActivity]: the design's own numbers where it has them. */
@@ -224,5 +228,28 @@ internal object PreviewSamples {
 
     val scannerRunning = scanner.copy(
         scan = ScanState(running = true, guid = "g1", tested = 118, total = 300, results = cleanIps.take(2)),
+    )
+
+    val tickets = TicketsUiState(
+        tickets = listOf(
+            TicketCard(
+                ticketId = "7c1e2a9043b54f0e9d2a6b1f0c3d4e5f", reference = "SUP-1405-000123", topicFa = "مشکل اتصال",
+                state = "waiting", createdAt = "2026-09-27T08:10:00Z", lastReplyAt = "2026-09-27T09:02:00Z",
+                lastMessageFa = "سلام، کانفیگ تازه برایت فرستادیم؛ لطفا به‌روزرسانی کن و خبر بده.", unreadCount = 1,
+            ),
+            TicketCard(
+                ticketId = "0a9b8c7d6e5f40312a1b2c3d4e5f6a7b", reference = "SUP-1405-000098", topicFa = "پرداخت و مالی",
+                state = "closed", createdAt = "2026-09-20T17:40:00Z", lastReplyAt = "2026-09-21T10:15:00Z",
+                lastMessageFa = "واریز تایید شد و سرویس فعال است.", unreadCount = 0,
+            ),
+        ),
+    )
+
+    val ticketThread = tickets.copy(
+        page = TicketsPage.Thread("7c1e2a9043b54f0e9d2a6b1f0c3d4e5f"),
+        messages = listOf(
+            TicketMessage("m1", false, "از دیشب روی ایرانسل وصل نمی‌شود، روی وای‌فای مشکلی نیست.", "2026-09-27T08:10:00Z"),
+            TicketMessage("m2", true, "سلام، کانفیگ تازه برایت فرستادیم؛ لطفا به‌روزرسانی کن و خبر بده.", "2026-09-27T09:02:00Z"),
+        ),
     )
 }

@@ -79,6 +79,7 @@ import com.geekvpn.ui.shop.ShopUiState
 import com.geekvpn.ui.shop.ShopViewModel
 import com.geekvpn.ui.shop.WalletSheet
 import com.geekvpn.ui.support.ReportActivity
+import com.geekvpn.ui.support.TicketsActivity
 import com.geekvpn.ui.theme.GeekTheme
 import com.geekvpn.ui.update.UpdateActions
 import com.geekvpn.ui.update.UpdateBanner
@@ -565,6 +566,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onAbout() = startActivity(Intent(this@HomeActivity, AboutActivity::class.java))
         override fun onUpdate() = openUpdate()
         override fun onReport() = startActivity(Intent(this@HomeActivity, ReportActivity::class.java))
+        override fun onTickets() = startActivity(Intent(this@HomeActivity, TicketsActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 

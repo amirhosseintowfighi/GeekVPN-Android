@@ -65,6 +65,9 @@ interface AccountActions {
 
     /** "گزارش مشکل": a support ticket with a technical report attached. */
     fun onReport()
+
+    /** "تیکت‌های من": the customer's tickets and support's answers. */
+    fun onTickets()
 }
 
 @Composable
@@ -148,6 +151,15 @@ fun AccountScreen(
                     title = stringResource(R.string.geek_account_support_telegram),
                     hint = stringResource(R.string.geek_account_support_hint),
                     onClick = actions::onSupport,
+                )
+                SettingsDivider()
+            }
+            if (signedIn != null) {
+                SettingRow(
+                    icon = GeekIcons.List,
+                    title = stringResource(R.string.geek_tickets_title),
+                    hint = stringResource(R.string.geek_tickets_entry_hint),
+                    onClick = actions::onTickets,
                 )
                 SettingsDivider()
             }

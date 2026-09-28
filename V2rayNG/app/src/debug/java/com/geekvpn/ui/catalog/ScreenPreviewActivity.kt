@@ -45,6 +45,9 @@ import com.geekvpn.ui.shop.ShopActions
 import com.geekvpn.ui.shop.ShopScreen
 import com.geekvpn.ui.shop.ShopSheet
 import com.geekvpn.ui.shop.WalletSheet
+import com.geekvpn.support.TicketTopic
+import com.geekvpn.ui.support.TicketsActions
+import com.geekvpn.ui.support.TicketsScreen
 import com.geekvpn.ui.theme.GeekTheme
 import com.v2ray.ang.ui.base.BaseComponentActivity
 
@@ -68,6 +71,9 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
+                SCREEN_TICKETS, SCREEN_TICKET_THREAD -> GeekBackdrop {
+                    TicketsScreen(if (screen == SCREEN_TICKETS) PreviewSamples.tickets else PreviewSamples.ticketThread, PreviewTicketsActions)
+                }
                 in TAB_SCREENS -> TabPreview(screen)
                 else -> WaitingScreen(LinkPurpose.SignIn, expiresAt, onReopen = {}, onCancel = {})
             }
@@ -79,6 +85,8 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_CREATE = "create"
         const val SCREEN_SYNCING = "syncing"
         const val SCREEN_USERNAME = "username"
+        const val SCREEN_TICKETS = "tickets"
+        const val SCREEN_TICKET_THREAD = "ticket-thread"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
             "shop", "shop-guest", "checkout", "wallet", "deposit", "scanner", "scanner-running",
@@ -225,6 +233,20 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onLogin() = Unit
     override fun onUpdate() = Unit
     override fun onReport() = Unit
+    override fun onTickets() = Unit
+}
+
+private object PreviewTicketsActions : TicketsActions {
+    override fun onBack() = Unit
+    override fun onRetry() = Unit
+    override fun onOpen(ticketId: String) = Unit
+    override fun onNew() = Unit
+    override fun onReply(text: String) = Unit
+    override fun onSendReply() = Unit
+    override fun onTopic(topic: TicketTopic) = Unit
+    override fun onSubject(text: String) = Unit
+    override fun onBody(text: String) = Unit
+    override fun onSubmit() = Unit
 }
 
 private object PreviewUpdateActions : UpdateActions {

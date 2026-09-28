@@ -164,7 +164,7 @@ if [[ "$probe" != *Error* ]]; then
         alive "previewing $1"
         adb shell am force-stop "$PKG"
     }
-    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update; do
+    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update tickets ticket-thread; do
         preview "$screen" false
         preview "$screen" true
     done
@@ -172,6 +172,10 @@ if [[ "$probe" != *Error* ]]; then
         preview "$screen" false
     done
     # A name the preview activity does not know falls back to the waiting screen.
+    if ! grep -q "تیکت‌های من" "$OUT/preview-tickets.xml"; then
+        echo "::error::preview tickets did not show the ticket list"
+        LOGIN_FAILED=1
+    fi
     for screen in home-finding-ip home-attempt; do
         if ! grep -q "دوباره دکمه را بزن" "$OUT/preview-$screen.xml"; then
             echo "::error::preview $screen did not show the smart connect stage"

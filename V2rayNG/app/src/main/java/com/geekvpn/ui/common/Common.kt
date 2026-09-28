@@ -66,6 +66,13 @@ fun formatDate(iso: String?, locale: Locale): String? {
     return DateFormat.getDateInstance(DateFormat.SHORT, uLocale).format(Date(instant.toEpochMilli()))
 }
 
+/** [formatDate] with the time of day: "۱۴۰۵/۰۷/۰۲، ۱۴:۳۰". */
+fun formatDateTime(iso: String?, locale: Locale): String? {
+    val instant = ServiceStatus.parseInstant(iso) ?: return null
+    val uLocale = if (locale.language == "fa") ULocale("fa_IR@calendar=persian") else ULocale.forLocale(locale)
+    return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, uLocale).format(Date(instant.toEpochMilli()))
+}
+
 /** One decimal, dropped when it is zero: "۱۲٫۴", "۴۰". */
 fun formatGib(value: Double, locale: Locale): String {
     val format = NumberFormat.getNumberInstance(locale).apply {

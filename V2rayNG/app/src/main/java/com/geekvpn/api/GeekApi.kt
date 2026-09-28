@@ -34,6 +34,10 @@ class ApiException(
     val isNetwork: Boolean get() = status == null
 }
 
+/** A server-issued id (a UUID) put into a path; anything else never reaches the URL. */
+private fun String.pathSegment(): String =
+    takeIf { Regex("[0-9A-Fa-f-]{8,64}").matches(it) } ?: throw ApiException(null, "not an id: ${take(8)}")
+
 /** The part of a problem+json body the app shows. */
 private data class Problem(val title: String?, @SerializedName("message_fa") val messageFa: String?)
 
@@ -165,6 +169,17 @@ class GeekApi(
 
     /** A support ticket, as the Mini App opens one; the operator answers in the bot. */
     suspend fun openTicket(request: OpenTicketRequest): TicketCard = post(authorized, "/api/miniapp/tickets", request)
+
+    /** This customer's tickets; the same ones the bot and the Mini App show. */
+    suspend fun tickets(): List<TicketCard> =
+        get(authorized, "/api/miniapp/tickets", object : TypeToken<List<TicketCard>>() {})
+
+    /** One ticket's conversation, without support's internal notes. */
+    suspend fun ticketMessages(ticketId: String): List<TicketMessage> =
+        get(authorized, "/api/miniapp/tickets/${ticketId.pathSegment()}/messages", object : TypeToken<List<TicketMessage>>() {})
+
+    suspend fun replyToTicket(ticketId: String, message: String): TicketMessage =
+        post(authorized, "/api/miniapp/tickets/${ticketId.pathSegment()}/messages", TicketReplyRequest(message))
 
     override suspend fun trialOffer(): TrialOffer = get(authorized, "/api/miniapp/trial", object : TypeToken<TrialOffer>() {})
 
