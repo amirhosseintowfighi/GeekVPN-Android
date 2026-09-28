@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.geekvpn.connection.ConnectionLogic
 import com.geekvpn.smartconnect.FailoverThreshold
 import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.components.CountryBadge
@@ -78,12 +80,15 @@ fun ServersScreen(
 ) {
     val colors = Geek.colors
     var query by rememberSaveable { mutableStateOf("") }
-    val visible = remember(query, state.servers) {
+    var byPing by rememberSaveable { mutableStateOf(false) }
+    val visible = remember(query, state.servers, byPing) {
         val needle = query.trim()
-        if (needle.isEmpty()) state.servers
+        val matching = if (needle.isEmpty()) state.servers
         else state.servers.filter {
             it.title.contains(needle, ignoreCase = true) || it.countryCode?.contains(needle, ignoreCase = true) == true
         }
+        // Starred ones stay on top either way.
+        if (byPing) ConnectionLogic.favoritesFirst(ConnectionLogic.byDelay(matching) { it.delayMs }) { it.favorite } else matching
     }
 
     Column(Modifier.fillMaxSize().imePadding()) {
@@ -125,6 +130,9 @@ fun ServersScreen(
                 item(key = "auto") { AutoCard(state.autoServer, state.failover, onAutoServerChange, onFailoverChange) }
                 if (onCleanIp != null) {
                     item(key = "clean-ip") { CleanIpCard(onCleanIp) }
+                }
+                if (state.servers.size > 1) {
+                    item(key = "sort") { SortChips(byPing) { byPing = it } }
                 }
                 if (state.servers.isEmpty()) {
                     item(key = "empty") { EmptyLine(stringResource(R.string.geek_servers_empty)) }
@@ -311,6 +319,28 @@ private fun ServerItem(server: ServerRow, selected: Boolean, onClick: () -> Unit
         LatencyIndicator(delayMs = server.delayMs)
         FavoriteButton(server.favorite, onFavorite)
         GeekCheckbox(checked = selected, onCheckedChange = null)
+    }
+}
+
+/** List order: the subscription's own, or fastest first by the last test. */
+@Composable
+private fun SortChips(byPing: Boolean, onChange: (Boolean) -> Unit) {
+    val colors = Geek.colors
+    Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(false to R.string.geek_servers_sort_list, true to R.string.geek_servers_sort_ping).forEach { (value, label) ->
+            val selected = byPing == value
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .heightIn(min = 44.dp)
+                    .clip(Geek.shapes.pill)
+                    .background(if (selected) colors.action else colors.soft)
+                    .selectable(selected = selected, role = Role.RadioButton) { onChange(value) },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(stringResource(label), style = Geek.type.caption, color = if (selected) colors.onAction else colors.onGlass)
+            }
+        }
     }
 }
 

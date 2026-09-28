@@ -37,6 +37,20 @@ object ConnectionLogic {
     fun best(delays: List<Delay>): String? =
         delays.filter { it.millis > 0 }.minByOrNull { it.millis }?.guid
 
+    /**
+     * Fastest first by the last test: answered ones by delay, then untested,
+     * then failed. Stable, so equal delays keep the order they came in.
+     */
+    fun <T> byDelay(items: List<T>, delay: (T) -> Long): List<T> =
+        items.sortedBy {
+            val ms = delay(it)
+            when {
+                ms > 0 -> ms
+                ms == 0L -> Long.MAX_VALUE - 1
+                else -> Long.MAX_VALUE
+            }
+        }
+
     /** Starred servers first; each part keeps the subscription's own order. */
     fun <T> favoritesFirst(items: List<T>, favorite: (T) -> Boolean): List<T> =
         items.filter(favorite) + items.filterNot(favorite)

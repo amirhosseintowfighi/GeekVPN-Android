@@ -53,6 +53,12 @@ class ConnectionLogicTest {
     }
 
     @Test
+    fun by_delay_puts_answered_first_then_untested_then_failed() {
+        val servers = listOf("a" to 0L, "b" to 240L, "c" to -1L, "d" to 90L, "e" to 240L)
+        assertEquals(listOf("d", "b", "e", "a", "c"), ConnectionLogic.byDelay(servers) { it.second }.map { it.first })
+    }
+
+    @Test
     fun starred_servers_come_first_and_keep_their_order() {
         val servers = listOf("a" to false, "b" to true, "c" to false, "d" to true)
         assertEquals(listOf("b", "d", "a", "c"), ConnectionLogic.favoritesFirst(servers) { it.second }.map { it.first })

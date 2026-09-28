@@ -540,4 +540,6 @@
     <string name="geek_lock_subtitle">Unlock to open the app</string>
     <string name="geek_lock_text">The VPN keeps running; the lock only covers the app.</string>
     <string name="geek_lock_unlock">Unlock</string>
+    <string name="geek_servers_sort_list">Subscription order</string>
+    <string name="geek_servers_sort_ping">Lowest ping</string>
 </resources>

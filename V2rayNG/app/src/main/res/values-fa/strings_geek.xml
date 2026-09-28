@@ -536,4 +536,6 @@
     <string name="geek_lock_subtitle">برای باز کردن اپ قفل را باز کن</string>
     <string name="geek_lock_text">VPN روشن می‌ماند؛ قفل فقط جلوی خود اپ است.</string>
     <string name="geek_lock_unlock">باز کردن قفل</string>
+    <string name="geek_servers_sort_list">ترتیب اشتراک</string>
+    <string name="geek_servers_sort_ping">کمترین پینگ</string>
 </resources>
