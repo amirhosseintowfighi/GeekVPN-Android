@@ -107,6 +107,22 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name="com.geekvpn.ui.autoconnect.AutoConnectActivity"
+            android:exported="false" />
+        <!-- The system's Wi-Fi callback (AutoConnect); in the VPN process, which knows whether the core runs. -->
+        <receiver
+            android:name="com.geekvpn.autoconnect.WifiJoinReceiver"
+            android:exported="false"
+            android:process=":daemon" />
+        <receiver
+            android:name="com.geekvpn.autoconnect.AutoConnectBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+        <activity
             android:name="com.geekvpn.ui.links.LinkEditActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

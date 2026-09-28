@@ -24,6 +24,9 @@ import com.geekvpn.scanner.CleanIp
 import com.geekvpn.shop.Tier
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
+import com.geekvpn.ui.autoconnect.AutoConnectActions
+import com.geekvpn.ui.autoconnect.AutoConnectScreen
+import com.geekvpn.ui.autoconnect.AutoConnectUiState
 import com.geekvpn.ui.common.GeekHeader
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
@@ -71,6 +74,12 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
+                SCREEN_AUTO_CONNECT -> GeekBackdrop {
+                    AutoConnectScreen(
+                        AutoConnectUiState(loaded = true, startOnBoot = true, autoOnWifi = true, currentWifi = "wifi:1", trustedCount = 1, canStartInBackground = false),
+                        PreviewAutoConnectActions,
+                    )
+                }
                 SCREEN_TICKETS, SCREEN_TICKET_THREAD -> GeekBackdrop {
                     TicketsScreen(if (screen == SCREEN_TICKETS) PreviewSamples.tickets else PreviewSamples.ticketThread, PreviewTicketsActions)
                 }
@@ -86,6 +95,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_SYNCING = "syncing"
         const val SCREEN_USERNAME = "username"
         const val SCREEN_TICKETS = "tickets"
+        const val SCREEN_AUTO_CONNECT = "auto-connect"
         const val SCREEN_TICKET_THREAD = "ticket-thread"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
@@ -234,6 +244,17 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onUpdate() = Unit
     override fun onReport() = Unit
     override fun onTickets() = Unit
+    override fun onAutoConnect() = Unit
+}
+
+private object PreviewAutoConnectActions : AutoConnectActions {
+    override fun onBack() = Unit
+    override fun onStartOnBoot(on: Boolean) = Unit
+    override fun onAutoOnWifi(on: Boolean) = Unit
+    override fun onTrustCurrent(trusted: Boolean) = Unit
+    override fun onClearTrusted() = Unit
+    override fun onBatterySettings() = Unit
+    override fun onVpnSettings() = Unit
 }
 
 private object PreviewTicketsActions : TicketsActions {

@@ -54,6 +54,26 @@ class ConnectionPrefs(private val storage: MMKV) {
             storage.encode(KEY_ACTIVE_CONNECTIONS, value)
         }
 
+    /** "روی وای‌فای ناشناس": start the VPN when the phone joins a Wi-Fi not in [trustedNetworks]. */
+    var autoOnWifi: Boolean
+        get() = storage.decodeBool(KEY_AUTO_WIFI, false)
+        set(value) {
+            storage.encode(KEY_AUTO_WIFI, value)
+        }
+
+    /** `NetworkIdentity.key`s of the Wi-Fi networks the user trusts (home, work). */
+    val trustedNetworks: Set<String>
+        get() = storage.decodeStringSet(KEY_TRUSTED, emptySet())?.toSet().orEmpty()
+
+    fun setTrusted(networkKey: String, trusted: Boolean) {
+        val next = if (trusted) trustedNetworks + networkKey else trustedNetworks - networkKey
+        storage.encode(KEY_TRUSTED, next)
+    }
+
+    fun clearTrusted() {
+        storage.removeValueForKey(KEY_TRUSTED)
+    }
+
     /**
      * The daemon's last "could not start" message and when it came, for the
      * problem report; empty when none was seen. Kept, not just shown, because
@@ -82,5 +102,7 @@ class ConnectionPrefs(private val storage: MMKV) {
         private const val KEY_LAST_FAILURE = "last_failure"
         private const val KEY_LAST_FAILURE_AT = "last_failure_at"
         private const val MAX_FAILURE_CHARS = 600
+        private const val KEY_AUTO_WIFI = "auto_on_wifi"
+        private const val KEY_TRUSTED = "trusted_networks"
     }
 }

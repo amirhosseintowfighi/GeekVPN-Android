@@ -453,4 +453,30 @@
         <item quantity="one">%1$d Iranian app now bypasses the VPN.</item>
         <item quantity="other">%1$d Iranian apps now bypass the VPN.</item>
     </plurals>
+    <string name="geek_auto_title">Auto-connect and kill switch</string>
+    <string name="geek_auto_entry">Auto-connect and kill switch</string>
+    <string name="geek_auto_entry_hint">On boot, on unknown Wi-Fi, block without VPN</string>
+    <string name="geek_auto_section_start">Connect automatically</string>
+    <string name="geek_auto_boot">When the phone starts</string>
+    <string name="geek_auto_boot_hint">Connects to the selected server</string>
+    <string name="geek_auto_wifi">On an unknown Wi-Fi</string>
+    <string name="geek_auto_wifi_hint">Cafés, hotels, public networks; not the ones you trust</string>
+    <string name="geek_auto_trust_current">Trust this Wi-Fi</string>
+    <string name="geek_auto_trust_current_hint">No auto-connect here (home, work)</string>
+    <string name="geek_auto_trust_clear">Forget trusted networks</string>
+    <string name="geek_auto_trust_count">%1$d trusted</string>
+    <string name="geek_auto_trust_offwifi">Connect to your home or work Wi-Fi to mark it as trusted.</string>
+    <string name="geek_auto_battery_note">Android lets the app start the VPN on its own only when battery optimisation is off for it. Otherwise a notification asks you to connect.</string>
+    <string name="geek_auto_battery_open">Battery optimisation settings</string>
+    <string name="geek_auto_section_kill">Kill switch</string>
+    <string name="geek_auto_kill_intro">With Android\'s kill switch, no app can reach the internet while the VPN is off, so nothing leaks if the connection drops.</string>
+    <string name="geek_auto_kill_step1">1. Open Android\'s VPN settings with the button below.</string>
+    <string name="geek_auto_kill_step2">2. Tap the gear next to GeekVPN.</string>
+    <string name="geek_auto_kill_step3">3. Turn on «Always-on VPN» and «Block connections without VPN».</string>
+    <string name="geek_auto_kill_warning">While it is on, disconnecting in the app leaves the phone without internet until you connect again.</string>
+    <string name="geek_auto_kill_open">Android VPN settings</string>
+    <string name="geek_auto_channel">Auto-connect</string>
+    <string name="geek_auto_wifi_title">You joined an unknown Wi-Fi</string>
+    <string name="geek_auto_wifi_text">Turn on the VPN to keep this network from seeing your traffic.</string>
+    <string name="geek_auto_wifi_connect">Connect</string>
 </resources>

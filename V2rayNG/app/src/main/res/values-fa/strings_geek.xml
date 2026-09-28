@@ -449,4 +449,30 @@
         <item quantity="one">%1$d برنامه‌ی ایرانی حالا مستقیم می‌رود.</item>
         <item quantity="other">%1$d برنامه‌ی ایرانی حالا مستقیم می‌رود.</item>
     </plurals>
+    <string name="geek_auto_title">اتصال خودکار و Kill Switch</string>
+    <string name="geek_auto_entry">اتصال خودکار و Kill Switch</string>
+    <string name="geek_auto_entry_hint">با روشن شدن گوشی، روی وای‌فای ناشناس، قطع اینترنت بدون VPN</string>
+    <string name="geek_auto_section_start">اتصال خودکار</string>
+    <string name="geek_auto_boot">با روشن شدن گوشی</string>
+    <string name="geek_auto_boot_hint">به سرور انتخاب‌شده وصل می‌شود</string>
+    <string name="geek_auto_wifi">روی وای‌فای ناشناس</string>
+    <string name="geek_auto_wifi_hint">کافه، هتل و شبکه‌های عمومی؛ نه شبکه‌هایی که به آن‌ها اعتماد داری</string>
+    <string name="geek_auto_trust_current">این وای‌فای مورد اعتماد است</string>
+    <string name="geek_auto_trust_current_hint">اینجا خودکار وصل نشو (خانه، محل کار)</string>
+    <string name="geek_auto_trust_clear">فراموش کردن شبکه‌های مورد اعتماد</string>
+    <string name="geek_auto_trust_count">%1$d شبکه‌ی مورد اعتماد</string>
+    <string name="geek_auto_trust_offwifi">برای اعتماد به وای‌فای خانه یا محل کار، اول به آن وصل شو.</string>
+    <string name="geek_auto_battery_note">اندروید فقط وقتی اجازه می‌دهد اپ خودش VPN را روشن کند که بهینه‌سازی باتری برایش خاموش باشد. وگرنه یک اعلان می‌پرسد که وصل شوی یا نه.</string>
+    <string name="geek_auto_battery_open">تنظیمات بهینه‌سازی باتری</string>
+    <string name="geek_auto_section_kill">Kill Switch</string>
+    <string name="geek_auto_kill_intro">با Kill Switch خود اندروید، وقتی VPN خاموش است هیچ برنامه‌ای به اینترنت دسترسی ندارد؛ پس اگر اتصال قطع شود چیزی بیرون نمی‌رود.</string>
+    <string name="geek_auto_kill_step1">۱. با دکمه‌ی پایین تنظیمات VPN اندروید را باز کن.</string>
+    <string name="geek_auto_kill_step2">۲. چرخ‌دنده‌ی کنار GeekVPN را بزن.</string>
+    <string name="geek_auto_kill_step3">۳. «VPN همیشه روشن» و «مسدود کردن اتصال‌های بدون VPN» را روشن کن.</string>
+    <string name="geek_auto_kill_warning">تا وقتی روشن است، اگر در اپ قطع کنی گوشی تا اتصال دوباره اینترنت ندارد.</string>
+    <string name="geek_auto_kill_open">تنظیمات VPN اندروید</string>
+    <string name="geek_auto_channel">اتصال خودکار</string>
+    <string name="geek_auto_wifi_title">به یک وای‌فای ناشناس وصل شدی</string>
+    <string name="geek_auto_wifi_text">VPN را روشن کن تا این شبکه ترافیکت را نبیند.</string>
+    <string name="geek_auto_wifi_connect">اتصال</string>
 </resources>

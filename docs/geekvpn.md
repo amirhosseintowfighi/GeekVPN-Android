@@ -217,6 +217,24 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   مثل قبل در ربات هم می‌آید. تیکت بسته جواب نمی‌گیرد.
 - حداقل طول پیام همان ۱۰ حرف ربات است.
 
+## اتصال خودکار و Kill Switch (`com.geekvpn.autoconnect`، `ui.autoconnect.AutoConnectActivity`)
+
+- «حساب ← اتصال خودکار و Kill Switch». «با روشن شدن گوشی» همان تنظیم `PREF_IS_BOOTED`
+  خود v2rayNG است (`BootReceiver`).
+- «روی وای‌فای ناشناس»: یک network callback با PendingIntent برای Wi-Fi ثبت می‌شود
+  (`AutoConnect.sync`)، پس هیچ سرویسی لازم نیست زنده بماند. `WifiJoinReceiver` در
+  پروسه‌ی `:daemon` اجرا می‌شود، چون فقط آنجا معلوم است هسته روشن است یا نه. اگر شبکه
+  در فهرست «مورد اعتماد» نباشد، VPN روشن می‌شود. شبکه‌ها مثل اسکنر از روی DNS و
+  domain که DHCP داده شناخته می‌شوند (SSID مجوز location می‌خواهد)، پس دو شبکه با
+  تنظیمات پیش‌فرض یکسان روتر ممکن است یکی دیده شوند.
+- از API 31، شروع foreground service از پس‌زمینه فقط وقتی مجاز است که بهینه‌سازی باتری
+  برای اپ خاموش باشد. در غیر این صورت یک اعلان «اتصال» می‌آید که Home را با
+  `EXTRA_CONNECT` باز می‌کند. اگر مجوز VPN هنوز داده نشده باشد هم همین اتفاق می‌افتد.
+- callback بعد از reboot، به‌روزرسانی اپ و force-stop از بین می‌رود. `AutoConnectBootReceiver`
+  و `HomeActivity.onCreate` آن را دوباره ثبت می‌کنند.
+- Kill Switch را اپ خودش نمی‌تواند روشن کند. صفحه قدم‌ها را توضیح می‌دهد و تنظیمات VPN
+  اندروید را باز می‌کند («VPN همیشه روشن» + «مسدود کردن اتصال‌های بدون VPN»).
+
 ## هشدار تمام شدن سرویس (`account.UsageAlerts`، `UsageNotifier`)
 
 - وقتی ۸۰٪ حجم یک سرویس مصرف شده یا ۳ روز یا کمتر مانده، یک نوتیفیکیشن با دکمه‌ی

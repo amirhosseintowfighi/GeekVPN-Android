@@ -2,6 +2,7 @@ package com.geekvpn.scanner
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
 import android.telephony.TelephonyManager
 import androidx.annotation.StringRes
@@ -34,7 +35,12 @@ data class NetworkIdentity(
         /** The network underneath: the app itself is excluded from the VPN, so this is not the tunnel. */
         fun current(context: Context): NetworkIdentity {
             val connectivity = context.getSystemService(ConnectivityManager::class.java) ?: return UNKNOWN
-            val network = connectivity.activeNetwork ?: return UNKNOWN
+            return of(context, connectivity.activeNetwork ?: return UNKNOWN)
+        }
+
+        /** [current] for a given network, e.g. one a network callback just reported. */
+        fun of(context: Context, network: Network): NetworkIdentity {
+            val connectivity = context.getSystemService(ConnectivityManager::class.java) ?: return UNKNOWN
             val caps = connectivity.getNetworkCapabilities(network) ?: return UNKNOWN
             return when {
                 caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {

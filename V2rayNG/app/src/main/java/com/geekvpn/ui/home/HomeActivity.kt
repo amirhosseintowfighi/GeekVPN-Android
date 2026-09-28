@@ -43,6 +43,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
 import com.geekvpn.account.UsageNotifier
+import com.geekvpn.autoconnect.AutoConnect
 import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
@@ -53,6 +54,7 @@ import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
 import com.geekvpn.ui.account.AccountViewModel
 import com.geekvpn.ui.advanced.AdvancedActivity
+import com.geekvpn.ui.autoconnect.AutoConnectActivity
 import com.geekvpn.ui.common.GeekHeader
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
@@ -133,6 +135,8 @@ class HomeActivity : HelperBaseComponentActivity() {
         handleRenew(intent)
         handleConnect(intent)
         UsageNotifier.schedule(this)
+        // A force-stop drops the Wi-Fi callback; opening the app puts it back.
+        lifecycleScope.launch(Dispatchers.IO) { AutoConnect.sync(applicationContext) }
         Push.init(applicationContext)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         lifecycleScope.launch {
@@ -567,6 +571,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onUpdate() = openUpdate()
         override fun onReport() = startActivity(Intent(this@HomeActivity, ReportActivity::class.java))
         override fun onTickets() = startActivity(Intent(this@HomeActivity, TicketsActivity::class.java))
+        override fun onAutoConnect() = startActivity(Intent(this@HomeActivity, AutoConnectActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 
