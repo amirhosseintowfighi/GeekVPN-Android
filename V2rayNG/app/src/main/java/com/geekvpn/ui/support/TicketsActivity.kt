@@ -218,7 +218,7 @@ private fun TicketRow(ticket: TicketCard, onClick: () -> Unit) {
     val status = TicketStatus.of(ticket.state)
     val unread = (ticket.unreadCount ?: 0).coerceAtLeast(0)
     GlassSurface(
-        kind = GlassKind.Clear,
+        kind = GlassKind.Milk,
         shape = Geek.shapes.card,
         modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onClick),
     ) {
@@ -415,6 +415,8 @@ private fun MessageField(
     val colors = Geek.colors
     GlassSurface(kind = GlassKind.Milk, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
         Box(Modifier.fillMaxWidth().padding(14.dp)) {
+            // The label doubles as the hint while the field is empty.
+            if (value.isEmpty()) Text(label, style = Geek.type.body, color = colors.onGlassMuted)
             BasicTextField(
                 value = value,
                 onValueChange = onChange,

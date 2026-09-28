@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.common.appLocale
+import com.geekvpn.ui.common.formatDate
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
@@ -56,8 +57,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 /** Totals and bar heights for the chart; pure, for the tests. */
@@ -176,9 +175,8 @@ fun UsageScreen(state: UsageUiState, onRange: (Int) -> Unit, onBack: () -> Unit)
                     SizeText(summary.total, locale, big = true)
                     Chart(state.days, locale)
                     if (state.days.isNotEmpty()) {
-                        val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale)
                         Row(Modifier.fillMaxWidth()) {
-                            Text(state.days.first().day.format(formatter), style = Geek.type.micro, color = colors.onGlassMuted, modifier = Modifier.weight(1f))
+                            Text(formatDate("${state.days.first().day}T12:00:00Z", locale).orEmpty(), style = Geek.type.micro, color = colors.onGlassMuted, modifier = Modifier.weight(1f))
                             Text(stringResource(R.string.geek_usage_today), style = Geek.type.micro, color = colors.onGlassMuted)
                         }
                     }
@@ -239,7 +237,14 @@ private fun Stat(label: String, bytes: Long, locale: Locale, modifier: Modifier)
 private fun SizeText(bytes: Long, locale: Locale, big: Boolean) {
     val (value, unit) = UsageChart.size(bytes, locale)
     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(value, style = if (big) Geek.type.numberLarge.copy(fontSize = 40.sp) else Geek.type.numberSmall, color = Geek.colors.onGlass)
+        Text(
+            value,
+            style = if (big) Geek.type.numberLarge.copy(fontSize = 40.sp) else Geek.type.numberSmall,
+            color = Geek.colors.onGlass,
+            // One line: the Persian decimal separator is a break opportunity.
+            maxLines = 1,
+            softWrap = false,
+        )
         Text(stringResource(unitLabel(unit)), style = Geek.type.caption, color = Geek.colors.onGlassMuted)
     }
 }

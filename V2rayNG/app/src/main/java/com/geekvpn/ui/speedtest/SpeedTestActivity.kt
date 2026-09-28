@@ -107,6 +107,9 @@ fun SpeedTestScreen(state: SpeedTestUiState, onToggle: () -> Unit, onBack: () ->
                     Text(
                         mbps(gauge.toDouble(), locale),
                         style = Geek.type.numberLarge.copy(fontSize = 56.sp),
+                        // One line: the Persian decimal separator is a break opportunity.
+                        maxLines = 1,
+                        softWrap = false,
                         color = colors.onGlass,
                         textAlign = TextAlign.Center,
                     )

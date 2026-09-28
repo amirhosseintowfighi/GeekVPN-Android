@@ -232,7 +232,8 @@ private fun Stat(label: String, value: String, modifier: Modifier) {
     GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.tile, modifier = modifier) {
         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, style = Geek.type.caption, color = colors.onGlassMuted, maxLines = 1)
-            Text(value, style = Geek.type.numberSmall, color = colors.onGlass, maxLines = 1)
+            // The text face: the number face draws the Persian thousands separator as an apostrophe.
+            Text(value, style = Geek.type.row, color = colors.onGlass, maxLines = 1)
         }
     }
 }
