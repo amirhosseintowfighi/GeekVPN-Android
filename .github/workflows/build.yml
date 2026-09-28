@@ -196,6 +196,12 @@ jobs:
         GEEK_API_BASE_PROD: ${{ secrets.GEEK_API_BASE_PROD }}
         # A repository variable, not a secret: the bot's name is public.
         GEEK_BOT_USERNAME: ${{ vars.GEEK_BOT_USERNAME }}
+        # Firebase Cloud Messaging (com.geekvpn.push); any unset leaves push off.
+        GEEK_FIREBASE_APP_ID: ${{ secrets.GEEK_FIREBASE_APP_ID }}
+        GEEK_FIREBASE_APP_ID_STAGING: ${{ secrets.GEEK_FIREBASE_APP_ID_STAGING }}
+        GEEK_FIREBASE_API_KEY: ${{ secrets.GEEK_FIREBASE_API_KEY }}
+        GEEK_FIREBASE_PROJECT_ID: ${{ secrets.GEEK_FIREBASE_PROJECT_ID }}
+        GEEK_FIREBASE_SENDER_ID: ${{ secrets.GEEK_FIREBASE_SENDER_ID }}
       run: |
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew

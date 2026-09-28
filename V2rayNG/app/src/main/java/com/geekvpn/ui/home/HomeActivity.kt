@@ -43,6 +43,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
 import com.geekvpn.account.UsageNotifier
+import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
 import com.geekvpn.scanner.CleanIp
@@ -130,6 +131,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         handlePaymentReturn(intent)
         handleRenew(intent)
         UsageNotifier.schedule(this)
+        Push.init(applicationContext)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

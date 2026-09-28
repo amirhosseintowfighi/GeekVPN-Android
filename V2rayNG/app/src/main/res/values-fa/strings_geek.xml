@@ -405,4 +405,5 @@
     </plurals>
     <string name="geek_alert_expiry_text">همین حالا تمدید کن تا اتصال قطع نشود.</string>
     <string name="geek_alert_renew">تمدید</string>
+    <string name="geek_push_channel">اطلاعیه‌ها</string>
 </resources>

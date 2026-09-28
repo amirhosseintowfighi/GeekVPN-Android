@@ -182,6 +182,30 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   ادمین در پنل و ربات جواب می‌دهد. کاربر مهمان حساب ندارد، پس گزارش کپی می‌شود و
   ربات باز می‌شود.
 
+## نوتیفیکیشن از Firebase (`com.geekvpn.push`)
+
+- Firebase Cloud Messaging بدون `google-services.json` و بدون plugin گوگل وصل می‌شود:
+  مقدارها از `-P`، متغیر محیطی یا `local.properties` می‌آیند و در CI از GitHub Secrets.
+  اگر یکی خالی باشد push خاموش است و اپ اصلاً به Firebase دست نمی‌زند.
+
+  | اسم | از کجای کنسول Firebase (Project settings ← General ← Your apps) |
+  |---|---|
+  | `GEEK_FIREBASE_APP_ID` | «App ID» اپ اندروید با پکیج `com.geekvpn.app` |
+  | `GEEK_FIREBASE_APP_ID_STAGING` | اختیاری: همان برای `com.geekvpn.app.staging` |
+  | `GEEK_FIREBASE_API_KEY` | «Web API Key» |
+  | `GEEK_FIREBASE_PROJECT_ID` | «Project ID» |
+  | `GEEK_FIREBASE_SENDER_ID` | «Project number» (Cloud Messaging ← Sender ID) |
+
+- هر نصب عضو topic `all` می‌شود؛ از کنسول (Messaging ← New campaign ← Notifications)
+  می‌شود به اپ یا به topic `all` پیام داد. اگر اپ پشت صحنه باشد خود Firebase
+  نوتیفیکیشن را روی کانال «اطلاعیه‌ها» نشان می‌دهد، جلوی صحنه `GeekMessagingService`.
+  فیلد داده‌ی `url` (فقط https) با زدن نوتیفیکیشن باز می‌شود.
+- Firebase هنگام باز شدن اپ (`LaunchActivity`، `HomeActivity`) و در `GeekMessagingService`
+  راه می‌افتد، نه با androidx.startup: `LogUtil` به MMKV نیاز دارد و MMKV در
+  `AngApplication.onCreate` آماده می‌شود.
+- تحویل push به سرویس‌های گوگل روی گوشی بستگی دارد؛ در ایران وقتی VPN قطع است
+  ممکن است دیر برسد.
+
 ## هشدار تمام شدن سرویس (`account.UsageAlerts`، `UsageNotifier`)
 
 - وقتی ۸۰٪ حجم یک سرویس مصرف شده یا ۳ روز یا کمتر مانده، یک نوتیفیکیشن با دکمه‌ی

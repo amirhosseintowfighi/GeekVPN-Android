@@ -71,6 +71,15 @@ android {
             "GEEK_BOT_USERNAME must be a Telegram username, got '$botUsername'"
         }
         buildConfigField("String", "BOT_USERNAME", "\"$botUsername\"")
+
+        // GeekVPN: Firebase Cloud Messaging, configured by values instead of
+        // google-services.json so nothing of the Firebase project is in the repo.
+        // Any of them empty leaves push off (com.geekvpn.push.Push).
+        for (key in listOf("API_KEY", "PROJECT_ID", "SENDER_ID")) {
+            val value = geekProperty("GEEK_FIREBASE_$key", "").trim()
+            require(value.none { it == '"' || it == '\\' }) { "GEEK_FIREBASE_$key must be a plain value" }
+            buildConfigField("String", "FIREBASE_$key", "\"$value\"")
+        }
     }
 
     // GeekVPN: the release key comes from GitHub Secrets (see docs/geekvpn.md),
@@ -121,6 +130,8 @@ android {
             dimension = "env"
             applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
+            // Firebase registers each package name as its own app.
+            buildConfigField("String", "FIREBASE_APP_ID", "\"${geekProperty("GEEK_FIREBASE_APP_ID_STAGING", "").trim()}\"")
             buildConfigField(
                 "String", "API_BASE",
                 "\"${geekHttpsUrl("GEEK_API_BASE_STAGING", "https://staging-api.geekvpn.invalid")}\""
@@ -128,6 +139,7 @@ android {
         }
         create("prod") {
             dimension = "env"
+            buildConfigField("String", "FIREBASE_APP_ID", "\"${geekProperty("GEEK_FIREBASE_APP_ID", "").trim()}\"")
             buildConfigField(
                 "String", "API_BASE",
                 "\"${geekHttpsUrl("GEEK_API_BASE_PROD", "https://api.geekvpn.invalid")}\""
@@ -247,6 +259,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.lifecycle.runtime.compose)
     implementation(libs.coil.compose)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

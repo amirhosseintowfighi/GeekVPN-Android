@@ -414,6 +414,21 @@
 
         </provider>
 
+        <!-- GeekVPN: announcements from the Firebase console (com.geekvpn.push). -->
+        <service
+            android:name="com.geekvpn.push.GeekMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="geek_announcements" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_name" />
+
         <service
             android:name="androidx.work.multiprocess.RemoteWorkManagerService"
             android:exported="false"

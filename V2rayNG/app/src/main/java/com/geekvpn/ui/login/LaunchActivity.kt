@@ -14,6 +14,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
+import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
 import com.geekvpn.ui.home.HomeActivity
@@ -34,6 +35,7 @@ class LaunchActivity : BaseComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Push.init(applicationContext)
         if (savedInstanceState == null && GeekGraph.session.session.value != Session.SignedOut) {
             GeekGraph.syncOnLaunch()
             openMain()
