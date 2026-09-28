@@ -1,6 +1,7 @@
 package com.geekvpn.ui.perapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,9 +26,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,8 +53,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
+import com.geekvpn.perapp.IranianApps
 import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.common.SettingsDivider
 import com.geekvpn.ui.components.GeekBackdrop
@@ -62,13 +67,18 @@ import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
 import com.geekvpn.ui.theme.GeekTheme
+import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.dto.AppInfo
 import com.v2ray.ang.extension.toastSuccess
 import com.v2ray.ang.ui.base.BaseComponentActivity
 import com.v2ray.ang.ui.perappproxy.PerAppProxyViewModel
 import com.v2ray.ang.util.AppIconFetcher
+import com.v2ray.ang.util.AppManagerUtil
+import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 /**
  * Per-app proxy ("تونل تفکیکی برنامه‌ها") in GeekVPN's design, on v2rayNG's own
@@ -78,6 +88,9 @@ import com.v2ray.ang.util.Utils
 class PerAppActivity : BaseComponentActivity() {
 
     private val viewModel: PerAppProxyViewModel by viewModels()
+
+    /** The "Iranian apps direct" preset replaces the selection, so it asks first. */
+    private var iranianAsked by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +121,9 @@ class PerAppActivity : BaseComponentActivity() {
                         override fun onSelectAll() = viewModel.selectAll()
                         override fun onInvert() = viewModel.invertSelection()
                         override fun onAuto() = viewModel.selectProxyAppAuto(this@PerAppActivity)
+                        override fun onIranianApps() {
+                            iranianAsked = true
+                        }
                         override fun onImport() = viewModel.importProxyApp(Utils.getClipboard(applicationContext), this@PerAppActivity)
                         override fun onExport() {
                             Utils.setClipboard(applicationContext, viewModel.exportProxyApp())
@@ -115,9 +131,65 @@ class PerAppActivity : BaseComponentActivity() {
                         }
                     },
                 )
+                if (iranianAsked) {
+                    IranianAppsDialog(
+                        onConfirm = {
+                            iranianAsked = false
+                            applyIranianApps()
+                        },
+                        onDismiss = { iranianAsked = false },
+                    )
+                }
             }
         }
     }
+
+    /**
+     * Bypass mode with exactly the installed Iranian apps selected, through
+     * v2rayNG's own toggles so its stored list and restart signal stay the
+     * single source.
+     */
+    private fun applyIranianApps() {
+        lifecycleScope.launch {
+            val installed = try {
+                AppManagerUtil.loadNetworkAppList(applicationContext).map { it.packageName }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Per-app: listing apps for the Iranian preset failed", e)
+                emptyList()
+            }
+            val wanted = IranianApps.select(installed, packageName)
+            if (wanted.isEmpty()) {
+                Toast.makeText(this@PerAppActivity, R.string.geek_perapp_iran_none, Toast.LENGTH_LONG).show()
+                return@launch
+            }
+            val current = viewModel.blacklist.value
+            viewModel.setBypassAppsEnabled(true)
+            ((current - wanted) + (wanted - current)).forEach(viewModel::toggle)
+            viewModel.setPerAppProxyEnabled(true)
+            Toast.makeText(
+                this@PerAppActivity,
+                resources.getQuantityString(R.plurals.geek_perapp_iran_done, wanted.size, wanted.size),
+                Toast.LENGTH_LONG,
+            ).show()
+        }
+    }
+}
+
+@Composable
+private fun IranianAppsDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.geek_perapp_iran), style = Geek.type.sectionTitle) },
+        text = { Text(stringResource(R.string.geek_perapp_iran_text), style = Geek.type.body) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.geek_perapp_iran_confirm), style = Geek.type.button) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.geek_account_cancel), style = Geek.type.button) }
+        },
+    )
 }
 
 interface PerAppActions {
@@ -129,6 +201,9 @@ interface PerAppActions {
     fun onSelectAll()
     fun onInvert()
     fun onAuto()
+
+    /** "برنامه‌های ایرانی مستقیم": asks, then selects the Iranian apps in bypass mode. */
+    fun onIranianApps()
     fun onImport()
     fun onExport()
 }
@@ -261,6 +336,7 @@ private fun Tools(actions: PerAppActions) {
         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        Chip(stringResource(R.string.geek_perapp_iran), actions::onIranianApps)
         Chip(stringResource(R.string.menu_item_select_proxy_app), actions::onAuto)
         Chip(stringResource(R.string.menu_item_select_all), actions::onSelectAll)
         Chip(stringResource(R.string.menu_item_invert_selection), actions::onInvert)

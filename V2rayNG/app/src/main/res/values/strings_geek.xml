@@ -445,4 +445,12 @@
     <string name="geek_tickets_topic_account">Account</string>
     <string name="geek_tickets_topic_speed">Speed and quality</string>
     <string name="geek_tickets_topic_other">Other</string>
+    <string name="geek_perapp_iran">Iranian apps direct</string>
+    <string name="geek_perapp_iran_text">Installed Iranian apps (banks, payment, Snapp, Divar, Bale and others) will bypass the VPN; everything else goes through it. They won\'t see the VPN, so banking apps work. This replaces the current selection.</string>
+    <string name="geek_perapp_iran_confirm">Apply</string>
+    <string name="geek_perapp_iran_none">No Iranian app was found on this phone.</string>
+    <plurals name="geek_perapp_iran_done">
+        <item quantity="one">%1$d Iranian app now bypasses the VPN.</item>
+        <item quantity="other">%1$d Iranian apps now bypass the VPN.</item>
+    </plurals>
 </resources>

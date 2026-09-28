@@ -441,4 +441,12 @@
     <string name="geek_tickets_topic_account">حساب کاربری</string>
     <string name="geek_tickets_topic_speed">سرعت و کیفیت</string>
     <string name="geek_tickets_topic_other">سایر موارد</string>
+    <string name="geek_perapp_iran">برنامه‌های ایرانی مستقیم</string>
+    <string name="geek_perapp_iran_text">برنامه‌های ایرانی نصب‌شده (بانک‌ها، پرداخت، اسنپ، دیوار، بله و …) از VPN رد نمی‌شوند و بقیه از VPN می‌روند. این برنامه‌ها VPN را نمی‌بینند، پس برنامه‌های بانکی کار می‌کنند. انتخاب فعلی جایگزین می‌شود.</string>
+    <string name="geek_perapp_iran_confirm">اعمال</string>
+    <string name="geek_perapp_iran_none">هیچ برنامه‌ی ایرانی روی این گوشی پیدا نشد.</string>
+    <plurals name="geek_perapp_iran_done">
+        <item quantity="one">%1$d برنامه‌ی ایرانی حالا مستقیم می‌رود.</item>
+        <item quantity="other">%1$d برنامه‌ی ایرانی حالا مستقیم می‌رود.</item>
+    </plurals>
 </resources>
