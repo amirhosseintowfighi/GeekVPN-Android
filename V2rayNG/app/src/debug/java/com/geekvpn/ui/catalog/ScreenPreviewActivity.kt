@@ -51,7 +51,10 @@ import com.geekvpn.ui.shop.WalletSheet
 import com.geekvpn.support.TicketTopic
 import com.geekvpn.ui.support.TicketsActions
 import com.geekvpn.ui.support.TicketsScreen
+import com.geekvpn.api.ReferralSummary
 import com.geekvpn.speedtest.SpeedResult
+import com.geekvpn.ui.referral.ReferralScreen
+import com.geekvpn.ui.referral.ReferralUiState
 import com.geekvpn.ui.speedtest.SpeedTestScreen
 import com.geekvpn.ui.speedtest.SpeedTestUiState
 import com.geekvpn.ui.theme.GeekTheme
@@ -77,6 +80,15 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
+                SCREEN_REFERRAL -> GeekBackdrop {
+                    ReferralScreen(
+                        ReferralUiState(ReferralSummary("GEEK42", 7, 3, 186_000, 24_000, 20_000, 1_000, 500)),
+                        onCopy = {},
+                        onShare = {},
+                        onRetry = {},
+                        onBack = {},
+                    )
+                }
                 SCREEN_SPEED -> GeekBackdrop {
                     SpeedTestScreen(
                         SpeedTestUiState(throughVpn = true, result = SpeedResult(pingMs = 184, downloadMbps = 42.7, uploadMbps = 11.3)),
@@ -107,6 +119,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_TICKETS = "tickets"
         const val SCREEN_AUTO_CONNECT = "auto-connect"
         const val SCREEN_SPEED = "speed"
+        const val SCREEN_REFERRAL = "referral"
         const val SCREEN_TICKET_THREAD = "ticket-thread"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
@@ -257,6 +270,7 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onTickets() = Unit
     override fun onAutoConnect() = Unit
     override fun onSpeedTest() = Unit
+    override fun onReferral() = Unit
 }
 
 private object PreviewAutoConnectActions : AutoConnectActions {

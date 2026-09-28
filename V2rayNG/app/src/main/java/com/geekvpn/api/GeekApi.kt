@@ -170,6 +170,9 @@ class GeekApi(
     /** A support ticket, as the Mini App opens one; the operator answers in the bot. */
     suspend fun openTicket(request: OpenTicketRequest): TicketCard = post(authorized, "/api/miniapp/tickets", request)
 
+    suspend fun referral(): ReferralSummary =
+        get(authorized, "/api/miniapp/referral", object : TypeToken<ReferralSummary>() {})
+
     /** This customer's tickets; the same ones the bot and the Mini App show. */
     suspend fun tickets(): List<TicketCard> =
         get(authorized, "/api/miniapp/tickets", object : TypeToken<List<TicketCard>>() {})

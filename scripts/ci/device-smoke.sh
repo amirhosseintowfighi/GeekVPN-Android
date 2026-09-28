@@ -164,7 +164,7 @@ if [[ "$probe" != *Error* ]]; then
         alive "previewing $1"
         adb shell am force-stop "$PKG"
     }
-    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update tickets ticket-thread auto-connect speed; do
+    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update tickets ticket-thread auto-connect speed referral; do
         preview "$screen" false
         preview "$screen" true
     done

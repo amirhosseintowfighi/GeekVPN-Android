@@ -74,6 +74,9 @@ interface AccountActions {
 
     /** "تست سرعت". */
     fun onSpeedTest()
+
+    /** "دعوت از دوستان"; signed in only. */
+    fun onReferral()
 }
 
 @Composable
@@ -101,6 +104,14 @@ fun AccountScreen(
 
         if (signedIn != null) {
             WalletCard(state.balance, actions)
+            SettingsCard {
+                SettingRow(
+                    icon = GeekIcons.Gift,
+                    title = stringResource(R.string.geek_referral_title),
+                    hint = stringResource(R.string.geek_referral_entry_hint),
+                    onClick = actions::onReferral,
+                )
+            }
         }
 
         SectionLabel(stringResource(R.string.geek_account_connection))

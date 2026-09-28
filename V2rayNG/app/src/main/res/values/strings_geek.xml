@@ -498,4 +498,22 @@
     <string name="geek_speed_via_direct">The VPN is off: this measures your own network.</string>
     <string name="geek_speed_failed">The test server could not be reached.</string>
     <string name="geek_speed_note">A test uses up to about 70 MB, counted against your service while connected.</string>
+    <string name="geek_referral_title">Invite friends</string>
+    <string name="geek_referral_entry_hint">Wallet credit for every friend who buys</string>
+    <string name="geek_referral_intro">Send your link to friends. When they join through it and buy a service, you get wallet credit.</string>
+    <string name="geek_referral_term_bonus">Your friend gets %1$s toman on joining.</string>
+    <string name="geek_referral_term_first">You get %1$s%% of their first purchase.</string>
+    <string name="geek_referral_term_recurring">And %1$s%% of every purchase after that.</string>
+    <string name="geek_referral_your_link">Your invite link</string>
+    <string name="geek_referral_share">Share the link</string>
+    <string name="geek_referral_copy">Copy the link</string>
+    <string name="geek_referral_copied">Link copied</string>
+    <string name="geek_referral_share_text">Join GeekVPN with my link: %1$s</string>
+    <string name="geek_referral_invited">Invited</string>
+    <string name="geek_referral_converted">Bought a service</string>
+    <string name="geek_referral_earned">Earned</string>
+    <string name="geek_referral_pending">Pending</string>
+    <string name="geek_referral_toman">%1$s toman</string>
+    <string name="geek_referral_wallet_note">Earnings go to your wallet and can pay for any service.</string>
+    <string name="geek_referral_failed">Couldn\'t load your invite link.</string>
 </resources>

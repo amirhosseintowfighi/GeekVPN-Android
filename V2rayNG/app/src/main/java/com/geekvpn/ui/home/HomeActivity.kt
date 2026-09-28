@@ -66,6 +66,7 @@ import com.geekvpn.ui.login.LaunchActivity
 import com.geekvpn.ui.perapp.PerAppActivity
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
+import com.geekvpn.ui.referral.ReferralActivity
 import com.geekvpn.ui.scanner.ScannerActions
 import com.geekvpn.ui.scanner.ScannerEvent
 import com.geekvpn.ui.scanner.ScannerScreen
@@ -575,6 +576,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onTickets() = startActivity(Intent(this@HomeActivity, TicketsActivity::class.java))
         override fun onAutoConnect() = startActivity(Intent(this@HomeActivity, AutoConnectActivity::class.java))
         override fun onSpeedTest() = startActivity(Intent(this@HomeActivity, SpeedTestActivity::class.java))
+        override fun onReferral() = startActivity(Intent(this@HomeActivity, ReferralActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 

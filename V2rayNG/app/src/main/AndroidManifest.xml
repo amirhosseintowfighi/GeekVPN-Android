@@ -112,6 +112,9 @@
         <activity
             android:name="com.geekvpn.ui.speedtest.SpeedTestActivity"
             android:exported="false" />
+        <activity
+            android:name="com.geekvpn.ui.referral.ReferralActivity"
+            android:exported="false" />
         <!-- The system's Wi-Fi callback (AutoConnect); in the VPN process, which knows whether the core runs. -->
         <receiver
             android:name="com.geekvpn.autoconnect.WifiJoinReceiver"

@@ -217,6 +217,13 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   مثل قبل در ربات هم می‌آید. تیکت بسته جواب نمی‌گیرد.
 - حداقل طول پیام همان ۱۰ حرف ربات است.
 
+## دعوت از دوستان (`account.Referral`، `ui.referral.ReferralActivity`)
+
+- «حساب ← دعوت از دوستان» (فقط کاربر واردشده) از `GET /api/miniapp/referral` می‌خواند:
+  کد، تعداد دعوت‌شده و خریدار، درآمد و درآمد در انتظار، و شرط‌ها (هدیه‌ی عضویت و درصد
+  خرید اول و خریدهای بعدی؛ bps از سرور، چون ادمین آن‌ها را عوض می‌کند).
+- لینک همان deep link ربات است: `https://t.me/<GEEK_BOT_USERNAME>?start=ref_<code>`.
+
 ## تست سرعت (`com.geekvpn.speedtest`، `ui.speedtest.SpeedTestActivity`)
 
 - «حساب ← تست سرعت»: پینگ (میانه‌ی ۵ بار)، دانلود و آپلود با `speed.cloudflare.com`.

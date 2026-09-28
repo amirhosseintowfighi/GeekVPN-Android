@@ -494,4 +494,22 @@
     <string name="geek_speed_via_direct">VPN خاموش است: این سرعت شبکه‌ی خود گوشی است.</string>
     <string name="geek_speed_failed">سرور تست در دسترس نبود.</string>
     <string name="geek_speed_note">هر تست تا حدود ۷۰ مگابایت مصرف می‌کند؛ وقتی وصلی، از حجم سرویست کم می‌شود.</string>
+    <string name="geek_referral_title">دعوت از دوستان</string>
+    <string name="geek_referral_entry_hint">اعتبار کیف پول برای هر دوستی که خرید کند</string>
+    <string name="geek_referral_intro">لینکت را برای دوستانت بفرست. وقتی با آن عضو شوند و سرویس بخرند، کیف پولت شارژ می‌شود.</string>
+    <string name="geek_referral_term_bonus">دوستت با عضویت %1$s تومان هدیه می‌گیرد.</string>
+    <string name="geek_referral_term_first">تو %1$s٪ از اولین خریدش را می‌گیری.</string>
+    <string name="geek_referral_term_recurring">و %1$s٪ از هر خرید بعدی.</string>
+    <string name="geek_referral_your_link">لینک دعوت تو</string>
+    <string name="geek_referral_share">اشتراک‌گذاری لینک</string>
+    <string name="geek_referral_copy">کپی لینک</string>
+    <string name="geek_referral_copied">لینک کپی شد</string>
+    <string name="geek_referral_share_text">با لینک من عضو GeekVPN شو: %1$s</string>
+    <string name="geek_referral_invited">دعوت‌شده</string>
+    <string name="geek_referral_converted">سرویس خریده</string>
+    <string name="geek_referral_earned">درآمد</string>
+    <string name="geek_referral_pending">در انتظار</string>
+    <string name="geek_referral_toman">%1$s تومان</string>
+    <string name="geek_referral_wallet_note">درآمدت به کیف پول می‌رود و با آن هر سرویسی را می‌توانی بخری.</string>
+    <string name="geek_referral_failed">لینک دعوت دریافت نشد.</string>
 </resources>

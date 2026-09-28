@@ -326,3 +326,21 @@ data class TicketMessage(
 
 /** `POST /api/miniapp/tickets/{id}/messages`. */
 data class TicketReplyRequest(val message: String)
+
+/** `GET /api/miniapp/referral`: the invite code, its results and the current terms. */
+data class ReferralSummary(
+    val code: String?,
+    val invitedCount: Int?,
+    /** Invitees who bought something. */
+    val convertedCount: Int?,
+    /** Toman credited so far. */
+    val totalEarned: Long?,
+    /** Toman earned but not yet credited. */
+    val pendingEarned: Long?,
+    /** Toman the invitee gets on joining. */
+    val inviteeBonus: Long?,
+    /** Share of the invitee's first purchase, in basis points (1% = 100). */
+    val firstPurchaseBps: Int?,
+    /** Share of each later purchase, in basis points. */
+    val recurringBps: Int?,
+)
