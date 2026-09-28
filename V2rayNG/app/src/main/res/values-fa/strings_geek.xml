@@ -512,4 +512,17 @@
     <string name="geek_referral_toman">%1$s تومان</string>
     <string name="geek_referral_wallet_note">درآمدت به کیف پول می‌رود و با آن هر سرویسی را می‌توانی بخری.</string>
     <string name="geek_referral_failed">لینک دعوت دریافت نشد.</string>
+    <string name="geek_usage_title">مصرف روزانه</string>
+    <string name="geek_usage_entry_hint">ترافیک VPN این گوشی در هر روز</string>
+    <string name="geek_usage_week">۷ روز</string>
+    <string name="geek_usage_month">۳۰ روز</string>
+    <string name="geek_usage_total">مجموع</string>
+    <string name="geek_usage_today">امروز</string>
+    <string name="geek_usage_average">میانگین روزانه</string>
+    <string name="geek_usage_peak">پرمصرف‌ترین روز</string>
+    <string name="geek_usage_kb">کیلوبایت</string>
+    <string name="geek_usage_mb">مگابایت</string>
+    <string name="geek_usage_gb">گیگابایت</string>
+    <string name="geek_usage_chart_description">مصرف %1$d روز گذشته: در مجموع %2$s %3$s</string>
+    <string name="geek_usage_note">روی همین گوشی و وقتی VPN روشن است شمرده می‌شود؛ دستگاه‌های دیگرِ همین سرویس حساب نمی‌شوند. حجم باقی‌مانده‌ی سرویس در تب «سرویس‌ها» است.</string>
 </resources>

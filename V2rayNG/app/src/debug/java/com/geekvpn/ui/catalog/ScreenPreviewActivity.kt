@@ -58,6 +58,9 @@ import com.geekvpn.ui.referral.ReferralUiState
 import com.geekvpn.ui.speedtest.SpeedTestScreen
 import com.geekvpn.ui.speedtest.SpeedTestUiState
 import com.geekvpn.ui.theme.GeekTheme
+import com.geekvpn.ui.usage.UsageScreen
+import com.geekvpn.ui.usage.UsageUiState
+import com.geekvpn.usage.DayUsage
 import com.v2ray.ang.ui.base.BaseComponentActivity
 
 /**
@@ -80,6 +83,15 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
+                SCREEN_USAGE -> GeekBackdrop {
+                    val today = java.time.LocalDate.of(2026, 9, 28)
+                    val sample = listOf(310L, 820L, 145L, 0L, 1260L, 530L, 690L)
+                    UsageScreen(
+                        UsageUiState(7, sample.mapIndexed { i, mib -> DayUsage(today.minusDays((6 - i).toLong()), mib * 1024 * 1024) }),
+                        onRange = {},
+                        onBack = {},
+                    )
+                }
                 SCREEN_REFERRAL -> GeekBackdrop {
                     ReferralScreen(
                         ReferralUiState(ReferralSummary("GEEK42", 7, 3, 186_000, 24_000, 20_000, 1_000, 500)),
@@ -120,6 +132,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_AUTO_CONNECT = "auto-connect"
         const val SCREEN_SPEED = "speed"
         const val SCREEN_REFERRAL = "referral"
+        const val SCREEN_USAGE = "usage"
         const val SCREEN_TICKET_THREAD = "ticket-thread"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
@@ -271,6 +284,7 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onAutoConnect() = Unit
     override fun onSpeedTest() = Unit
     override fun onReferral() = Unit
+    override fun onUsage() = Unit
 }
 
 private object PreviewAutoConnectActions : AutoConnectActions {

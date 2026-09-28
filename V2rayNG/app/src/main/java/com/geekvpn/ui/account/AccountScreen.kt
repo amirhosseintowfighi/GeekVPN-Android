@@ -77,6 +77,9 @@ interface AccountActions {
 
     /** "دعوت از دوستان"; signed in only. */
     fun onReferral()
+
+    /** "مصرف روزانه". */
+    fun onUsage()
 }
 
 @Composable
@@ -148,6 +151,13 @@ fun AccountScreen(
                     onClick = actions::onCleanIp,
                 )
             }
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.ArrowDown,
+                title = stringResource(R.string.geek_usage_title),
+                hint = stringResource(R.string.geek_usage_entry_hint),
+                onClick = actions::onUsage,
+            )
             SettingsDivider()
             SettingRow(
                 icon = GeekIcons.Gauge,

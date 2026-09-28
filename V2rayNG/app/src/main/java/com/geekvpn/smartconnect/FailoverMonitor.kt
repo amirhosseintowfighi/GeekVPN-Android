@@ -4,6 +4,7 @@ import android.app.Service
 import android.os.PowerManager
 import com.geekvpn.connection.ConnectionPrefs
 import com.geekvpn.scanner.CleanIps
+import com.geekvpn.usage.DailyUsage
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.dto.RealPingEvent
 import com.v2ray.ang.handler.MmkvManager
@@ -44,15 +45,28 @@ class FailoverMonitor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineName("geek-failover"))
     private val prefs = ConnectionPrefs.open()
+    private val usage = DailyUsage.open().let { book -> DailyUsage.Recorder(book::add) }
 
     fun start() {
+        usage.sample()
         scope.launch { watch() }
         scope.launch { publishConnections() }
+        scope.launch { recordUsage() }
     }
 
     fun stop() {
         scope.cancel()
         prefs.activeConnections = 0
+        // What moved since the last sample, so a short connection still counts.
+        usage.sample()
+    }
+
+    /** «مصرف روزانه»: books the traffic to today every half minute, screen on or off. */
+    private suspend fun recordUsage() {
+        while (scope.isActive) {
+            delay(USAGE_INTERVAL_MS)
+            usage.sample()
+        }
     }
 
     /**
@@ -170,6 +184,7 @@ class FailoverMonitor(
         const val FIRST_CHECK_MS = 20_000L
         const val CHECK_INTERVAL_MS = 30_000L
         const val CONNECTIONS_INTERVAL_MS = 2_000L
+        const val USAGE_INTERVAL_MS = 30_000L
 
         /** Fewer checks with the screen off: Doze stretches them anyway, and they cost battery. */
         const val CHECK_INTERVAL_SCREEN_OFF_MS = 120_000L

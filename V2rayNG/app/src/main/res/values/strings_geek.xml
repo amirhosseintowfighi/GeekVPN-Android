@@ -516,4 +516,17 @@
     <string name="geek_referral_toman">%1$s toman</string>
     <string name="geek_referral_wallet_note">Earnings go to your wallet and can pay for any service.</string>
     <string name="geek_referral_failed">Couldn\'t load your invite link.</string>
+    <string name="geek_usage_title">Daily usage</string>
+    <string name="geek_usage_entry_hint">This phone\'s VPN traffic per day</string>
+    <string name="geek_usage_week">7 days</string>
+    <string name="geek_usage_month">30 days</string>
+    <string name="geek_usage_total">Total</string>
+    <string name="geek_usage_today">Today</string>
+    <string name="geek_usage_average">Daily average</string>
+    <string name="geek_usage_peak">Busiest day</string>
+    <string name="geek_usage_kb">KB</string>
+    <string name="geek_usage_mb">MB</string>
+    <string name="geek_usage_gb">GB</string>
+    <string name="geek_usage_chart_description">Usage over the last %1$d days: %2$s %3$s in total</string>
+    <string name="geek_usage_note">Counted on this phone while the VPN is on, so other devices on the same service are not included. Your service\'s remaining volume is on the Services tab.</string>
 </resources>
