@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -107,8 +108,11 @@ fun SpeedTestScreen(state: SpeedTestUiState, onToggle: () -> Unit, onBack: () ->
                     )
                     Text(
                         mbps(gauge.toDouble(), locale),
-                        style = Geek.type.numberLarge.copy(fontSize = 56.sp),
-                        maxLines = 1,
+                        // No negative tracking and no clipping: with Persian digits (a fallback
+                        // face) the measured width came out short and the last digit was cut.
+                        style = Geek.type.numberLarge.copy(fontSize = 56.sp, letterSpacing = 0.sp),
+                        softWrap = false,
+                        overflow = TextOverflow.Visible,
                         color = colors.onGlass,
                         textAlign = TextAlign.Center,
                     )

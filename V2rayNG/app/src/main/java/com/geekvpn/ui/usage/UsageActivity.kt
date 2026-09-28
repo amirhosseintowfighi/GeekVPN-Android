@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -235,9 +236,12 @@ private fun SizeText(bytes: Long, locale: Locale, big: Boolean) {
     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             value,
-            style = if (big) Geek.type.numberLarge.copy(fontSize = 40.sp) else Geek.type.numberSmall,
+            // No negative tracking and no clipping: with Persian digits (a fallback
+            // face) the measured width came out short and the last digit was cut.
+            style = if (big) Geek.type.numberLarge.copy(fontSize = 40.sp, letterSpacing = 0.sp) else Geek.type.numberSmall,
             color = Geek.colors.onGlass,
-            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Visible,
         )
         Text(stringResource(unitLabel(unit)), style = Geek.type.caption, color = Geek.colors.onGlassMuted)
     }
