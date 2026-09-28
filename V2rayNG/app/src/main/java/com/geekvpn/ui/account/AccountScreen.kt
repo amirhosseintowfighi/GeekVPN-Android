@@ -171,7 +171,8 @@ fun AccountScreen(
                 title = stringResource(R.string.geek_auto_entry),
                 hint = stringResource(R.string.geek_auto_entry_hint),
                 onClick = actions::onAutoConnect,
-            )            SettingsDivider()
+            )
+            SettingsDivider()
             SettingRow(
                 icon = GeekIcons.Sliders,
                 title = stringResource(R.string.geek_account_advanced),
