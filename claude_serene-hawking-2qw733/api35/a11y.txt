@@ -1,4 +1,0 @@
-out/api35/preview-account-dark.xml: View '' at [53,2368][1027,2390] is 371x8dp, under 44dp
-out/api35/preview-account-dark.xml: View '' at [53,2368][1027,2390] has no text or content description
-out/api35/preview-account.xml: View '' at [53,2368][1027,2390] is 371x8dp, under 44dp
-out/api35/preview-account.xml: View '' at [53,2368][1027,2390] has no text or content description
