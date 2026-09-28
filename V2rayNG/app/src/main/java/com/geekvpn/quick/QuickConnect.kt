@@ -1,5 +1,6 @@
 package com.geekvpn.quick
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -43,8 +44,17 @@ object QuickConnect {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             service.startActivityAndCollapse(pendingIntent(service))
         } else {
-            @Suppress("DEPRECATION")
-            service.startActivityAndCollapse(intent(service))
+            openFromTileLegacy(service)
         }
+    }
+
+    /**
+     * Below API 34 only, where the `PendingIntent` overload does not exist;
+     * from 34 the `Intent` one throws. Remove when minSdk reaches 34.
+     */
+    @SuppressLint("StartActivityAndCollapseDeprecated")
+    @Suppress("DEPRECATION")
+    private fun openFromTileLegacy(service: TileService) {
+        service.startActivityAndCollapse(intent(service))
     }
 }
