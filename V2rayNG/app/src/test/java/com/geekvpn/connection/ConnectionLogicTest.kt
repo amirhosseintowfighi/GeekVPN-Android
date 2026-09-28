@@ -65,7 +65,23 @@ class ConnectionLogicTest {
     @Test
     fun titles_drop_the_flag_but_never_become_empty() {
         assertEquals("Germany", ServerNames.title("🇩🇪 Germany"))
+        assertEquals("server1 amir", ServerNames.title("🇩🇪 - server1 amir"))
         assertEquals("🇩🇪", ServerNames.title("🇩🇪"))
+    }
+
+    @Test
+    fun every_other_emoji_in_a_title_stays_whole() {
+        assertEquals("📊 usage 12 GB", ServerNames.title("📊 usage 12 GB"))
+        assertEquals("amir ✅ 🇹🇷", ServerNames.title("🇩🇪 amir ✅ 🇹🇷"))
+        assertEquals("fast 👨‍💻", ServerNames.title("fast 👨‍💻"))
+    }
+
+    @Test
+    fun a_country_code_becomes_its_flag() {
+        assertEquals("🇹🇷", ServerNames.flag("TR"))
+        assertEquals("🇩🇪", ServerNames.flag("de"))
+        assertNull(ServerNames.flag("··"))
+        assertNull(ServerNames.flag("DEU"))
     }
 
     @Test

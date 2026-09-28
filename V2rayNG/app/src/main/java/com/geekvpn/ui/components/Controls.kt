@@ -23,6 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
+import com.geekvpn.connection.ServerNames
 import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
 
@@ -107,8 +109,9 @@ fun GeekCheckbox(
 }
 
 /**
- * Country code chip ("DE", "US"): navy when it marks the selected server,
- * soft blue otherwise. Decorative; the row it sits in names the country.
+ * The country's flag ("DE" -> 🇩🇪) on a navy chip when it marks the selected
+ * server, soft blue otherwise; anything that is not a country code is shown
+ * as written. Decorative; the row it sits in names the server.
  */
 @Composable
 fun CountryBadge(
@@ -117,6 +120,7 @@ fun CountryBadge(
     selected: Boolean = false,
 ) {
     val colors = Geek.colors
+    val flag = ServerNames.flag(code)
     Box(
         modifier = modifier
             .size(40.dp)
@@ -124,11 +128,15 @@ fun CountryBadge(
             .background(if (selected) colors.action else colors.soft),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = code.uppercase(),
-            style = Geek.type.numberSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.04.em),
-            color = if (selected) colors.onAction else colors.onGlass,
-            textAlign = TextAlign.Center,
-        )
+        if (flag != null) {
+            Text(text = flag, fontSize = 22.sp, textAlign = TextAlign.Center)
+        } else {
+            Text(
+                text = code.uppercase(),
+                style = Geek.type.numberSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.04.em),
+                color = if (selected) colors.onAction else colors.onGlass,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
