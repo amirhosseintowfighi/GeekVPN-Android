@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -72,6 +73,8 @@ fun ServersScreen(
     /** Opens the clean-IP scanner; null when it does not apply to the selected config. */
     onCleanIp: (() -> Unit)? = null,
     onFailoverChange: (FailoverThreshold) -> Unit = {},
+    /** Stars or unstars a server (by GUID); starred ones are listed first. */
+    onFavorite: (String) -> Unit = {},
 ) {
     val colors = Geek.colors
     var query by rememberSaveable { mutableStateOf("") }
@@ -133,6 +136,7 @@ fun ServersScreen(
                         server = server,
                         selected = server.guid == state.selected?.guid,
                         onClick = { onSelect(server.guid) },
+                        onFavorite = { onFavorite(server.guid) },
                     )
                 }
             }
@@ -279,7 +283,7 @@ private fun CleanIpCard(onOpen: () -> Unit) {
 }
 
 @Composable
-private fun ServerItem(server: ServerRow, selected: Boolean, onClick: () -> Unit) {
+private fun ServerItem(server: ServerRow, selected: Boolean, onClick: () -> Unit, onFavorite: () -> Unit) {
     val colors = Geek.colors
     val selectedLabel = stringResource(R.string.geek_servers_selected_description)
     Row(
@@ -305,7 +309,30 @@ private fun ServerItem(server: ServerRow, selected: Boolean, onClick: () -> Unit
             modifier = Modifier.weight(1f),
         )
         LatencyIndicator(delayMs = server.delayMs)
+        FavoriteButton(server.favorite, onFavorite)
         GeekCheckbox(checked = selected, onCheckedChange = null)
+    }
+}
+
+/** Its own touch target inside the row, so starring does not also select. */
+@Composable
+private fun FavoriteButton(favorite: Boolean, onClick: () -> Unit) {
+    val colors = Geek.colors
+    val label = stringResource(if (favorite) R.string.geek_servers_unfavorite else R.string.geek_servers_favorite)
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .toggleable(value = favorite, role = Role.Checkbox, onValueChange = { onClick() })
+            .semantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            if (favorite) GeekIcons.StarFilled else GeekIcons.Star,
+            contentDescription = null,
+            tint = if (favorite) colors.warning else colors.onGlassMuted,
+            modifier = Modifier.size(20.dp),
+        )
     }
 }
 

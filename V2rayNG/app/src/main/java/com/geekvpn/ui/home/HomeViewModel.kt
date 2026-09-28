@@ -19,6 +19,7 @@ import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.connection.TrafficMeter
 import com.geekvpn.scanner.CleanIpTarget
 import com.geekvpn.scanner.CleanIps
+import com.geekvpn.scanner.ProfileKey
 import com.geekvpn.scanner.ScanController
 import com.geekvpn.smartconnect.FailoverThreshold
 import com.geekvpn.smartconnect.SmartConnectPorts
@@ -62,6 +63,8 @@ data class ServerRow(
     val countryCode: String?,
     /** > 0 milliseconds, 0 untested, < 0 failed. */
     val delayMs: Long,
+    /** Starred: listed first. */
+    val favorite: Boolean = false,
 )
 
 /** A subscription the user added by hand (Services.html, "لینک‌های دستی"). */
@@ -332,6 +335,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.IO) { MmkvManager.setSelectServer(guid) }
             reloadServers()
             restartIfRunning()
+        }
+    }
+
+    /** Stars or unstars a server; starred ones are listed first. */
+    fun toggleFavorite(guid: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val profile = MmkvManager.decodeServerConfig(guid) ?: return@withContext
+                val key = ProfileKey.of(profile)
+                prefs.setFavorite(key, key !in prefs.favorites)
+            }
+            reloadServers()
         }
     }
 
@@ -720,6 +735,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 .map { SubscriptionPlan.guidOf(it.subscriptionId) }
                 .firstOrNull { MmkvManager.decodeServerList(it).isNotEmpty() }
             ?: MmkvManager.decodeSubsList().firstOrNull { MmkvManager.decodeServerList(it).isNotEmpty() }
+        val favorites = prefs.favorites
         val rows = groupId?.let { group ->
             MmkvManager.decodeServerList(group).mapNotNull { guid ->
                 val profile = MmkvManager.decodeServerConfig(guid) ?: return@mapNotNull null
@@ -728,9 +744,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     title = ServerNames.title(profile.remarks),
                     countryCode = ServerNames.countryCode(profile.remarks),
                     delayMs = delayOf(guid),
+                    favorite = ProfileKey.of(profile) in favorites,
                 )
             }
-        }.orEmpty()
+        }.orEmpty().let { list -> ConnectionLogic.favoritesFirst(list) { it.favorite } }
         var selected = rows.firstOrNull { it.guid == selectedGuid }
         if (selected == null && rows.isNotEmpty()) {
             // Nothing selected in this group yet: v2rayNG needs one to start.

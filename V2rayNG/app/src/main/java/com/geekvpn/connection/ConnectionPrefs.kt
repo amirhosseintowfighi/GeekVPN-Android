@@ -54,6 +54,17 @@ class ConnectionPrefs(private val storage: MMKV) {
             storage.encode(KEY_ACTIVE_CONNECTIONS, value)
         }
 
+    /**
+     * Starred servers, by `ProfileKey` rather than GUID: a subscription
+     * refresh gives every server a new GUID, and the star has to stay.
+     */
+    val favorites: Set<String>
+        get() = storage.decodeStringSet(KEY_FAVORITES, emptySet())?.toSet().orEmpty()
+
+    fun setFavorite(profileKey: String, favorite: Boolean) {
+        storage.encode(KEY_FAVORITES, if (favorite) favorites + profileKey else favorites - profileKey)
+    }
+
     /** "روی وای‌فای ناشناس": start the VPN when the phone joins a Wi-Fi not in [trustedNetworks]. */
     var autoOnWifi: Boolean
         get() = storage.decodeBool(KEY_AUTO_WIFI, false)
@@ -104,5 +115,6 @@ class ConnectionPrefs(private val storage: MMKV) {
         private const val MAX_FAILURE_CHARS = 600
         private const val KEY_AUTO_WIFI = "auto_on_wifi"
         private const val KEY_TRUSTED = "trusted_networks"
+        private const val KEY_FAVORITES = "favorite_servers"
     }
 }

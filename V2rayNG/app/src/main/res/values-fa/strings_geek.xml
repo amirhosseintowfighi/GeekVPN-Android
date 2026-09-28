@@ -475,4 +475,6 @@
     <string name="geek_auto_wifi_title">به یک وای‌فای ناشناس وصل شدی</string>
     <string name="geek_auto_wifi_text">VPN را روشن کن تا این شبکه ترافیکت را نبیند.</string>
     <string name="geek_auto_wifi_connect">اتصال</string>
+    <string name="geek_servers_favorite">افزودن به علاقه‌مندی‌ها</string>
+    <string name="geek_servers_unfavorite">حذف از علاقه‌مندی‌ها</string>
 </resources>

@@ -49,7 +49,7 @@ import com.v2ray.ang.R
 /** Sample data for [ScreenPreviewActivity]: the design's own numbers where it has them. */
 internal object PreviewSamples {
     private val servers = listOf(
-        ServerRow("s1", "Germany · Frankfurt", "DE", 121),
+        ServerRow("s1", "Germany · Frankfurt", "DE", 121, favorite = true),
         ServerRow("s2", "Netherlands · Amsterdam", "NL", 142),
         ServerRow("s3", "United States", "US", 168),
         ServerRow("s4", "United Kingdom", "GB", 233),

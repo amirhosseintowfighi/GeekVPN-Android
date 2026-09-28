@@ -53,6 +53,12 @@ class ConnectionLogicTest {
     }
 
     @Test
+    fun starred_servers_come_first_and_keep_their_order() {
+        val servers = listOf("a" to false, "b" to true, "c" to false, "d" to true)
+        assertEquals(listOf("b", "d", "a", "c"), ConnectionLogic.favoritesFirst(servers) { it.second }.map { it.first })
+    }
+
+    @Test
     fun country_codes_come_from_flags_or_a_leading_code() {
         assertEquals("DE", ServerNames.countryCode("🇩🇪 Germany"))
         assertEquals("NL", ServerNames.countryCode("Amsterdam 🇳🇱"))

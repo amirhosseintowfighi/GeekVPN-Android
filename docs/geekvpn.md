@@ -308,6 +308,9 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   `MainRepository` خود v2rayNG می‌آید؛ سرویس VPN دست نخورده است.
   `ConnectionLogic` تصمیم می‌گیرد هر پیام daemon وضعیت را به کجا ببرد.
 - «سرور: خودکار» یعنی اتصال هوشمند و failover (بخش پایین).
+- ستاره‌ی کنار هر سرور در صفحه‌ی «سرورها» آن را به بالای فهرست می‌برد. علاقه‌مندی‌ها با
+  `ProfileKey` (مثل override اسکنر) در `ConnectionPrefs.favorites` ذخیره می‌شوند، نه با
+  GUID، تا بعد از refresh اشتراک بمانند.
 - «اتصالات» (فقط وقتی وصل است، جای پینگ): هسته با `scripts/xray-patches/connection-count.patch`
   هر اتصال خروجی در حال اجرا را می‌شمارد و `Libv2ray.activeConnections()` آن را می‌دهد.
   `FailoverMonitor` در پروسه‌ی VPN هر ۲ ثانیه (با صفحه‌ی روشن) عدد را در

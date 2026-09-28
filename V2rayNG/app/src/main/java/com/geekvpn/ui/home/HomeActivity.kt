@@ -330,6 +330,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                                 updating = state.updating,
                                 onCleanIp = openScanner,
                                 onFailoverChange = home::setFailover,
+                                onFavorite = home::toggleFavorite,
                             )
                         } else if (shownPage == Overlay.Scanner) {
                             ScannerScreen(

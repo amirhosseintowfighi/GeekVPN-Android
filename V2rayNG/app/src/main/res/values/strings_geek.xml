@@ -479,4 +479,6 @@
     <string name="geek_auto_wifi_title">You joined an unknown Wi-Fi</string>
     <string name="geek_auto_wifi_text">Turn on the VPN to keep this network from seeing your traffic.</string>
     <string name="geek_auto_wifi_connect">Connect</string>
+    <string name="geek_servers_favorite">Add to favorites</string>
+    <string name="geek_servers_unfavorite">Remove from favorites</string>
 </resources>

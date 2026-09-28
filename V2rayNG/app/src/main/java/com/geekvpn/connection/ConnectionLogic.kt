@@ -36,4 +36,8 @@ object ConnectionLogic {
     /** The fastest server that answered, or null when none did. Ties keep list order. */
     fun best(delays: List<Delay>): String? =
         delays.filter { it.millis > 0 }.minByOrNull { it.millis }?.guid
+
+    /** Starred servers first; each part keeps the subscription's own order. */
+    fun <T> favoritesFirst(items: List<T>, favorite: (T) -> Boolean): List<T> =
+        items.filter(favorite) + items.filterNot(favorite)
 }
