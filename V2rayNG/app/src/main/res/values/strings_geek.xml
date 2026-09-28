@@ -544,4 +544,8 @@
     <string name="geek_servers_sort_ping">Lowest ping</string>
     <string name="geek_session_summary">Disconnected · %1$s · %2$s</string>
     <string name="geek_session_summary_time">Disconnected · %1$s</string>
+    <plurals name="geek_tickets_unread_hint">
+        <item quantity="one">%1$d new answer from support</item>
+        <item quantity="other">%1$d new answers from support</item>
+    </plurals>
 </resources>

@@ -192,6 +192,8 @@ class HomeActivity : HelperBaseComponentActivity() {
         shop.onReturn(null)
         // Not on Google Play: this is how a customer learns of a new version.
         AppUpdater.check()
+        // An answer from support shows on «تیکت‌های من» without opening the bot.
+        account.refreshTickets()
     }
 
     override fun onNewIntent(intent: Intent) {

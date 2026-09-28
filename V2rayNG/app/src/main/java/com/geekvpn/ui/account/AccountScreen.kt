@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -210,7 +211,11 @@ fun AccountScreen(
                 SettingRow(
                     icon = GeekIcons.List,
                     title = stringResource(R.string.geek_tickets_title),
-                    hint = stringResource(R.string.geek_tickets_entry_hint),
+                    hint = if (state.unreadTickets > 0) {
+                        pluralStringResource(R.plurals.geek_tickets_unread_hint, state.unreadTickets, state.unreadTickets)
+                    } else {
+                        stringResource(R.string.geek_tickets_entry_hint)
+                    },
                     onClick = actions::onTickets,
                 )
                 SettingsDivider()
