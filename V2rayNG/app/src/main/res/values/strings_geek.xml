@@ -126,7 +126,6 @@
     <string name="geek_services_connect">Connect</string>
     <string name="geek_services_disconnect">Disconnect</string>
     <string name="geek_services_use">Use this service</string>
-    <string name="geek_services_copy_description">Copy the subscription link</string>
     <string name="geek_services_refresh_description">Update the servers</string>
     <string name="geek_services_copied">Subscription link copied.</string>
     <string name="geek_services_manual">Manual links</string>
@@ -529,4 +528,9 @@
     <string name="geek_usage_gb">GB</string>
     <string name="geek_usage_chart_description">Usage over the last %1$d days: %2$s %3$s in total</string>
     <string name="geek_usage_note">Counted on this phone while the VPN is on, so other devices on the same service are not included. Your service\'s remaining volume is on the Services tab.</string>
+    <string name="geek_services_qr_title">Service link and QR</string>
+    <string name="geek_services_qr_description">QR code of the service link</string>
+    <string name="geek_services_qr_warning">Anyone with this link uses your service\'s volume. Share it only with your own devices.</string>
+    <string name="geek_services_copy">Copy</string>
+    <string name="geek_services_share">Share</string>
 </resources>

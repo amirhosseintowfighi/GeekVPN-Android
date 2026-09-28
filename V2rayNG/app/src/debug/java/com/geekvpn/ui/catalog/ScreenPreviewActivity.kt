@@ -268,6 +268,7 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onRefresh() = Unit
     override fun onRenew(subscriptionId: String) = Unit
     override fun onCopy(url: String) = Unit
+    override fun onShare(url: String) = Unit
     override fun onUseManual(groupId: String) = Unit
     override fun onEditManual(groupId: String) = Unit
     override fun onWallet() = Unit

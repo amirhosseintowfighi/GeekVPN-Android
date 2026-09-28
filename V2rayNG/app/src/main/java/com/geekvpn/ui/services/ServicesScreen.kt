@@ -72,6 +72,9 @@ interface ServicesActions {
     fun onDisconnect()
     fun onRefresh()
     fun onCopy(url: String)
+
+    /** The Android share sheet with the service link. */
+    fun onShare(url: String)
     fun onUseManual(groupId: String)
     fun onEditManual(groupId: String)
 }
@@ -232,7 +235,22 @@ private fun ServiceCard(
                 SquareButton(GeekIcons.Refresh, stringResource(R.string.geek_services_refresh_description), enabled = !updating, onClick = actions::onRefresh)
                 val url = service.subscriptionUrl
                 if (url != null) {
-                    SquareButton(GeekIcons.Copy, stringResource(R.string.geek_services_copy_description)) { actions.onCopy(url) }
+                    var showQr by rememberSaveable { mutableStateOf(false) }
+                    SquareButton(GeekIcons.Qr, stringResource(R.string.geek_services_qr_title)) { showQr = true }
+                    if (showQr) {
+                        LinkQrDialog(
+                            url = url,
+                            onCopy = {
+                                showQr = false
+                                actions.onCopy(url)
+                            },
+                            onShare = {
+                                showQr = false
+                                actions.onShare(url)
+                            },
+                            onDismiss = { showQr = false },
+                        )
+                    }
                 }
             }
         }

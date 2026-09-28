@@ -122,7 +122,6 @@
     <string name="geek_services_connect">اتصال</string>
     <string name="geek_services_disconnect">قطع اتصال</string>
     <string name="geek_services_use">استفاده از این سرویس</string>
-    <string name="geek_services_copy_description">کپی لینک اشتراک</string>
     <string name="geek_services_refresh_description">بروزرسانی سرورها</string>
     <string name="geek_services_copied">لینک اشتراک کپی شد.</string>
     <string name="geek_services_manual">لینک‌های دستی</string>
@@ -525,4 +524,9 @@
     <string name="geek_usage_gb">گیگابایت</string>
     <string name="geek_usage_chart_description">مصرف %1$d روز گذشته: در مجموع %2$s %3$s</string>
     <string name="geek_usage_note">روی همین گوشی و وقتی VPN روشن است شمرده می‌شود؛ دستگاه‌های دیگرِ همین سرویس حساب نمی‌شوند. حجم باقی‌مانده‌ی سرویس در تب «سرویس‌ها» است.</string>
+    <string name="geek_services_qr_title">لینک و QR سرویس</string>
+    <string name="geek_services_qr_description">کد QR لینک سرویس</string>
+    <string name="geek_services_qr_warning">هر کسی این لینک را داشته باشد از حجم سرویست استفاده می‌کند. فقط روی دستگاه‌های خودت استفاده کن.</string>
+    <string name="geek_services_copy">کپی</string>
+    <string name="geek_services_share">اشتراک‌گذاری</string>
 </resources>

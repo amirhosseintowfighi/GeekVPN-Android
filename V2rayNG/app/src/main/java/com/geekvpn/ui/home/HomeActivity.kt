@@ -555,6 +555,15 @@ class HomeActivity : HelperBaseComponentActivity() {
             getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(getString(R.string.geek_brand), url))
             showMessage(R.string.geek_services_copied)
         }
+        override fun onShare(url: String) {
+            val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, url)
+            try {
+                startActivity(Intent.createChooser(send, getString(R.string.geek_services_share)))
+            } catch (e: ActivityNotFoundException) {
+                LogUtil.w(AppConfig.TAG, "Services: no app to share the link with", e)
+                onCopy(url)
+            }
+        }
         override fun onUseManual(groupId: String) = home.selectGroup(groupId)
         override fun onEditManual(groupId: String) = startActivity(LinkEditActivity.intent(this@HomeActivity, groupId))
     }
