@@ -39,6 +39,7 @@ import androidx.lifecycle.viewModelScope
 import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatDate
+import com.geekvpn.ui.common.formatDecimal
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
@@ -55,7 +56,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.Locale
 
@@ -81,11 +81,7 @@ object UsageChart {
             bytes >= MIB -> bytes / MIB.toDouble() to SizeUnit.Mib
             else -> bytes / KIB.toDouble() to SizeUnit.Kib
         }
-        val format = NumberFormat.getNumberInstance(locale).apply {
-            maximumFractionDigits = if (value < 10) 1 else 0
-            minimumFractionDigits = 0
-        }
-        return format.format(value) to unit
+        return formatDecimal(value, locale, if (value < 10) 1 else 0) to unit
     }
 
     enum class SizeUnit { Kib, Mib, Gib }
@@ -241,9 +237,7 @@ private fun SizeText(bytes: Long, locale: Locale, big: Boolean) {
             value,
             style = if (big) Geek.type.numberLarge.copy(fontSize = 40.sp) else Geek.type.numberSmall,
             color = Geek.colors.onGlass,
-            // One line: the Persian decimal separator is a break opportunity.
             maxLines = 1,
-            softWrap = false,
         )
         Text(stringResource(unitLabel(unit)), style = Geek.type.caption, color = Geek.colors.onGlassMuted)
     }

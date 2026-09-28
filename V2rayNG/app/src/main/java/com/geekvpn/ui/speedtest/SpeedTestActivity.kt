@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.geekvpn.speedtest.SpeedPhase
 import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.common.appLocale
+import com.geekvpn.ui.common.formatDecimal
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekPrimaryButton
 import com.geekvpn.ui.components.GlassKind
@@ -107,9 +108,7 @@ fun SpeedTestScreen(state: SpeedTestUiState, onToggle: () -> Unit, onBack: () ->
                     Text(
                         mbps(gauge.toDouble(), locale),
                         style = Geek.type.numberLarge.copy(fontSize = 56.sp),
-                        // One line: the Persian decimal separator is a break opportunity.
                         maxLines = 1,
-                        softWrap = false,
                         color = colors.onGlass,
                         textAlign = TextAlign.Center,
                     )
@@ -154,8 +153,4 @@ private fun ResultTile(label: String, value: String?, modifier: Modifier) {
 }
 
 /** "۴۲٫۵" / "42.5": one decimal under 100, none above. */
-private fun mbps(value: Double, locale: Locale): String =
-    NumberFormat.getNumberInstance(locale).apply {
-        maximumFractionDigits = if (value < 100) 1 else 0
-        minimumFractionDigits = 0
-    }.format(value)
+private fun mbps(value: Double, locale: Locale): String = formatDecimal(value, locale, if (value < 100) 1 else 0)

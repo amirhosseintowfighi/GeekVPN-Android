@@ -73,6 +73,22 @@ fun formatDateTime(iso: String?, locale: Locale): String? {
     return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, uLocale).format(Date(instant.toEpochMilli()))
 }
 
+/**
+ * A decimal for the big number face: the locale's digits, but "." and ","
+ * as separators. The Persian decimal separator (U+066B) breaks the number
+ * face's line in two at display sizes ("۴۲٫" / "۷"); "۴۲.۷" reads the same.
+ */
+fun formatDecimal(value: Double, locale: Locale, maxFractionDigits: Int): String {
+    val symbols = java.text.DecimalFormatSymbols.getInstance(locale).apply {
+        decimalSeparator = '.'
+        groupingSeparator = ','
+    }
+    return java.text.DecimalFormat("#,##0.#", symbols).apply {
+        maximumFractionDigits = maxFractionDigits
+        minimumFractionDigits = 0
+    }.format(value)
+}
+
 /** One decimal, dropped when it is zero: "۱۲٫۴", "۴۰". */
 fun formatGib(value: Double, locale: Locale): String {
     val format = NumberFormat.getNumberInstance(locale).apply {

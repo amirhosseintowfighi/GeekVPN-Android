@@ -31,6 +31,12 @@ class DailyUsageTest {
     }
 
     @Test
+    fun big_numbers_keep_persian_digits_with_a_dot() {
+        assertEquals("۴۲.۷", com.geekvpn.ui.common.formatDecimal(42.7, Locale.forLanguageTag("fa"), 1))
+        assertEquals("1,250", com.geekvpn.ui.common.formatDecimal(1250.0, Locale.ENGLISH, 0))
+    }
+
+    @Test
     fun sizes_pick_their_unit() {
         assertEquals("1.5" to UsageChart.SizeUnit.Gib, UsageChart.size(1_610_612_736, Locale.ENGLISH))
         assertEquals("300" to UsageChart.SizeUnit.Mib, UsageChart.size(300L * 1024 * 1024, Locale.ENGLISH))
