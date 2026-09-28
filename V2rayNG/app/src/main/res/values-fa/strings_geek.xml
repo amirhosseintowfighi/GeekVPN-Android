@@ -477,4 +477,21 @@
     <string name="geek_auto_wifi_connect">اتصال</string>
     <string name="geek_servers_favorite">افزودن به علاقه‌مندی‌ها</string>
     <string name="geek_servers_unfavorite">حذف از علاقه‌مندی‌ها</string>
+    <string name="geek_speed_title">تست سرعت</string>
+    <string name="geek_speed_entry_hint">پینگ، دانلود و آپلود</string>
+    <string name="geek_speed_ready">آماده</string>
+    <string name="geek_speed_phase_ping">در حال اندازه‌گیری پینگ…</string>
+    <string name="geek_speed_ping">پینگ</string>
+    <string name="geek_speed_download">دانلود</string>
+    <string name="geek_speed_upload">آپلود</string>
+    <string name="geek_speed_unit">مگابیت بر ثانیه</string>
+    <string name="geek_speed_ms">%1$s میلی‌ثانیه</string>
+    <string name="geek_speed_none">—</string>
+    <string name="geek_speed_start">شروع تست</string>
+    <string name="geek_speed_again">تست دوباره</string>
+    <string name="geek_speed_stop">توقف</string>
+    <string name="geek_speed_via_vpn">از طریق VPN اندازه گرفته شد.</string>
+    <string name="geek_speed_via_direct">VPN خاموش است: این سرعت شبکه‌ی خود گوشی است.</string>
+    <string name="geek_speed_failed">سرور تست در دسترس نبود.</string>
+    <string name="geek_speed_note">هر تست تا حدود ۷۰ مگابایت مصرف می‌کند؛ وقتی وصلی، از حجم سرویست کم می‌شود.</string>
 </resources>

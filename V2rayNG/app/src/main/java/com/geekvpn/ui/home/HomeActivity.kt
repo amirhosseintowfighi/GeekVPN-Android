@@ -80,6 +80,7 @@ import com.geekvpn.ui.shop.ShopSheet
 import com.geekvpn.ui.shop.ShopUiState
 import com.geekvpn.ui.shop.ShopViewModel
 import com.geekvpn.ui.shop.WalletSheet
+import com.geekvpn.ui.speedtest.SpeedTestActivity
 import com.geekvpn.ui.support.ReportActivity
 import com.geekvpn.ui.support.TicketsActivity
 import com.geekvpn.ui.theme.GeekTheme
@@ -573,6 +574,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onReport() = startActivity(Intent(this@HomeActivity, ReportActivity::class.java))
         override fun onTickets() = startActivity(Intent(this@HomeActivity, TicketsActivity::class.java))
         override fun onAutoConnect() = startActivity(Intent(this@HomeActivity, AutoConnectActivity::class.java))
+        override fun onSpeedTest() = startActivity(Intent(this@HomeActivity, SpeedTestActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 

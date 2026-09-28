@@ -51,6 +51,9 @@ import com.geekvpn.ui.shop.WalletSheet
 import com.geekvpn.support.TicketTopic
 import com.geekvpn.ui.support.TicketsActions
 import com.geekvpn.ui.support.TicketsScreen
+import com.geekvpn.speedtest.SpeedResult
+import com.geekvpn.ui.speedtest.SpeedTestScreen
+import com.geekvpn.ui.speedtest.SpeedTestUiState
 import com.geekvpn.ui.theme.GeekTheme
 import com.v2ray.ang.ui.base.BaseComponentActivity
 
@@ -74,6 +77,13 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
+                SCREEN_SPEED -> GeekBackdrop {
+                    SpeedTestScreen(
+                        SpeedTestUiState(throughVpn = true, result = SpeedResult(pingMs = 184, downloadMbps = 42.7, uploadMbps = 11.3)),
+                        onToggle = {},
+                        onBack = {},
+                    )
+                }
                 SCREEN_AUTO_CONNECT -> GeekBackdrop {
                     AutoConnectScreen(
                         AutoConnectUiState(loaded = true, startOnBoot = true, autoOnWifi = true, currentWifi = "wifi:1", trustedCount = 1, canStartInBackground = false),
@@ -96,6 +106,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_USERNAME = "username"
         const val SCREEN_TICKETS = "tickets"
         const val SCREEN_AUTO_CONNECT = "auto-connect"
+        const val SCREEN_SPEED = "speed"
         const val SCREEN_TICKET_THREAD = "ticket-thread"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
@@ -245,6 +256,7 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onReport() = Unit
     override fun onTickets() = Unit
     override fun onAutoConnect() = Unit
+    override fun onSpeedTest() = Unit
 }
 
 private object PreviewAutoConnectActions : AutoConnectActions {

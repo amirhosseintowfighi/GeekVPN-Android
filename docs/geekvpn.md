@@ -217,6 +217,13 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   مثل قبل در ربات هم می‌آید. تیکت بسته جواب نمی‌گیرد.
 - حداقل طول پیام همان ۱۰ حرف ربات است.
 
+## تست سرعت (`com.geekvpn.speedtest`، `ui.speedtest.SpeedTestActivity`)
+
+- «حساب ← تست سرعت»: پینگ (میانه‌ی ۵ بار)، دانلود و آپلود با `speed.cloudflare.com`.
+  هر مرحله حداکثر ۱۰ ثانیه است (دانلود تا ۵۰ و آپلود تا ۲۰ مگابایت).
+- اپ از VPN خودش مستثناست، پس وقتی وصل است تست از proxy محلی هسته می‌رود (مثل IP
+  خروجی) و سرعت VPN را می‌سنجد؛ وقتی قطع است سرعت شبکه‌ی خود گوشی را.
+
 ## اتصال خودکار و Kill Switch (`com.geekvpn.autoconnect`، `ui.autoconnect.AutoConnectActivity`)
 
 - «حساب ← اتصال خودکار و Kill Switch». «با روشن شدن گوشی» همان تنظیم `PREF_IS_BOOTED`

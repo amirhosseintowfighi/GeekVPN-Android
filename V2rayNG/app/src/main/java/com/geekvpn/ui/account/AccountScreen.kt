@@ -71,6 +71,9 @@ interface AccountActions {
 
     /** "اتصال خودکار و Kill Switch". */
     fun onAutoConnect()
+
+    /** "تست سرعت". */
+    fun onSpeedTest()
 }
 
 @Composable
@@ -134,6 +137,13 @@ fun AccountScreen(
                     onClick = actions::onCleanIp,
                 )
             }
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Gauge,
+                title = stringResource(R.string.geek_speed_title),
+                hint = stringResource(R.string.geek_speed_entry_hint),
+                onClick = actions::onSpeedTest,
+            )
             SettingsDivider()
             SettingRow(
                 icon = GeekIcons.Shield,

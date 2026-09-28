@@ -481,4 +481,21 @@
     <string name="geek_auto_wifi_connect">Connect</string>
     <string name="geek_servers_favorite">Add to favorites</string>
     <string name="geek_servers_unfavorite">Remove from favorites</string>
+    <string name="geek_speed_title">Speed test</string>
+    <string name="geek_speed_entry_hint">Ping, download and upload</string>
+    <string name="geek_speed_ready">Ready</string>
+    <string name="geek_speed_phase_ping">Measuring ping…</string>
+    <string name="geek_speed_ping">Ping</string>
+    <string name="geek_speed_download">Download</string>
+    <string name="geek_speed_upload">Upload</string>
+    <string name="geek_speed_unit">Mbps</string>
+    <string name="geek_speed_ms">%1$s ms</string>
+    <string name="geek_speed_none">—</string>
+    <string name="geek_speed_start">Start the test</string>
+    <string name="geek_speed_again">Test again</string>
+    <string name="geek_speed_stop">Stop</string>
+    <string name="geek_speed_via_vpn">Measured through the VPN.</string>
+    <string name="geek_speed_via_direct">The VPN is off: this measures your own network.</string>
+    <string name="geek_speed_failed">The test server could not be reached.</string>
+    <string name="geek_speed_note">A test uses up to about 70 MB, counted against your service while connected.</string>
 </resources>
