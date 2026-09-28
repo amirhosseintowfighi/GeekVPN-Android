@@ -113,6 +113,9 @@ sealed interface HomeEvent {
 
     /** Smart connect gave up after [attempts] servers. */
     data class Failed(val attempts: Int) : HomeEvent
+
+    /** A connection this screen saw end: how long it lasted and what went through (null: unknown). */
+    data class SessionEnded(val durationMs: Long, val bytes: Long?) : HomeEvent
 }
 
 /**
@@ -512,6 +515,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
         val before = state.value.phase
         val after = ConnectionLogic.next(before, signal)
+        val previousSince = prefs.connectedSince
         val since = when {
             after != ConnectionPhase.On -> 0L
             signal == ServiceSignal.StartSuccess || prefs.connectedSince == 0L -> System.currentTimeMillis()
@@ -520,8 +524,28 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         prefs.connectedSince = since
         state.update { it.copy(phase = after, connectedSince = since) }
         if (before != after && (after == ConnectionPhase.On || after == ConnectionPhase.Off)) onConnectionChanged()
+        if (before != after && after == ConnectionPhase.On) sessionStartBytes = uidBytes()
+        if (before == ConnectionPhase.On && after == ConnectionPhase.Off && previousSince > 0) {
+            val duration = System.currentTimeMillis() - previousSince
+            val start = sessionStartBytes
+            val end = uidBytes()
+            sessionStartBytes = null
+            if (duration >= MIN_SESSION_MS) {
+                eventChannel.trySend(HomeEvent.SessionEnded(duration, if (start != null && end != null && end >= start) end - start else null))
+            }
+        }
         // The VPN process's failover monitor reports a server switch as "running".
         if (signal == ServiceSignal.Running && before == ConnectionPhase.On) reloadServers()
+    }
+
+    /** The app UID's traffic when the connection this screen saw came up; null when it was already up. */
+    private var sessionStartBytes: Long? = null
+
+    private fun uidBytes(): Long? {
+        val uid = android.os.Process.myUid()
+        val rx = android.net.TrafficStats.getUidRxBytes(uid)
+        val tx = android.net.TrafficStats.getUidTxBytes(uid)
+        return if (rx < 0 || tx < 0) null else rx + tx
     }
 
     private fun onConnectionChanged() {
@@ -786,6 +810,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private companion object {
         const val SPEED_INTERVAL_MS = 1_000L
         const val SERVERS_WAIT_MS = 3_000L
+
+        /** Shorter ones are a failed start or a quick toggle, not a session worth summing up. */
+        const val MIN_SESSION_MS = 60_000L
         const val TEST_TIMEOUT_MS = 45_000L
         const val START_TIMEOUT_MS = 20_000L
         const val STOP_SETTLE_MS = 8_000L

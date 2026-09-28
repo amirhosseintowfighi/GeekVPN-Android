@@ -538,4 +538,6 @@
     <string name="geek_lock_unlock">باز کردن قفل</string>
     <string name="geek_servers_sort_list">ترتیب اشتراک</string>
     <string name="geek_servers_sort_ping">کمترین پینگ</string>
+    <string name="geek_session_summary">اتصال قطع شد · %1$s · %2$s</string>
+    <string name="geek_session_summary_time">اتصال قطع شد · %1$s</string>
 </resources>

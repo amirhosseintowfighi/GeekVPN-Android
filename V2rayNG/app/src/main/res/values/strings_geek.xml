@@ -542,4 +542,6 @@
     <string name="geek_lock_unlock">Unlock</string>
     <string name="geek_servers_sort_list">Subscription order</string>
     <string name="geek_servers_sort_ping">Lowest ping</string>
+    <string name="geek_session_summary">Disconnected · %1$s · %2$s</string>
+    <string name="geek_session_summary_time">Disconnected · %1$s</string>
 </resources>

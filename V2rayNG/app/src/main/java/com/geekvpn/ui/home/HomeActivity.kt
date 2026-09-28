@@ -90,6 +90,7 @@ import com.geekvpn.ui.update.UpdateActions
 import com.geekvpn.ui.update.UpdateBanner
 import com.geekvpn.ui.update.UpdateSheet
 import com.geekvpn.ui.usage.UsageActivity
+import com.geekvpn.ui.usage.UsageChart
 import com.geekvpn.update.AppUpdater
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
@@ -151,6 +152,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                         when (event) {
                             is HomeEvent.Message -> showMessage(event.text)
                             is HomeEvent.Text -> Toast.makeText(this@HomeActivity, event.text, Toast.LENGTH_LONG).show()
+                            is HomeEvent.SessionEnded -> Toast.makeText(this@HomeActivity, sessionSummary(event), Toast.LENGTH_LONG).show()
                             is HomeEvent.Failed -> Toast.makeText(
                                 this@HomeActivity,
                                 getString(R.string.geek_smart_failed, event.attempts),
@@ -609,6 +611,23 @@ class HomeActivity : HelperBaseComponentActivity() {
     }
 
     private fun showMessage(text: Int) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+
+    /** "اتصال قطع شد · ۰۱:۲۰:۳۵ · ۳۵۰ مگابایت". */
+    private fun sessionSummary(event: HomeEvent.SessionEnded): String {
+        val locale = resources.configuration.locales[0]
+        val seconds = event.durationMs / 1000
+        val time = String.format(locale, "%02d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60)
+        val bytes = event.bytes ?: return getString(R.string.geek_session_summary_time, time)
+        val (size, unit) = UsageChart.size(bytes, locale)
+        val unitLabel = getString(
+            when (unit) {
+                UsageChart.SizeUnit.Kib -> R.string.geek_usage_kb
+                UsageChart.SizeUnit.Mib -> R.string.geek_usage_mb
+                UsageChart.SizeUnit.Gib -> R.string.geek_usage_gb
+            },
+        )
+        return getString(R.string.geek_session_summary, time, "$size $unitLabel")
+    }
 
     companion object {
         /** Set by `PaymentReturnActivity`: ok | pending | failed | unknown. */
