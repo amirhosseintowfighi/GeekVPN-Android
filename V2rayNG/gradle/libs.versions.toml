@@ -23,6 +23,7 @@ composeBom = "2026.09.00"
 reorderable = "3.1.0"
 coil = "3.6.3"
 firebaseBom = "34.0.0"
+biometric = "1.1.0"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
@@ -64,6 +65,7 @@ lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-com
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }

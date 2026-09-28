@@ -54,6 +54,13 @@ class ConnectionPrefs(private val storage: MMKV) {
             storage.encode(KEY_ACTIVE_CONNECTIONS, value)
         }
 
+    /** "قفل برنامه" (`AppLock`). */
+    var appLock: Boolean
+        get() = storage.decodeBool(KEY_APP_LOCK, false)
+        set(value) {
+            storage.encode(KEY_APP_LOCK, value)
+        }
+
     /**
      * Starred servers, by `ProfileKey` rather than GUID: a subscription
      * refresh gives every server a new GUID, and the star has to stay.
@@ -116,5 +123,6 @@ class ConnectionPrefs(private val storage: MMKV) {
         private const val KEY_AUTO_WIFI = "auto_on_wifi"
         private const val KEY_TRUSTED = "trusted_networks"
         private const val KEY_FAVORITES = "favorite_servers"
+        private const val KEY_APP_LOCK = "app_lock"
     }
 }

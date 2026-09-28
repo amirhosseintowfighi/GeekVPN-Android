@@ -261,6 +261,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    implementation(libs.androidx.biometric)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

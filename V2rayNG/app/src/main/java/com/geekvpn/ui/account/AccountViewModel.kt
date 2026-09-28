@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.geekvpn.GeekGraph
 import com.geekvpn.auth.Session
+import com.geekvpn.lock.AppLock
 import com.v2ray.ang.core.LauncherManager
 import com.v2ray.ang.ui.compose.ThemeManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,20 +31,23 @@ data class AccountUiState(
     val balance: Long? = null,
     val autoUpdate: Boolean = true,
     val theme: ThemeChoice = ThemeChoice.Auto,
+    val appLock: Boolean = false,
 )
 
 /** Account.html: who is signed in, the wallet balance, and GeekVPN's own settings. */
 class AccountViewModel(application: Application) : AndroidViewModel(application) {
     private val prefs = GeekGraph.connectionPrefs
     private val autoUpdate = MutableStateFlow(prefs.autoUpdate)
+    private val appLock = MutableStateFlow(prefs.appLock)
 
     val uiState: StateFlow<AccountUiState> = combine(
         GeekGraph.session.session,
         GeekGraph.accountStore.balance,
         autoUpdate,
         ThemeManager.themeMode,
-    ) { session, balance, auto, theme ->
-        AccountUiState(session, balance, auto, ThemeChoice.of(theme))
+        appLock,
+    ) { session, balance, auto, theme, lock ->
+        AccountUiState(session, balance, auto, ThemeChoice.of(theme), lock)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AccountUiState(session = GeekGraph.session.session.value))
 
     private val _logoutAsked = MutableStateFlow(false)
@@ -52,6 +56,14 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
     fun setAutoUpdate(enabled: Boolean) {
         prefs.autoUpdate = enabled
         autoUpdate.value = enabled
+    }
+
+    /** False when the phone has no screen lock or biometrics to ask for. */
+    fun setAppLock(enabled: Boolean): Boolean {
+        if (enabled && !AppLock.available(getApplication())) return false
+        AppLock.setEnabled(enabled)
+        appLock.value = enabled
+        return true
     }
 
     fun setTheme(choice: ThemeChoice) {

@@ -533,4 +533,11 @@
     <string name="geek_services_qr_warning">Anyone with this link uses your service\'s volume. Share it only with your own devices.</string>
     <string name="geek_services_copy">Copy</string>
     <string name="geek_services_share">Share</string>
+    <string name="geek_lock_setting">App lock</string>
+    <string name="geek_lock_setting_hint">Fingerprint or screen lock to open the app</string>
+    <string name="geek_lock_unavailable">Set a screen lock or fingerprint on the phone first.</string>
+    <string name="geek_lock_title">GeekVPN is locked</string>
+    <string name="geek_lock_subtitle">Unlock to open the app</string>
+    <string name="geek_lock_text">The VPN keeps running; the lock only covers the app.</string>
+    <string name="geek_lock_unlock">Unlock</string>
 </resources>

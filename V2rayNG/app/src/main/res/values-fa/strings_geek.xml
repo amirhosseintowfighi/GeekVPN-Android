@@ -529,4 +529,11 @@
     <string name="geek_services_qr_warning">هر کسی این لینک را داشته باشد از حجم سرویست استفاده می‌کند. فقط روی دستگاه‌های خودت استفاده کن.</string>
     <string name="geek_services_copy">کپی</string>
     <string name="geek_services_share">اشتراک‌گذاری</string>
+    <string name="geek_lock_setting">قفل برنامه</string>
+    <string name="geek_lock_setting_hint">اثر انگشت یا قفل صفحه برای باز کردن اپ</string>
+    <string name="geek_lock_unavailable">اول روی گوشی قفل صفحه یا اثر انگشت تنظیم کن.</string>
+    <string name="geek_lock_title">GeekVPN قفل است</string>
+    <string name="geek_lock_subtitle">برای باز کردن اپ قفل را باز کن</string>
+    <string name="geek_lock_text">VPN روشن می‌ماند؛ قفل فقط جلوی خود اپ است.</string>
+    <string name="geek_lock_unlock">باز کردن قفل</string>
 </resources>

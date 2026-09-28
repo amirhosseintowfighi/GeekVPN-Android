@@ -97,6 +97,8 @@ fun AccountScreen(
     onTheme: (ThemeChoice) -> Unit,
     onAskLogout: (Boolean) -> Unit,
     onLogout: () -> Unit,
+    /** "قفل برنامه". */
+    onAppLock: (Boolean) -> Unit = {},
 ) {
     val colors = Geek.colors
     val signedIn = state.session as? Session.SignedIn
@@ -183,6 +185,15 @@ fun AccountScreen(
 
         SectionLabel(stringResource(R.string.geek_account_appearance))
         ThemeSelector(state.theme, onTheme)
+        SettingsCard {
+            SettingRow(
+                icon = GeekIcons.Lock,
+                title = stringResource(R.string.geek_lock_setting),
+                hint = stringResource(R.string.geek_lock_setting_hint),
+                onClick = { onAppLock(!state.appLock) },
+                role = Role.Switch,
+            ) { GeekSwitch(checked = state.appLock, onCheckedChange = null) }
+        }
 
         SectionLabel(stringResource(R.string.geek_account_support))
         SettingsCard {

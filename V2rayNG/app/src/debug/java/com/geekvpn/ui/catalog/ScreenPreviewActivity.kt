@@ -57,6 +57,7 @@ import com.geekvpn.ui.referral.ReferralScreen
 import com.geekvpn.ui.referral.ReferralUiState
 import com.geekvpn.ui.speedtest.SpeedTestScreen
 import com.geekvpn.ui.speedtest.SpeedTestUiState
+import com.geekvpn.lock.LockScreen
 import com.geekvpn.ui.theme.GeekTheme
 import com.geekvpn.ui.usage.UsageScreen
 import com.geekvpn.ui.usage.UsageUiState
@@ -83,6 +84,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
+                SCREEN_LOCK -> GeekBackdrop { LockScreen(onUnlock = {}) }
                 SCREEN_USAGE -> GeekBackdrop {
                     val today = java.time.LocalDate.of(2026, 9, 28)
                     val sample = listOf(310L, 820L, 145L, 0L, 1260L, 530L, 690L)
@@ -133,6 +135,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_SPEED = "speed"
         const val SCREEN_REFERRAL = "referral"
         const val SCREEN_USAGE = "usage"
+        const val SCREEN_LOCK = "lock"
         const val SCREEN_TICKET_THREAD = "ticket-thread"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",

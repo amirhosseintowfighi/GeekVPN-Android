@@ -44,6 +44,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
 import com.geekvpn.account.UsageNotifier
 import com.geekvpn.autoconnect.AutoConnect
+import com.geekvpn.lock.AppLock
 import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
@@ -141,6 +142,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         // A force-stop drops the Wi-Fi callback; opening the app puts it back.
         lifecycleScope.launch(Dispatchers.IO) { AutoConnect.sync(applicationContext) }
         Push.init(applicationContext)
+        AppLock.install(application)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -419,6 +421,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                                             onTheme = account::setTheme,
                                             onAskLogout = account::askLogout,
                                             onLogout = account::logout,
+                                            onAppLock = { on -> if (!account.setAppLock(on)) showMessage(R.string.geek_lock_unavailable) },
                                         )
                                     }
                                 }
