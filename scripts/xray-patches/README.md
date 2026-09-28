@@ -15,3 +15,10 @@ connect at all. Plain Trojan stays refused.
 
 Plain VLESS sends the UUID and the traffic in the clear to anyone on the path.
 Drop this patch once every tunnel service uses TLS (or VLESS encryption).
+
+## `connection-count.patch`
+
+Adds `common/geekstats` (an atomic counter) and counts every outbound
+`Dispatch` while it runs. `scripts/libv2ray-extra/geekvpn_stats.go` exposes it
+as `Libv2ray.activeConnections()`; the VPN process reads it and Home shows it as
+«اتصالات». Connections inside one mux session count once.

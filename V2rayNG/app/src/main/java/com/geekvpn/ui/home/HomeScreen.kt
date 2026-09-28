@@ -72,6 +72,7 @@ import com.geekvpn.connection.TrafficMeter
 import com.geekvpn.smartconnect.SmartStage
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatGib
+import com.geekvpn.ui.common.formatNumber
 import com.geekvpn.ui.components.CountryBadge
 import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GeekSwitch
@@ -468,9 +469,16 @@ private fun StatsRow(state: HomeUiState) {
             )
         }
         StatDivider()
-        StatCell(GeekIcons.Gauge, stringResource(R.string.geek_home_ping), Modifier.weight(1f)) {
-            val delay = state.selected?.delayMs ?: 0
-            NumberWithUnit(if (delay > 0) delay.toString() to "ms" else "—" to "")
+        if (on) {
+            // Home-On.html: «اتصالات», the connections the core carries now.
+            StatCell(GeekIcons.Connections, stringResource(R.string.geek_home_connections), Modifier.weight(1f)) {
+                NumberWithUnit(formatNumber(state.connections.toLong(), locale) to "")
+            }
+        } else {
+            StatCell(GeekIcons.Gauge, stringResource(R.string.geek_home_ping), Modifier.weight(1f)) {
+                val delay = state.selected?.delayMs ?: 0
+                NumberWithUnit(if (delay > 0) delay.toString() to "ms" else "—" to "")
+            }
         }
     }
     val rowModifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal = 10.dp, vertical = 12.dp)

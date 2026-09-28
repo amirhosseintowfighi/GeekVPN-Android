@@ -22,6 +22,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.ConcurrentHashMap
+import libv2ray.Libv2ray
 
 /**
  * Failover while connected (spec §3.5): runs in the VPN process for exactly
@@ -46,10 +47,31 @@ class FailoverMonitor(
 
     fun start() {
         scope.launch { watch() }
+        scope.launch { publishConnections() }
     }
 
     fun stop() {
         scope.cancel()
+        prefs.activeConnections = 0
+    }
+
+    /**
+     * Home's «اتصالات»: the core counts its open connections in this process
+     * (`Libv2ray.activeConnections`), and the app's process reads the number
+     * from the shared MMKV. Only while the screen is on; nobody looks otherwise.
+     */
+    private suspend fun publishConnections() {
+        while (scope.isActive) {
+            if (interactive()) {
+                prefs.activeConnections = try {
+                    Libv2ray.activeConnections().toInt().coerceAtLeast(0)
+                } catch (e: UnsatisfiedLinkError) {
+                    LogUtil.w(AppConfig.TAG, "Failover: connection count unavailable", e)
+                    return
+                }
+            }
+            delay(CONNECTIONS_INTERVAL_MS)
+        }
     }
 
     private suspend fun watch() {
@@ -147,6 +169,7 @@ class FailoverMonitor(
         /** Let a fresh connection settle before judging it. */
         const val FIRST_CHECK_MS = 20_000L
         const val CHECK_INTERVAL_MS = 30_000L
+        const val CONNECTIONS_INTERVAL_MS = 2_000L
 
         /** Fewer checks with the screen off: Doze stretches them anyway, and they cost battery. */
         const val CHECK_INTERVAL_SCREEN_OFF_MS = 120_000L

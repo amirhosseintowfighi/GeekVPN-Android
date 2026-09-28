@@ -74,6 +74,7 @@
     <string name="geek_home_download">دانلود</string>
     <string name="geek_home_upload">آپلود</string>
     <string name="geek_home_ping">پینگ</string>
+    <string name="geek_home_connections">اتصالات</string>
     <string name="geek_home_quota">%1$s از %2$s گیگ</string>
     <string name="geek_home_unlimited">حجم نامحدود</string>
     <string name="geek_home_err_no_service">اول یک سرویس انتخاب کن.</string>

@@ -55,6 +55,8 @@ done
 cp "$ROOT"/scripts/xray-patches/*_test.go "$WORK/xray-core/infra/conf/"
 (cd "$WORK/xray-core" && go test ./infra/conf/ -run 'TestGeekVPN')
 go mod edit -replace="$XRAY_MODULE=./xray-core"
+# GeekVPN's additions to the libv2ray package itself (what the patches expose).
+cp "$ROOT"/scripts/libv2ray-extra/*.go "$WORK/"
 
 # The geo files ship inside the AAR; v2rayNG's routing fails to build without
 # any of them (geoip-only-cn-private.dat backs every geoip:private rule), and

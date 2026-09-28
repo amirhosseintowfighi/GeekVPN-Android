@@ -78,6 +78,7 @@
     <string name="geek_home_download">Download</string>
     <string name="geek_home_upload">Upload</string>
     <string name="geek_home_ping">Ping</string>
+    <string name="geek_home_connections">Connections</string>
     <string name="geek_home_quota">%1$s of %2$s GB</string>
     <string name="geek_home_unlimited">Unlimited data</string>
     <string name="geek_home_err_no_service">Choose a service first.</string>

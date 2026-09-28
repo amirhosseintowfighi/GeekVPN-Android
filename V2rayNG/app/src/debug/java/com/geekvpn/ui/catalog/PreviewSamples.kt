@@ -98,6 +98,7 @@ internal object PreviewSamples {
         connectedSince = System.currentTimeMillis() - (12 * 60 + 48) * 1000L,
         exitIp = ExitIp("185.220.101.7", "DE"),
         speed = TrafficMeter.Speed(2_480_000, 312_000),
+        connections = 7,
     )
 
     val account = AccountUiState(

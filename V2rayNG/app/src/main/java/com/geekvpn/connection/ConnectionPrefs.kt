@@ -47,6 +47,13 @@ class ConnectionPrefs(private val storage: MMKV) {
             storage.encode(KEY_FAILOVER, value.key)
         }
 
+    /** Connections the running core carries; written by the VPN process, 0 when stopped. */
+    var activeConnections: Int
+        get() = storage.decodeInt(KEY_ACTIVE_CONNECTIONS, 0)
+        set(value) {
+            storage.encode(KEY_ACTIVE_CONNECTIONS, value)
+        }
+
     /**
      * The daemon's last "could not start" message and when it came, for the
      * problem report; empty when none was seen. Kept, not just shown, because
@@ -71,6 +78,7 @@ class ConnectionPrefs(private val storage: MMKV) {
         private const val KEY_AUTO_UPDATE = "auto_update"
         private const val KEY_ROUTE = "route_mode"
         private const val KEY_CONNECTED_SINCE = "connected_since"
+        private const val KEY_ACTIVE_CONNECTIONS = "active_connections"
         private const val KEY_LAST_FAILURE = "last_failure"
         private const val KEY_LAST_FAILURE_AT = "last_failure_at"
         private const val MAX_FAILURE_CHARS = 600

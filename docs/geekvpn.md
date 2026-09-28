@@ -250,6 +250,11 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   `MainRepository` خود v2rayNG می‌آید؛ سرویس VPN دست نخورده است.
   `ConnectionLogic` تصمیم می‌گیرد هر پیام daemon وضعیت را به کجا ببرد.
 - «سرور: خودکار» یعنی اتصال هوشمند و failover (بخش پایین).
+- «اتصالات» (فقط وقتی وصل است، جای پینگ): هسته با `scripts/xray-patches/connection-count.patch`
+  هر اتصال خروجی در حال اجرا را می‌شمارد و `Libv2ray.activeConnections()` آن را می‌دهد.
+  `FailoverMonitor` در پروسه‌ی VPN هر ۲ ثانیه (با صفحه‌ی روشن) عدد را در
+  `ConnectionPrefs.activeConnections` می‌نویسد و Home همراه سرعت آن را می‌خواند.
+  اتصال‌های داخل یک جلسه‌ی mux یکی شمرده می‌شوند.
 - سرعت دانلود و آپلود از `TrafficStats` برای UID خود اپ خوانده می‌شود: سوکت‌های
   هسته مال همین UID است و daemon راهی برای فرستادن آمار به UI ندارد.
 - IP خروجی از `check-host.net/ip` می‌آید؛ وقتی وصل است از proxy محلی هسته، وقتی

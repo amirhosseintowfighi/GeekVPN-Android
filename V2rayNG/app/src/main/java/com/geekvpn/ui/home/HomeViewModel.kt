@@ -88,6 +88,8 @@ data class HomeUiState(
     val exitIp: ExitIp? = null,
     val exitIpLoading: Boolean = false,
     val speed: TrafficMeter.Speed? = null,
+    /** Open connections through the core (the VPN process counts them). */
+    val connections: Int = 0,
     val testing: Boolean = false,
     val manualGroups: List<ManualGroup> = emptyList(),
     /** An account sync or import is running. */
@@ -661,7 +663,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     TrafficStats.getUidTxBytes(uid),
                     System.currentTimeMillis(),
                 )
-                if (speed != null) state.update { it.copy(speed = speed) }
+                val connections = prefs.activeConnections
+                state.update { if (speed != null) it.copy(speed = speed, connections = connections) else it.copy(connections = connections) }
                 delay(SPEED_INTERVAL_MS)
             }
         }

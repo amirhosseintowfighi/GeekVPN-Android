@@ -49,7 +49,7 @@ jobs:
       uses: actions/cache/restore@v6
       with:
         path: V2rayNG/app/libs/libv2ray.aar
-        key: libv2ray-${{ env.NDK_VERSION }}-${{ steps.key.outputs.core }}-${{ hashFiles('cfscan/**', 'scripts/build-libv2ray.sh', 'scripts/xray-patches/**') }}
+        key: libv2ray-${{ env.NDK_VERSION }}-${{ steps.key.outputs.core }}-${{ hashFiles('cfscan/**', 'scripts/build-libv2ray.sh', 'scripts/xray-patches/**', 'scripts/libv2ray-extra/**') }}
 
     - name: Setup Golang
       if: steps.cache-libv2ray.outputs.cache-hit != 'true'
