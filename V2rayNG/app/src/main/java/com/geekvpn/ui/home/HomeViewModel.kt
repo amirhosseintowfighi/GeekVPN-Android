@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -197,6 +198,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // -- actions -------------------------------------------------------------
 
     /** The glasses button, after the activity has the VPN permission. */
+    /**
+     * Waits (briefly) for the services and servers to load, for a connect that
+     * arrives with the screen: the tile, the widget, a shortcut.
+     */
+    suspend fun awaitServers() {
+        withTimeoutOrNull(SERVERS_WAIT_MS) { state.first { it.servers.isNotEmpty() } }
+    }
+
     fun connect() {
         val current = state.value
         if (current.phase != ConnectionPhase.Off) return
@@ -759,6 +768,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private companion object {
         const val SPEED_INTERVAL_MS = 1_000L
+        const val SERVERS_WAIT_MS = 3_000L
         const val TEST_TIMEOUT_MS = 45_000L
         const val START_TIMEOUT_MS = 20_000L
         const val STOP_SETTLE_MS = 8_000L

@@ -36,6 +36,7 @@ git submodule update --init --recursive
 | `core/CoreConfigContextBuilder.kt` | یک خط: پروفایل قبل از ساخت کانفیگ از `IpOverrides.apply` رد می‌شود (اسکنر) |
 | `service/RealPingWorkerService.kt` | یک خط: پیش‌تست TCP هم به IP تمیز (override) می‌رود، نه آدرس خود کانفیگ |
 | `core/CoreServiceManager.kt` | `FailoverMonitor` بعد از شروع هسته ساخته و قبل از توقفش متوقف می‌شود (`startFailoverMonitor`) |
+| `service/QSTileService.kt`، `receiver/WidgetProvider.kt`، `ui/shortcut/ScStartActivity.kt`، `ScSwitchActivity.kt` | یک خط: با «سرور: خودکار» شروع از بیرون اپ به `QuickConnect` می‌رود |
 
 بعد از merge، اگر `AndroidLibXrayLite` جلو رفته باشد، CI خودش AAR را دوباره می‌سازد
 (کلید cache به gitlink submodule بسته است).
@@ -409,6 +410,11 @@ python3 branding/gen_icons.py
 - هر مرحله روی Home نوشته می‌شود و با زدن دوباره‌ی دکمه لغو می‌شود. لغو، اسکن و
   تست را متوقف می‌کند و اگر اتصالی شروع شده بود آن را قطع می‌کند.
 - با «سرور: خودکار» خاموش، همان سرور انتخاب‌شده بدون تست وصل می‌شود.
+- کاشی Quick Settings، ویجت و میانبرهای لانچر در پروسه‌ی VPN هستند و اتصال هوشمند
+  آنجا اجرا نمی‌شود. پس با «سرور: خودکار» روشن، شروع اتصال از این‌ها `HomeActivity` را با
+  `EXTRA_CONNECT` باز می‌کند (`com.geekvpn.quick.QuickConnect`). Home منتظر می‌ماند تا
+  سرورها خوانده شوند و بعد همان مسیر دکمه‌ی اتصال را اجرا می‌کند (مجوز VPN را هم می‌پرسد).
+  قطع کردن همان مسیر مستقیم خود v2rayNG است.
 - failover در پروسه‌ی VPN (`:daemon`) اجرا می‌شود، چون پروسه‌ی اپ ممکن است وقتی
   VPN وصل است بسته شده باشد. عمرش دقیقاً با هسته یکی است. هر ۳۰ ثانیه (با صفحه‌ی
   خاموش هر ۲ دقیقه) تأخیر اتصال زنده را از خود هسته می‌پرسد. `FailoverPolicy`

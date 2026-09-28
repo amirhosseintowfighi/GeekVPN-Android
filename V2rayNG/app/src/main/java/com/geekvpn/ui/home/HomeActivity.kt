@@ -130,6 +130,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         GeekGraph.syncOnLaunch()
         handlePaymentReturn(intent)
         handleRenew(intent)
+        handleConnect(intent)
         UsageNotifier.schedule(this)
         Push.init(applicationContext)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
@@ -185,6 +186,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         super.onNewIntent(intent)
         handlePaymentReturn(intent)
         handleRenew(intent)
+        handleConnect(intent)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -197,6 +199,18 @@ class HomeActivity : HelperBaseComponentActivity() {
         val subscriptionId = intent?.getStringExtra(EXTRA_RENEW) ?: return
         intent.removeExtra(EXTRA_RENEW)
         servicesActions(openShop = { tab = GeekTab.Shop }).onRenew(subscriptionId)
+    }
+
+    /** From the tile, widget or a shortcut with «سرور: خودکار» on: smart connect (`QuickConnect`). */
+    private fun handleConnect(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_CONNECT, false) != true) return
+        intent.removeExtra(EXTRA_CONNECT)
+        tab = GeekTab.Home
+        lifecycleScope.launch {
+            // A cold start reads the servers asynchronously.
+            home.awaitServers()
+            requestConnect()
+        }
     }
 
     private fun handlePaymentReturn(intent: Intent?) {
@@ -576,6 +590,9 @@ class HomeActivity : HelperBaseComponentActivity() {
 
         /** Set by `UsageNotifier`: the subscription whose renewal to open. */
         const val EXTRA_RENEW = "com.geekvpn.extra.RENEW"
+
+        /** Set by `QuickConnect`: start smart connect once Home is up. */
+        const val EXTRA_CONNECT = "com.geekvpn.extra.CONNECT"
         private const val STATE_TAB = "geek_tab"
     }
 }
