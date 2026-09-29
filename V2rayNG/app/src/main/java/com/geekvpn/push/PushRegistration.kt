@@ -52,7 +52,14 @@ class PushRegistration(private val store: MMKV, private val api: GeekApi) {
             suspendCancellableCoroutine { continuation ->
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                     val token = if (task.isSuccessful) task.result else null
-                    if (!task.isSuccessful) LogUtil.w(AppConfig.TAG, "Push: no FCM token", task.exception)
+                    if (!task.isSuccessful) {
+                        val failure = task.exception
+                        if (failure != null) {
+                            LogUtil.w(AppConfig.TAG, "Push: no FCM token", failure)
+                        } else {
+                            LogUtil.w(AppConfig.TAG, "Push: no FCM token")
+                        }
+                    }
                     continuation.resume(token?.takeIf { it.isNotBlank() })
                 }
             }
