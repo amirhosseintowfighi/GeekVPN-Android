@@ -66,6 +66,7 @@ import com.geekvpn.ui.components.geekPage
 import com.geekvpn.ui.links.LinkEditActivity
 import com.geekvpn.ui.login.LaunchActivity
 import com.geekvpn.ui.perapp.PerAppActivity
+import com.geekvpn.ui.promo.PromoBanner
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
 import com.geekvpn.ui.referral.ReferralActivity
@@ -166,6 +167,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                 }
                 launch { shop.events.collect { onShopEvent(it) } }
                 launch { autoRenew.failed.collect { showMessage(R.string.geek_autorenew_failed) } }
+                launch { GeekGraph.promos.refresh() }
                 launch {
                     scanner.events.collect { event ->
                         when (event) {
@@ -307,6 +309,11 @@ class HomeActivity : HelperBaseComponentActivity() {
             // Install tapped before GeekVPN may install apps: say what to allow.
             var installNeedsPermission by remember { mutableStateOf(false) }
             val bannerOffer = update.offer?.takeIf { it.required || it.versionName != dismissedVersion }
+            val promo by GeekGraph.promos.shown.collectAsStateWithLifecycle()
+            val openPromo = { code: String? ->
+                tab = GeekTab.Shop
+                if (code != null && signedIn) shop.useOffer(code)
+            }
 
             BackHandler(enabled = shopState.sheet != null || updateOpen || overlay != Overlay.None || tab != GeekTab.Home) {
                 when {
@@ -390,6 +397,17 @@ class HomeActivity : HelperBaseComponentActivity() {
                                                         AppUpdater.dismiss(offer)
                                                         dismissedVersion = offer.versionName
                                                     },
+                                                )
+                                            }
+                                        }
+                                    }
+                                    if (shownTab == GeekTab.Home || shownTab == GeekTab.Shop) {
+                                        AnimatedVisibility(promo != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+                                            promo?.let { offer ->
+                                                PromoBanner(
+                                                    promo = offer,
+                                                    onOpen = { openPromo(offer.couponCode) },
+                                                    onClose = { GeekGraph.promos.dismiss(offer) },
                                                 )
                                             }
                                         }

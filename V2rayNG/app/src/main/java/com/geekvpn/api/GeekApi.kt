@@ -167,6 +167,9 @@ class GeekApi(
     suspend fun appVersion(): AppVersionResponse =
         get(anonymous, "/api/app/version", object : TypeToken<AppVersionResponse>() {})
 
+    /** Public, like the version: a guest sees the offer too. */
+    suspend fun promo(): AppPromoResponse = get(anonymous, "/api/app/promo", object : TypeToken<AppPromoResponse>() {})
+
     /** A support ticket, as the Mini App opens one; the operator answers in the bot. */
     suspend fun openTicket(request: OpenTicketRequest): TicketCard = post(authorized, "/api/miniapp/tickets", request)
 

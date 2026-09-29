@@ -1,6 +1,8 @@
 package com.geekvpn.ui.catalog
 
 import com.geekvpn.account.AutoRenewState
+import com.geekvpn.api.AppPromo
+import com.geekvpn.ui.promo.PromoBanner
 import com.geekvpn.ui.update.UpdateActions
 import com.geekvpn.ui.update.UpdateBanner
 import com.geekvpn.ui.update.UpdateSheet
@@ -216,6 +218,10 @@ private fun TabPreview(screen: String) {
         ) {
             if (tab == GeekTab.Home) GeekHeader(balance = state.balance, onWallet = none)
             if (update != null) UpdateBanner(update.offer!!, onOpen = none, onClose = none)
+            // The shop shows a running offer, as the operator would set one.
+            if (tab == GeekTab.Shop) {
+                PromoBanner(AppPromo("۲۰٪ تخفیف پاییزه", "روی همه‌ی پلن‌های ماهانه", "AUTUMN20", "2026-10-15"), onOpen = none, onClose = none)
+            }
             when (tab) {
                 GeekTab.Home -> HomeScreen(
                     state = state,

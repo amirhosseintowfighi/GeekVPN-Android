@@ -568,4 +568,6 @@
     <string name="geek_autorenew_last_unavailable">تمدید انجام نشد: این پلن دیگر فروخته نمی‌شود. از فروشگاه پلن دیگری بخر.</string>
     <string name="geek_autorenew_failed">تنظیم تمدید خودکار ذخیره نشد. دوباره امتحان کن.</string>
     <string name="geek_home_tunnel_fallback">سرویس مستقیم وصل نشد؛ با سرویس تونل وصل می‌شویم.</string>
+    <string name="geek_promo_until">تا %1$s</string>
+    <string name="geek_promo_dismiss_description">بستن پیشنهاد</string>
 </resources>

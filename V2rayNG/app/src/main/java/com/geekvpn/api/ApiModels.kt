@@ -327,6 +327,18 @@ data class TicketMessage(
 /** `POST /api/miniapp/tickets/{id}/messages`. */
 data class TicketReplyRequest(val message: String)
 
+/** `GET /api/app/promo`: the offer banner, set in the admin panel. */
+data class AppPromoResponse(val promo: AppPromo?)
+
+data class AppPromo(
+    val titleFa: String?,
+    val bodyFa: String?,
+    /** Filled in at checkout; the quote still decides whether it applies. */
+    val couponCode: String?,
+    /** Last day shown, ISO; null = until removed. */
+    val until: String?,
+)
+
 /** `GET/PUT /api/miniapp/subscriptions/{id}/auto-renew`. */
 data class AutoRenewResponse(
     val enabled: Boolean?,

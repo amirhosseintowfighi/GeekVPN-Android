@@ -10,6 +10,7 @@ import com.geekvpn.connection.ConnectionPrefs
 import com.geekvpn.auth.SecureStore
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.SessionStore
+import com.geekvpn.promo.Promos
 import com.geekvpn.push.PushRegistration
 import com.tencent.mmkv.MMKV
 import com.v2ray.ang.AppConfig
@@ -87,6 +88,9 @@ object GeekGraph {
             }
         }
     }
+
+    /** The operator's offer banner (Home, shop). */
+    val promos: Promos by lazy { Promos.open(api) }
 
     private val pushRegistration: PushRegistration by lazy { PushRegistration.open(api) }
     private var pushJob: Job? = null
