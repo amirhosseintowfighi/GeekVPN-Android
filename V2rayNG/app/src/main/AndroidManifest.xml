@@ -388,6 +388,20 @@
                 <action android:name="${applicationId}.action.activity" />
             </intent-filter>
         </receiver>
+        <!-- GeekVPN: service status + connect button on the home screen (com.geekvpn.widget). -->
+        <receiver
+            android:name="com.geekvpn.widget.InfoWidget"
+            android:exported="true"
+            android:label="@string/geek_widget_name"
+            android:process=":daemon">
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_geek_info" />
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="${applicationId}.action.activity" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".receiver.BootReceiver"
             android:exported="true"

@@ -2,6 +2,7 @@ package com.geekvpn.account
 
 import com.geekvpn.api.GeekApi
 import com.geekvpn.scanner.ScanController
+import com.geekvpn.widget.InfoWidget
 import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.dto.entities.SubscriptionCache
@@ -34,6 +35,7 @@ class AccountSync(
         val remote = api.subscriptions()
         store.saveServices(remote)
         UsageNotifier.check(AngApplication.application)
+        InfoWidget.refresh(AngApplication.application)
         // Read by the scanner in both processes; see ScanStore.allows.
         ScanController.store.directServices = remote
             .filter { it.tier == TIER_DIRECT }
@@ -97,6 +99,7 @@ class AccountSync(
             .map { it.guid }
             .filter { SubscriptionPlan.isAccountGuid(it) }
             .forEach { SettingsManager.removeSubscriptionWithDefault(it) }
+        InfoWidget.refresh(AngApplication.application)
     }
 
     private companion object {

@@ -556,4 +556,12 @@
         <item quantity="one">%1$d new answer from support</item>
         <item quantity="other">%1$d new answers from support</item>
     </plurals>
+    <string name="geek_widget_name">GeekVPN: service status</string>
+    <string name="geek_widget_description">Your service\'s remaining traffic and days, and a connect button</string>
+    <string name="geek_widget_connected">Connected</string>
+    <string name="geek_widget_disconnected">Disconnected</string>
+    <string name="geek_widget_connect">Connect</string>
+    <string name="geek_widget_disconnect">Disconnect</string>
+    <string name="geek_widget_remaining">%1$s GB left</string>
+    <string name="geek_widget_unlimited">Unlimited traffic</string>
 </resources>

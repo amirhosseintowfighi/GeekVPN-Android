@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GeekVPN home-screen widget (com.geekvpn.widget.InfoWidget). RemoteViews: framework views only. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/geek_widget_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="14dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="10dp">
+
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_geek_logo" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="10dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/geek_brand"
+            android:textAlignment="viewStart"
+            android:textColor="#FFEAF5FD"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/geek_widget_disconnected"
+            android:textAlignment="viewStart"
+            android:textColor="#CCEAF5FD"
+            android:textSize="12sp" />
+
+        <ProgressBar
+            android:id="@+id/widget_progress"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginTop="6dp"
+            android:max="1000"
+            android:progressDrawable="@drawable/geek_widget_progress"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/widget_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/geek_widget_button_off"
+        android:contentDescription="@string/geek_widget_connect">
+
+        <ImageView
+            android:id="@+id/widget_button_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_play_24dp" />
+    </FrameLayout>
+</LinearLayout>

@@ -552,4 +552,12 @@
         <item quantity="one">%1$d جواب تازه از پشتیبانی</item>
         <item quantity="other">%1$d جواب تازه از پشتیبانی</item>
     </plurals>
+    <string name="geek_widget_name">GeekVPN: وضعیت سرویس</string>
+    <string name="geek_widget_description">حجم و روزهای باقی‌مانده‌ی سرویس و دکمه‌ی اتصال</string>
+    <string name="geek_widget_connected">متصل</string>
+    <string name="geek_widget_disconnected">قطع</string>
+    <string name="geek_widget_connect">اتصال</string>
+    <string name="geek_widget_disconnect">قطع اتصال</string>
+    <string name="geek_widget_remaining">%1$s گیگ مانده</string>
+    <string name="geek_widget_unlimited">حجم نامحدود</string>
 </resources>

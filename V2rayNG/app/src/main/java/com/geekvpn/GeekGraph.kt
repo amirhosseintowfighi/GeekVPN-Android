@@ -129,7 +129,8 @@ object GeekGraph {
     }
 
     private const val LOGOUT_TIMEOUT_MS = 5_000L
-    private const val ID_ACCOUNT = "GEEK_ACCOUNT"
+    /** Also read by the home-screen widget in the VPN process ([com.geekvpn.widget.InfoWidget]). */
+    const val ID_ACCOUNT = "GEEK_ACCOUNT"
     private const val ID_SECURE = "GEEK_SECURE"
     private const val LAUNCH_SYNC_INTERVAL_MS = 10 * 60 * 1000L
 }
