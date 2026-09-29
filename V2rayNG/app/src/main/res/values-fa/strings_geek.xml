@@ -527,6 +527,11 @@
     <string name="geek_usage_gb">گیگابایت</string>
     <string name="geek_usage_chart_description">مصرف %1$d روز گذشته: در مجموع %2$s %3$s</string>
     <string name="geek_usage_note">روی همین گوشی و وقتی VPN روشن است شمرده می‌شود؛ دستگاه‌های دیگرِ همین سرویس حساب نمی‌شوند. حجم باقی‌مانده‌ی سرویس در تب «سرویس‌ها» است.</string>
+    <string name="geek_usage_note_service">همه‌ی دستگاه‌های این سرویس با هم، از روی گزارش سرور؛ چند بار در روز به‌روز می‌شود. روزهای قبل از شروع این گزارش صفر نشان داده می‌شوند.</string>
+    <string name="geek_usage_source_phone">این گوشی</string>
+    <string name="geek_usage_source_service">سرویس</string>
+    <string name="geek_usage_loading">در حال دریافت از سرور…</string>
+    <string name="geek_usage_failed">گزارش سرویس دریافت نشد. اتصال اینترنت را بررسی کن.</string>
     <string name="geek_services_qr_title">لینک و QR سرویس</string>
     <string name="geek_services_qr_description">کد QR لینک سرویس</string>
     <string name="geek_services_qr_warning">هر کسی این لینک را داشته باشد از حجم سرویست استفاده می‌کند. فقط روی دستگاه‌های خودت استفاده کن.</string>

@@ -531,6 +531,11 @@
     <string name="geek_usage_gb">GB</string>
     <string name="geek_usage_chart_description">Usage over the last %1$d days: %2$s %3$s in total</string>
     <string name="geek_usage_note">Counted on this phone while the VPN is on, so other devices on the same service are not included. Your service\'s remaining volume is on the Services tab.</string>
+    <string name="geek_usage_note_service">All devices on this service together, from the server\'s readings; updated a few times a day. Days before these readings began show as zero.</string>
+    <string name="geek_usage_source_phone">This phone</string>
+    <string name="geek_usage_source_service">Service</string>
+    <string name="geek_usage_loading">Loading from the server…</string>
+    <string name="geek_usage_failed">Could not load the service\'s history. Check your connection.</string>
     <string name="geek_services_qr_title">Service link and QR</string>
     <string name="geek_services_qr_description">QR code of the service link</string>
     <string name="geek_services_qr_warning">Anyone with this link uses your service\'s volume. Share it only with your own devices.</string>

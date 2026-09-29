@@ -1,5 +1,6 @@
 package com.geekvpn.usage
 
+import com.geekvpn.api.UsageDayResponse
 import com.geekvpn.ui.usage.UsageChart
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -41,5 +42,16 @@ class DailyUsageTest {
         assertEquals("1.5" to UsageChart.SizeUnit.Gib, UsageChart.size(1_610_612_736, Locale.ENGLISH))
         assertEquals("300" to UsageChart.SizeUnit.Mib, UsageChart.size(300L * 1024 * 1024, Locale.ENGLISH))
         assertEquals("2" to UsageChart.SizeUnit.Kib, UsageChart.size(2048, Locale.ENGLISH))
+    }
+
+    @Test
+    fun `server days become bytes and unreadable ones are skipped`() {
+        assertEquals(
+            DayUsage(LocalDate.of(2026, 9, 29), 3L * 1024 * 1024),
+            UsageChart.fromServer(UsageDayResponse("2026-09-29", 3)),
+        )
+        assertEquals(DayUsage(LocalDate.of(2026, 9, 29), 0), UsageChart.fromServer(UsageDayResponse("2026-09-29", null)))
+        assertEquals(null, UsageChart.fromServer(UsageDayResponse("29/09", 3)))
+        assertEquals(null, UsageChart.fromServer(UsageDayResponse(null, 3)))
     }
 }

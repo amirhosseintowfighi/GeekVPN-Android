@@ -184,6 +184,14 @@ class GeekApi(
     suspend fun replyToTicket(ticketId: String, message: String): TicketMessage =
         post(authorized, "/api/miniapp/tickets/${ticketId.pathSegment()}/messages", TicketReplyRequest(message))
 
+    /** Traffic per day for one account service, all its devices together, oldest first. */
+    suspend fun usageDays(subscriptionId: String, days: Int): List<UsageDayResponse> =
+        get(
+            authorized,
+            "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/usage-days?days=$days",
+            object : TypeToken<List<UsageDayResponse>>() {},
+        )
+
     /** This install's FCM token, so a support reply reaches the phone (com.geekvpn.push). */
     suspend fun registerPushToken(token: String) =
         send(authorized, request("/api/miniapp/push-token").post(gson.toJson(PushTokenRequest(token)).toRequestBody(JSON)).build())

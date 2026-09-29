@@ -327,6 +327,9 @@ data class TicketMessage(
 /** `POST /api/miniapp/tickets/{id}/messages`. */
 data class TicketReplyRequest(val message: String)
 
+/** One day of `GET /api/miniapp/subscriptions/{id}/usage-days`: `day` is ISO (Tehran), traffic in MiB. */
+data class UsageDayResponse(val day: String?, val usedMib: Long?)
+
 /** `POST /api/miniapp/push-token` and `/push-token/forget`. */
 data class PushTokenRequest(val token: String)
 

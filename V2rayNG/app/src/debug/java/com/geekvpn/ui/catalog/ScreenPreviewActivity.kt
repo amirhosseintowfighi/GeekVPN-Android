@@ -60,6 +60,7 @@ import com.geekvpn.ui.speedtest.SpeedTestUiState
 import com.geekvpn.lock.LockScreen
 import com.geekvpn.ui.theme.GeekTheme
 import com.geekvpn.ui.usage.UsageScreen
+import com.geekvpn.ui.usage.UsageSource
 import com.geekvpn.ui.usage.UsageUiState
 import com.geekvpn.usage.DayUsage
 import com.v2ray.ang.ui.base.BaseComponentActivity
@@ -88,9 +89,16 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                 SCREEN_USAGE -> GeekBackdrop {
                     val today = java.time.LocalDate.of(2026, 9, 28)
                     val sample = listOf(310L, 820L, 145L, 0L, 1260L, 530L, 690L)
+                    val service = UsageSource("sample", "سرویس ۳۰ روزه")
                     UsageScreen(
-                        UsageUiState(7, sample.mapIndexed { i, mib -> DayUsage(today.minusDays((6 - i).toLong()), mib * 1024 * 1024) }),
+                        UsageUiState(
+                            7,
+                            sample.mapIndexed { i, mib -> DayUsage(today.minusDays((6 - i).toLong()), mib * 1024 * 1024) },
+                            sources = listOf(UsageSource.Phone, service),
+                            source = service,
+                        ),
                         onRange = {},
+                        onSource = {},
                         onBack = {},
                     )
                 }
