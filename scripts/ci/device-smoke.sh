@@ -164,14 +164,18 @@ if [[ "$probe" != *Error* ]]; then
         alive "previewing $1"
         adb shell am force-stop "$PKG"
     }
-    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout; do
+    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update tickets ticket-thread auto-connect speed referral usage lock; do
         preview "$screen" false
         preview "$screen" true
     done
-    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt; do
+    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt update-downloading wait-qr; do
         preview "$screen" false
     done
     # A name the preview activity does not know falls back to the waiting screen.
+    if ! grep -q "تیکت‌های من" "$OUT/preview-tickets.xml"; then
+        echo "::error::preview tickets did not show the ticket list"
+        LOGIN_FAILED=1
+    fi
     for screen in home-finding-ip home-attempt; do
         if ! grep -q "دوباره دکمه را بزن" "$OUT/preview-$screen.xml"; then
             echo "::error::preview $screen did not show the smart connect stage"
@@ -192,7 +196,25 @@ if ! grep -q "متصل نیست" "$OUT/main.xml"; then
     LOCALE_FAILED=1
 fi
 
-adb shell am start -W -n "$PKG/com.v2ray.ang.ui.AboutActivity" >/dev/null
+# GeekVPN's advanced settings (v2rayNG's settings in GeekVPN's design).
+adb shell am start -W -n "$PKG/com.geekvpn.ui.advanced.AdvancedActivity" >/dev/null
+shot advanced 4
+alive "opening advanced settings"
+if ! grep -q "تنظیمات پیشرفته" "$OUT/advanced.xml"; then
+    echo "::error::advanced settings did not open"
+    LOGIN_FAILED=1
+fi
+
+# "گزارش مشکل": signed out on this emulator, so it offers to copy the report.
+adb shell am start -W -n "$PKG/com.geekvpn.ui.support.ReportActivity" >/dev/null
+shot report 4
+alive "opening the problem report"
+if ! grep -q "گزارش مشکل" "$OUT/report.xml"; then
+    echo "::error::the problem report did not open"
+    LOGIN_FAILED=1
+fi
+
+adb shell am start -W -n "$PKG/com.geekvpn.ui.about.AboutActivity" >/dev/null
 shot about
 alive "opening About"
 
@@ -239,7 +261,7 @@ fi
 # catalog are not ours to hold to it.
 DPI=$(adb shell wm density | tr -d '\r' | tail -1 | grep -Eo '[0-9]+$')
 shopt -s nullglob
-A11Y_DUMPS=("$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
+A11Y_DUMPS=("$OUT"/about.xml "$OUT"/advanced.xml "$OUT"/report.xml "$OUT"/login*.xml "$OUT"/home-guest.xml "$OUT"/payment-return.xml "$OUT"/preview-*.xml)
 shopt -u nullglob
 if ! python3 "$(dirname "$0")/a11y-check.py" "$DPI" "$PKG" "${A11Y_DUMPS[@]}" > "$OUT/a11y.txt"; then
     echo "::error::accessibility problems, see a11y.txt"

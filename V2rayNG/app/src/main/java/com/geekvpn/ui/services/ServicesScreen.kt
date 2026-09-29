@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -35,11 +37,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.geekvpn.account.AutoRenewState
 import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.ui.common.GlassIconButton
@@ -49,6 +54,7 @@ import com.geekvpn.ui.common.formatGib
 import com.geekvpn.ui.common.formatNumber
 import com.geekvpn.ui.components.GeekDangerButton
 import com.geekvpn.ui.components.GeekSecondaryButton
+import com.geekvpn.ui.components.GeekSwitch
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.home.HomeUiState
@@ -70,12 +76,24 @@ interface ServicesActions {
     fun onDisconnect()
     fun onRefresh()
     fun onCopy(url: String)
+
+    /** The Android share sheet with the service link. */
+    fun onShare(url: String)
     fun onUseManual(groupId: String)
+    fun onEditManual(groupId: String)
+
+    /** "تمدید خودکار از کیف پول" on one service. */
+    fun onAutoRenew(subscriptionId: String, enabled: Boolean)
 }
 
 /** Services.html: the account's services as cards, then the manual links. */
 @Composable
-fun ServicesScreen(state: HomeUiState, isSignedIn: Boolean, actions: ServicesActions) {
+fun ServicesScreen(
+    state: HomeUiState,
+    isSignedIn: Boolean,
+    actions: ServicesActions,
+    autoRenew: Map<String, AutoRenewState> = emptyMap(),
+) {
     val colors = Geek.colors
     var showAll by rememberSaveable { mutableStateOf(false) }
     val active = state.services.filter { it.active }
@@ -104,6 +122,7 @@ fun ServicesScreen(state: HomeUiState, isSignedIn: Boolean, actions: ServicesAct
                     isActive = state.activeService?.subscriptionId == service.subscriptionId,
                     phase = state.phase,
                     updating = state.updating,
+                    autoRenew = autoRenew[service.subscriptionId],
                     actions = actions,
                 )
             }
@@ -111,15 +130,18 @@ fun ServicesScreen(state: HomeUiState, isSignedIn: Boolean, actions: ServicesAct
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.geek_services_manual), style = Geek.type.label, color = colors.onBackground, modifier = Modifier.weight(1f))
-            AddChip(actions)
         }
-        if (state.manualGroups.isEmpty()) {
-            ManualHint()
-        } else {
-            state.manualGroups.forEach { group ->
-                ManualRow(group, selected = state.groupId == group.guid) { actions.onUseManual(group.guid) }
-            }
+        state.manualGroups.forEach { group ->
+            ManualRow(
+                group = group,
+                selected = state.groupId == group.guid,
+                onClick = { actions.onUseManual(group.guid) },
+                // Configs imported one by one live in v2rayNG's default group, which has no link to edit.
+                onEdit = if (group.name != null) ({ actions.onEditManual(group.guid) }) else null,
+            )
         }
+        // Always last: the way to add another link.
+        ManualHint(actions)
     }
 }
 
@@ -146,6 +168,7 @@ private fun ServiceCard(
     isActive: Boolean,
     phase: ConnectionPhase,
     updating: Boolean,
+    autoRenew: AutoRenewState?,
     actions: ServicesActions,
 ) {
     val colors = Geek.colors
@@ -190,6 +213,9 @@ private fun ServiceCard(
                         modifier = Modifier.weight(1f),
                     )
                 }
+                if (autoRenew != null && autoRenew.available) {
+                    AutoRenewRow(autoRenew) { actions.onAutoRenew(service.subscriptionId, it) }
+                }
             }
             TicketDivider()
             Row(
@@ -223,10 +249,57 @@ private fun ServiceCard(
                 SquareButton(GeekIcons.Refresh, stringResource(R.string.geek_services_refresh_description), enabled = !updating, onClick = actions::onRefresh)
                 val url = service.subscriptionUrl
                 if (url != null) {
-                    SquareButton(GeekIcons.Copy, stringResource(R.string.geek_services_copy_description)) { actions.onCopy(url) }
+                    var showQr by rememberSaveable { mutableStateOf(false) }
+                    SquareButton(GeekIcons.Qr, stringResource(R.string.geek_services_qr_title)) { showQr = true }
+                    if (showQr) {
+                        LinkQrDialog(
+                            url = url,
+                            onCopy = {
+                                showQr = false
+                                actions.onCopy(url)
+                            },
+                            onShare = {
+                                showQr = false
+                                actions.onShare(url)
+                            },
+                            onDismiss = { showQr = false },
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+/** The wallet renews this service shortly before it runs out (the server's worker does it). */
+@Composable
+private fun AutoRenewRow(state: AutoRenewState, onChange: (Boolean) -> Unit) {
+    val colors = Geek.colors
+    val note = when (state.lastResult) {
+        "insufficient_funds" -> R.string.geek_autorenew_last_funds
+        "unavailable" -> R.string.geek_autorenew_last_unavailable
+        "pending" -> R.string.geek_autorenew_last_pending
+        "renewed" -> R.string.geek_autorenew_last_renewed
+        else -> R.string.geek_autorenew_hint
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Geek.shapes.tile)
+            .toggleable(value = state.enabled, enabled = !state.busy, role = Role.Switch, onValueChange = onChange)
+            .heightIn(min = 48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.geek_autorenew_title), style = Geek.type.label, color = colors.onGlass)
+            Text(
+                stringResource(note),
+                style = Geek.type.caption,
+                color = if (state.lastResult == "insufficient_funds" || state.lastResult == "unavailable") colors.danger else colors.onGlassMuted,
+            )
+        }
+        GeekSwitch(checked = state.enabled, onCheckedChange = null, enabled = !state.busy)
     }
 }
 
@@ -295,35 +368,12 @@ private fun SquareButton(icon: ImageVector, description: String, enabled: Boolea
     }
 }
 
-/** The link button in the header and "افزودن" share one menu. */
+/** The link button in the header and the manual-links card share one menu. */
 @Composable
 private fun AddLinkButton(actions: ServicesActions) {
     var open by rememberSaveable { mutableStateOf(false) }
     Box {
         GlassIconButton(GeekIcons.Link, stringResource(R.string.geek_services_link_description), { open = true })
-        AddMenu(open, { open = false }, actions)
-    }
-}
-
-@Composable
-private fun AddChip(actions: ServicesActions) {
-    val colors = Geek.colors
-    var open by rememberSaveable { mutableStateOf(false) }
-    Box {
-        GlassSurface(
-            kind = GlassKind.Clear,
-            shape = Geek.shapes.pill,
-            modifier = Modifier.clickable(role = Role.Button) { open = true },
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Icon(GeekIcons.Plus, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(16.dp))
-                Text(stringResource(R.string.geek_services_add), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onBackground)
-            }
-        }
         AddMenu(open, { open = false }, actions)
     }
 }
@@ -350,26 +400,34 @@ private fun AddMenu(open: Boolean, onDismiss: () -> Unit, actions: ServicesActio
     }
 }
 
+/** The whole card is the "add a link" button: it reads like one, so it is one. */
 @Composable
-private fun ManualHint() {
+private fun ManualHint(actions: ServicesActions) {
     val colors = Geek.colors
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, colors.onBackground.copy(alpha = 0.34f), Geek.shapes.row)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(38.dp)) {
-            Icon(GeekIcons.Link, contentDescription = null, tint = colors.onBackground, modifier = Modifier.align(Alignment.Center).size(20.dp))
+    var open by rememberSaveable { mutableStateOf(false) }
+    Box {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(Geek.shapes.row)
+                .border(1.dp, colors.onBackground.copy(alpha = 0.34f), Geek.shapes.row)
+                .clickable(role = Role.Button, onClickLabel = stringResource(R.string.geek_services_add)) { open = true }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(38.dp)) {
+                Icon(GeekIcons.Link, contentDescription = null, tint = colors.onBackground, modifier = Modifier.align(Alignment.Center).size(20.dp))
+            }
+            Text(stringResource(R.string.geek_services_manual_hint), style = Geek.type.body, color = colors.onBackground, modifier = Modifier.weight(1f))
+            Icon(GeekIcons.Plus, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(20.dp))
         }
-        Text(stringResource(R.string.geek_services_manual_hint), style = Geek.type.body, color = colors.onBackground, modifier = Modifier.weight(1f))
+        AddMenu(open, { open = false }, actions)
     }
 }
 
 @Composable
-private fun ManualRow(group: ManualGroup, selected: Boolean, onClick: () -> Unit) {
+private fun ManualRow(group: ManualGroup, selected: Boolean, onClick: () -> Unit, onEdit: (() -> Unit)?) {
     val colors = Geek.colors
     GlassSurface(
         kind = if (selected) GlassKind.Milk else GlassKind.Clear,
@@ -396,6 +454,19 @@ private fun ManualRow(group: ManualGroup, selected: Boolean, onClick: () -> Unit
                 style = Geek.type.caption,
                 color = if (selected) colors.onGlassMuted else colors.onBackgroundMuted,
             )
+            if (onEdit != null) {
+                val label = stringResource(R.string.geek_links_edit_title)
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(role = Role.Button, onClickLabel = label, onClick = onEdit)
+                        .semantics { contentDescription = label },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(GeekIcons.Pencil, contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
+                }
+            }
         }
     }
 }

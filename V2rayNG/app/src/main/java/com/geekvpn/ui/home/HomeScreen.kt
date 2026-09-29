@@ -1,15 +1,29 @@
 package com.geekvpn.ui.home
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -59,7 +74,9 @@ import com.geekvpn.connection.TrafficMeter
 import com.geekvpn.smartconnect.SmartStage
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatGib
+import com.geekvpn.ui.common.formatNumber
 import com.geekvpn.ui.components.CountryBadge
+import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GeekSwitch
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
@@ -105,7 +122,7 @@ fun HomeScreen(
             ServerCard(state, onOpenServers)
         }
 
-        if (phase != ConnectionPhase.On) {
+        AnimatedVisibility(visible = phase != ConnectionPhase.On, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 RouteTile(state.route, onOpenRoute, Modifier.weight(1f))
                 AutoServerTile(state.autoServer, onAutoServerChange, Modifier.weight(1f))
@@ -114,8 +131,9 @@ fun HomeScreen(
 
         StatsRow(state)
 
-        if (phase == ConnectionPhase.On) {
-            state.activeService?.let { QuotaBar(it) }
+        val service = state.activeService
+        AnimatedVisibility(visible = phase == ConnectionPhase.On && service != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+            service?.let { QuotaBar(it) }
         }
     }
 }
@@ -134,6 +152,29 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
             else -> R.string.geek_home_connect_description
         }
     )
+    // Turning on fills the ring from the bottom, both halves at once, until
+    // they meet at the top; then one soft ring pulses out. A press sinks the button a little.
+    val fill = remember { Animatable(if (on) 1f else 0f) }
+    val pulse = remember { Animatable(1f) }
+    LaunchedEffect(on) {
+        if (on) {
+            if (fill.value < 1f) {
+                fill.animateTo(1f, tween(1_100, easing = FastOutSlowInEasing))
+                pulse.snapTo(0f)
+                pulse.animateTo(1f, tween(900, easing = LinearOutSlowInEasing))
+            }
+        } else {
+            pulse.snapTo(1f)
+            fill.animateTo(0f, tween(250))
+        }
+    }
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.94f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium),
+        label = "press",
+    )
     val spin by rememberInfiniteTransition(label = "spin").animateFloat(
         initialValue = 0f,
         targetValue = 360f,
@@ -147,15 +188,30 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
             when {
                 on -> {
                     drawCircle(colors.onBackground.copy(alpha = 0.22f), radius = radius, style = Stroke(stroke * 2))
-                    drawArc(
-                        color = colors.onBackground,
-                        startAngle = 110f,
-                        sweepAngle = 300f,
-                        useCenter = false,
-                        topLeft = center - androidx.compose.ui.geometry.Offset(radius, radius),
-                        size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
-                        style = Stroke(stroke * 2, cap = StrokeCap.Round),
-                    )
+                    val half = 180f * fill.value
+                    if (fill.value >= 1f) {
+                        drawCircle(colors.onBackground, radius = radius, style = Stroke(stroke * 2))
+                    } else if (half > 0f) {
+                        // Two halves from the bottom (90°), one each way, meeting at the top.
+                        for (direction in listOf(1f, -1f)) {
+                            drawArc(
+                                color = colors.onBackground,
+                                startAngle = 90f,
+                                sweepAngle = half * direction,
+                                useCenter = false,
+                                topLeft = center - androidx.compose.ui.geometry.Offset(radius, radius),
+                                size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
+                                style = Stroke(stroke * 2, cap = StrokeCap.Round),
+                            )
+                        }
+                    }
+                    if (pulse.value < 1f) {
+                        drawCircle(
+                            color = colors.onBackground.copy(alpha = 0.5f * (1f - pulse.value)),
+                            radius = radius + 10.dp.toPx() * pulse.value,
+                            style = Stroke(stroke * 2),
+                        )
+                    }
                 }
                 busy -> drawArc(
                     color = colors.onBackground,
@@ -184,7 +240,17 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
             shape = CircleShape,
             modifier = Modifier
                 .size(192.dp)
-                .clickable(role = Role.Button, onClickLabel = description, onClick = onClick)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
+                .clickable(
+                    interactionSource = interaction,
+                    indication = null,
+                    role = Role.Button,
+                    onClickLabel = description,
+                    onClick = onClick,
+                )
                 .semantics { contentDescription = description },
         ) {
             Image(
@@ -201,43 +267,58 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
 @Composable
 private fun StatusText(state: HomeUiState) {
     val colors = Geek.colors
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
-    ) {
-        when (state.phase) {
-            ConnectionPhase.On -> {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors.successBright))
-                    Text(stringResource(R.string.geek_home_on_title), style = Geek.type.row, color = colors.onBackground)
+    // Busy phases share one layout, so a new smart-connect step only swaps its text.
+    val look = when (state.phase) {
+        ConnectionPhase.On, ConnectionPhase.Off -> state.phase
+        else -> ConnectionPhase.Connecting
+    }
+    AnimatedContent(
+        targetState = look,
+        transitionSpec = {
+            (fadeIn(tween(GeekMotion.PAGE_MS)) + slideInVertically(tween(GeekMotion.PAGE_MS)) { it / 4 }) togetherWith
+                fadeOut(tween(GeekMotion.FADE_OUT_MS))
+        },
+        contentAlignment = Alignment.Center,
+        label = "status",
+    ) { shownLook ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        ) {
+            when (shownLook) {
+                ConnectionPhase.On -> {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors.successBright))
+                        Text(stringResource(R.string.geek_home_on_title), style = Geek.type.row, color = colors.onBackground)
+                    }
+                    ConnectionTimer(state.connectedSince)
                 }
-                ConnectionTimer(state.connectedSince)
-            }
-            ConnectionPhase.Off -> {
-                Text(
-                    stringResource(R.string.geek_home_off_title),
-                    style = Geek.type.pageTitle,
-                    color = colors.onBackground,
-                )
-                Text(
-                    stringResource(R.string.geek_home_off_hint),
-                    style = Geek.type.caption,
-                    color = colors.onBackgroundMuted,
-                )
-            }
-            else -> {
-                Text(
-                    busyText(state.phase, state.stage),
-                    style = Geek.type.sectionTitle,
-                    color = colors.onBackground,
-                )
-                if (state.phase != ConnectionPhase.Stopping) {
+                ConnectionPhase.Off -> {
                     Text(
-                        stringResource(R.string.geek_smart_cancel_hint),
+                        stringResource(R.string.geek_home_off_title),
+                        style = Geek.type.pageTitle,
+                        color = colors.onBackground,
+                    )
+                    Text(
+                        stringResource(R.string.geek_home_off_hint),
                         style = Geek.type.caption,
                         color = colors.onBackgroundMuted,
                     )
+                }
+                else -> {
+                    Text(
+                        busyText(state.phase, state.stage),
+                        style = Geek.type.sectionTitle,
+                        color = colors.onBackground,
+                    )
+                    if (state.phase != ConnectionPhase.Stopping) {
+                        Text(
+                            stringResource(R.string.geek_smart_cancel_hint),
+                            style = Geek.type.caption,
+                            color = colors.onBackgroundMuted,
+                        )
+                    }
                 }
             }
         }
@@ -415,9 +496,16 @@ private fun StatsRow(state: HomeUiState) {
             )
         }
         StatDivider()
-        StatCell(GeekIcons.Gauge, stringResource(R.string.geek_home_ping), Modifier.weight(1f)) {
-            val delay = state.selected?.delayMs ?: 0
-            NumberWithUnit(if (delay > 0) delay.toString() to "ms" else "—" to "")
+        if (on) {
+            // Home-On.html: «اتصالات», the connections the core carries now.
+            StatCell(GeekIcons.Connections, stringResource(R.string.geek_home_connections), Modifier.weight(1f)) {
+                NumberWithUnit(formatNumber(state.connections.toLong(), locale) to "")
+            }
+        } else {
+            StatCell(GeekIcons.Gauge, stringResource(R.string.geek_home_ping), Modifier.weight(1f)) {
+                val delay = state.selected?.delayMs ?: 0
+                NumberWithUnit(if (delay > 0) delay.toString() to "ms" else "—" to "")
+            }
         }
     }
     val rowModifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal = 10.dp, vertical = 12.dp)

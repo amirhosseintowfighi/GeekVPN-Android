@@ -245,6 +245,14 @@ class ShopViewModel : ViewModel {
         requote()
     }
 
+    /** The code of the offer banner (Home, shop): applied to whichever plan is shown, until cleared. */
+    private var offerCoupon: String? = null
+
+    fun useOffer(code: String) {
+        offerCoupon = code
+        if (state.value.plan != null) applyCoupon(code)
+    }
+
     fun applyCoupon(code: String) {
         val plan = state.value.plan?.planId ?: return
         val trimmed = code.trim()
@@ -263,6 +271,7 @@ class ShopViewModel : ViewModel {
     }
 
     fun clearCoupon() {
+        offerCoupon = null
         state.update { it.copy(coupon = null) }
         requote()
     }
@@ -511,6 +520,7 @@ class ShopViewModel : ViewModel {
             )
         }
         requote()
+        offerCoupon?.let { code -> if (plan != null && state.value.coupon == null) applyCoupon(code) }
     }
 
     private fun requote() {

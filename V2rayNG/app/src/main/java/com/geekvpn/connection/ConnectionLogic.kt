@@ -36,4 +36,36 @@ object ConnectionLogic {
     /** The fastest server that answered, or null when none did. Ties keep list order. */
     fun best(delays: List<Delay>): String? =
         delays.filter { it.millis > 0 }.minByOrNull { it.millis }?.guid
+
+    /**
+     * Fastest first by the last test: answered ones by delay, then untested,
+     * then failed. Stable, so equal delays keep the order they came in.
+     */
+    fun <T> byDelay(items: List<T>, delay: (T) -> Long): List<T> =
+        items.sortedBy {
+            val ms = delay(it)
+            when {
+                ms > 0 -> ms
+                ms == 0L -> Long.MAX_VALUE - 1
+                else -> Long.MAX_VALUE
+            }
+        }
+
+    /** Starred servers first; each part keeps the subscription's own order. */
+    fun <T> favoritesFirst(items: List<T>, favorite: (T) -> Boolean): List<T> =
+        items.filter(favorite) + items.filterNot(favorite)
+
+    /**
+     * Where smart connect goes when a direct service could not connect at all:
+     * another active service of the account that runs through a tunnel
+     * (tunnel or elite). Null for anything but a direct service, or when
+     * there is no such service.
+     */
+    fun tunnelFallback(failed: ServiceStatus?, services: List<ServiceStatus>): ServiceStatus? {
+        if (failed?.tier != TIER_DIRECT) return null
+        return services.firstOrNull { it.active && it.subscriptionId != failed.subscriptionId && it.tier in TUNNEL_TIERS }
+    }
+
+    private const val TIER_DIRECT = "direct"
+    private val TUNNEL_TIERS = setOf("tunnel", "elite")
 }

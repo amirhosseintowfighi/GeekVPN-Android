@@ -14,8 +14,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
+import com.geekvpn.lock.AppLock
+import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
+import com.geekvpn.ui.common.DeviceKind
 import com.geekvpn.ui.home.HomeActivity
 import com.geekvpn.ui.theme.GeekTheme
 import com.v2ray.ang.AppConfig
@@ -34,6 +37,8 @@ class LaunchActivity : BaseComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Push.init(applicationContext)
+        AppLock.install(application)
         if (savedInstanceState == null && GeekGraph.session.session.value != Session.SignedOut) {
             GeekGraph.syncOnLaunch()
             openMain()
@@ -66,6 +71,8 @@ class LaunchActivity : BaseComponentActivity() {
                     expiresAt = current.expiresAt,
                     onReopen = viewModel::reopenTelegram,
                     onCancel = viewModel::cancel,
+                    deepLink = current.deepLink.takeIf { it.startsWith("https://") },
+                    qrFirst = DeviceKind.isTv(this@LaunchActivity),
                 )
                 LoginUiState.Syncing -> SyncingScreen()
                 is LoginUiState.Username -> UsernameScreen(

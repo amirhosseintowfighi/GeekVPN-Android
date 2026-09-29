@@ -12,6 +12,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,10 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
@@ -37,20 +42,34 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
+import com.geekvpn.account.AutoRenewViewModel
+import com.geekvpn.account.UsageNotifier
+import com.geekvpn.autoconnect.AutoConnect
+import com.geekvpn.lock.AppLock
+import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
 import com.geekvpn.scanner.CleanIp
 import com.geekvpn.shop.Tier
+import com.geekvpn.ui.about.AboutActivity
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
 import com.geekvpn.ui.account.AccountViewModel
+import com.geekvpn.ui.advanced.AdvancedActivity
+import com.geekvpn.ui.autoconnect.AutoConnectActivity
 import com.geekvpn.ui.common.GeekHeader
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
+import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GeekTab
+import com.geekvpn.ui.components.geekPage
+import com.geekvpn.ui.links.LinkEditActivity
 import com.geekvpn.ui.login.LaunchActivity
+import com.geekvpn.ui.perapp.PerAppActivity
+import com.geekvpn.ui.promo.PromoBanner
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
+import com.geekvpn.ui.referral.ReferralActivity
 import com.geekvpn.ui.scanner.ScannerActions
 import com.geekvpn.ui.scanner.ScannerEvent
 import com.geekvpn.ui.scanner.ScannerScreen
@@ -65,18 +84,23 @@ import com.geekvpn.ui.shop.ShopSheet
 import com.geekvpn.ui.shop.ShopUiState
 import com.geekvpn.ui.shop.ShopViewModel
 import com.geekvpn.ui.shop.WalletSheet
+import com.geekvpn.ui.speedtest.SpeedTestActivity
+import com.geekvpn.ui.support.ReportActivity
+import com.geekvpn.ui.support.TicketsActivity
 import com.geekvpn.ui.theme.GeekTheme
+import com.geekvpn.ui.update.UpdateActions
+import com.geekvpn.ui.update.UpdateBanner
+import com.geekvpn.ui.update.UpdateSheet
+import com.geekvpn.ui.usage.UsageActivity
+import com.geekvpn.ui.usage.UsageChart
+import com.geekvpn.update.AppUpdater
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.enums.PermissionType
 import com.v2ray.ang.handler.SettingsManager
-import com.v2ray.ang.ui.AboutActivity
+import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.ui.base.HelperBaseComponentActivity
-import com.v2ray.ang.ui.main.MainActivity
-import com.v2ray.ang.ui.perappproxy.PerAppProxyActivity
-import com.v2ray.ang.ui.subscription.SubEditActivity
-import com.v2ray.ang.ui.subscription.SubSettingActivity
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -87,14 +111,15 @@ private enum class Overlay { None, Servers, Route, Scanner }
 
 /**
  * GeekVPN's main screen: the four tabs of the design (خانه، سرویس‌ها،
- * فروشگاه، حساب) over the shared backdrop. v2rayNG's own screens stay
- * reachable from Account ("تنظیمات پیشرفته", "پروفایل‌ها").
+ * فروشگاه، حساب) over the shared backdrop, with Servers and the scanner
+ * opened on top of them.
  */
 class HomeActivity : HelperBaseComponentActivity() {
     private val home: HomeViewModel by viewModels()
     private val account: AccountViewModel by viewModels()
     private val shop: ShopViewModel by viewModels()
     private val scanner: ScannerViewModel by viewModels()
+    private val autoRenew: AutoRenewViewModel by viewModels { AutoRenewViewModel.factory() }
 
     /** The open tab. Here rather than in composition so shop events can switch it. */
     private var tab by mutableStateOf(GeekTab.Home)
@@ -115,6 +140,14 @@ class HomeActivity : HelperBaseComponentActivity() {
         savedInstanceState?.getString(STATE_TAB)?.let { saved -> GeekTab.entries.firstOrNull { it.name == saved }?.let { tab = it } }
         GeekGraph.syncOnLaunch()
         handlePaymentReturn(intent)
+        handleRenew(intent)
+        handleConnect(intent)
+        UsageNotifier.schedule(this)
+        // A force-stop drops the Wi-Fi callback; opening the app puts it back.
+        lifecycleScope.launch(Dispatchers.IO) { AutoConnect.sync(applicationContext) }
+        Push.init(applicationContext)
+        GeekGraph.syncPushToken()
+        AppLock.install(application)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -123,6 +156,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                         when (event) {
                             is HomeEvent.Message -> showMessage(event.text)
                             is HomeEvent.Text -> Toast.makeText(this@HomeActivity, event.text, Toast.LENGTH_LONG).show()
+                            is HomeEvent.SessionEnded -> Toast.makeText(this@HomeActivity, sessionSummary(event), Toast.LENGTH_LONG).show()
                             is HomeEvent.Failed -> Toast.makeText(
                                 this@HomeActivity,
                                 getString(R.string.geek_smart_failed, event.attempts),
@@ -132,6 +166,8 @@ class HomeActivity : HelperBaseComponentActivity() {
                     }
                 }
                 launch { shop.events.collect { onShopEvent(it) } }
+                launch { autoRenew.failed.collect { showMessage(R.string.geek_autorenew_failed) } }
+                launch { GeekGraph.promos.refresh() }
                 launch {
                     scanner.events.collect { event ->
                         when (event) {
@@ -156,18 +192,45 @@ class HomeActivity : HelperBaseComponentActivity() {
     override fun onStart() {
         super.onStart()
         home.onForeground(true)
+        // v2rayNG's "a setting changed" signal: rebuild a running connection with it.
+        if (SettingsChangeManager.consumeRestartService()) home.reconnectIfRunning()
         // Back from a gateway's page without its link: refresh anyway.
         shop.onReturn(null)
+        // Not on Google Play: this is how a customer learns of a new version.
+        AppUpdater.check()
+        // An answer from support shows on «تیکت‌های من» without opening the bot.
+        account.refreshTickets()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handlePaymentReturn(intent)
+        handleRenew(intent)
+        handleConnect(intent)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(STATE_TAB, tab.name)
+    }
+
+    /** From a "running out" notification: that service's renewal, in the shop. */
+    private fun handleRenew(intent: Intent?) {
+        val subscriptionId = intent?.getStringExtra(EXTRA_RENEW) ?: return
+        intent.removeExtra(EXTRA_RENEW)
+        servicesActions(openShop = { tab = GeekTab.Shop }).onRenew(subscriptionId)
+    }
+
+    /** From the tile, widget or a shortcut with «سرور: خودکار» on: smart connect (`QuickConnect`). */
+    private fun handleConnect(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_CONNECT, false) != true) return
+        intent.removeExtra(EXTRA_CONNECT)
+        tab = GeekTab.Home
+        lifecycleScope.launch {
+            // A cold start reads the servers asynchronously.
+            home.awaitServers()
+            requestConnect()
+        }
     }
 
     private fun handlePaymentReturn(intent: Intent?) {
@@ -240,9 +303,21 @@ class HomeActivity : HelperBaseComponentActivity() {
                 }
             }
             val signedIn = accountState.session is Session.SignedIn
+            val update by AppUpdater.state.collectAsStateWithLifecycle()
+            var updateOpen by rememberSaveable { mutableStateOf(false) }
+            var dismissedVersion by remember { mutableStateOf(AppUpdater.dismissedVersion()) }
+            // Install tapped before GeekVPN may install apps: say what to allow.
+            var installNeedsPermission by remember { mutableStateOf(false) }
+            val bannerOffer = update.offer?.takeIf { it.required || it.versionName != dismissedVersion }
+            val promo by GeekGraph.promos.shown.collectAsStateWithLifecycle()
+            val openPromo = { code: String? ->
+                tab = GeekTab.Shop
+                if (code != null && signedIn) shop.useOffer(code)
+            }
 
-            BackHandler(enabled = shopState.sheet != null || overlay != Overlay.None || tab != GeekTab.Home) {
+            BackHandler(enabled = shopState.sheet != null || updateOpen || overlay != Overlay.None || tab != GeekTab.Home) {
                 when {
+                    updateOpen -> updateOpen = false
                     shopState.sheet != null -> shop.closeSheet()
                     overlay == Overlay.Scanner -> overlay = scannerBack
                     overlay != Overlay.None -> overlay = Overlay.None
@@ -253,91 +328,171 @@ class HomeActivity : HelperBaseComponentActivity() {
                 if (tab == GeekTab.Shop) shop.load()
             }
 
+            val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+            // The Route sheet opens over the tabs; only Servers and Scanner replace them.
+            val page = if (overlay == Overlay.Route) Overlay.None else overlay
             GeekBackdrop {
-                if (overlay == Overlay.Servers) {
-                    ServersScreen(
-                        state = state,
-                        onBack = { overlay = Overlay.None },
-                        onSelect = home::selectServer,
-                        onAutoServerChange = home::setAutoServer,
-                        onTest = home::testServers,
-                        onUpdate = home::refreshAccount,
-                        updating = state.updating,
-                        onCleanIp = openScanner,
-                        onFailoverChange = home::setFailover,
-                    )
-                } else if (overlay == Overlay.Scanner) {
-                    ScannerScreen(
-                        state = scannerState,
-                        actions = object : ScannerActions {
-                            override fun onBack() {
-                                overlay = scannerBack
-                            }
-                            override fun onStart() = scanner.start()
-                            override fun onStop() = scanner.stop()
-                            override fun onDownloadTest(enabled: Boolean) = scanner.setDownloadTest(enabled)
-                            override fun onUse(ip: CleanIp) = scanner.use(ip)
-                            override fun onRevert() = scanner.revert()
-                        },
-                    )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .statusBarsPadding()
-                            .navigationBarsPadding()
-                            // Room for the tab bar's dock above the system navigation bar.
-                            .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp),
-                        verticalArrangement = Arrangement.spacedBy(18.dp),
-                    ) {
-                        if (tab == GeekTab.Home) {
-                            GeekHeader(
-                                balance = state.balance,
-                                onWallet = if (signedIn) shop::openWallet else null,
-                            )
-                        }
-                        when (tab) {
-                            GeekTab.Home -> HomeScreen(
+                AnimatedContent(
+                    targetState = page,
+                    transitionSpec = { geekPage(forward = targetState.ordinal > initialState.ordinal, rtl = rtl) },
+                    modifier = Modifier.fillMaxSize(),
+                    label = "page",
+                ) { shownPage ->
+                    Box(Modifier.fillMaxSize()) {
+                        if (shownPage == Overlay.Servers) {
+                            ServersScreen(
                                 state = state,
-                                onConnect = ::requestConnect,
-                                onDisconnect = home::disconnect,
-                                onOpenServers = { overlay = Overlay.Servers },
-                                onOpenRoute = { overlay = Overlay.Route },
+                                onBack = { overlay = Overlay.None },
+                                onSelect = home::selectServer,
                                 onAutoServerChange = home::setAutoServer,
-                                onChooseService = { tab = GeekTab.Services },
+                                onTest = home::testServers,
+                                onUpdate = home::refreshAccount,
+                                updating = state.updating,
+                                onCleanIp = openScanner,
+                                onFailoverChange = home::setFailover,
+                                onFavorite = home::toggleFavorite,
                             )
-                            GeekTab.Services -> ServicesScreen(
-                                state = state,
-                                isSignedIn = signedIn,
-                                actions = servicesActions(openShop = { tab = GeekTab.Shop }),
+                        } else if (shownPage == Overlay.Scanner) {
+                            ScannerScreen(
+                                state = scannerState,
+                                actions = object : ScannerActions {
+                                    override fun onBack() {
+                                        overlay = scannerBack
+                                    }
+                                    override fun onStart() = scanner.start()
+                                    override fun onStop() = scanner.stop()
+                                    override fun onDownloadTest(enabled: Boolean) = scanner.setDownloadTest(enabled)
+                                    override fun onUse(ip: CleanIp) = scanner.use(ip)
+                                    override fun onRevert() = scanner.revert()
+                                },
                             )
-                            GeekTab.Shop -> ShopScreen(state = shopState, actions = shopActions)
-                            GeekTab.Account -> AccountScreen(
-                                state = accountState,
-                                route = state.route,
-                                autoServer = state.autoServer,
-                                logoutAsked = logoutAsked,
-                                actions = accountActions(
-                                    openServers = { overlay = Overlay.Servers },
-                                    openRoute = { overlay = Overlay.Route },
-                                    openCleanIp = { openScanner?.invoke() },
-                                ),
-                                showCleanIp = openScanner != null,
-                                onAutoUpdate = account::setAutoUpdate,
-                                onTheme = account::setTheme,
-                                onAskLogout = account::askLogout,
-                                onLogout = account::logout,
+                        } else {
+                            AnimatedContent(
+                                targetState = tab,
+                                transitionSpec = { geekPage(forward = targetState.ordinal > initialState.ordinal, rtl = rtl) },
+                                modifier = Modifier.fillMaxSize(),
+                                label = "tab",
+                            ) { shownTab ->
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(rememberScrollState())
+                                        .statusBarsPadding()
+                                        .navigationBarsPadding()
+                                        // Room for the tab bar's dock above the system navigation bar.
+                                        .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                                ) {
+                                    if (shownTab == GeekTab.Home) {
+                                        GeekHeader(
+                                            balance = state.balance,
+                                            onWallet = if (signedIn) shop::openWallet else null,
+                                        )
+                                        AnimatedVisibility(bannerOffer != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+                                            bannerOffer?.let { offer ->
+                                                UpdateBanner(
+                                                    offer = offer,
+                                                    onOpen = { updateOpen = true },
+                                                    onClose = {
+                                                        AppUpdater.dismiss(offer)
+                                                        dismissedVersion = offer.versionName
+                                                    },
+                                                )
+                                            }
+                                        }
+                                    }
+                                    if (shownTab == GeekTab.Home || shownTab == GeekTab.Shop) {
+                                        AnimatedVisibility(promo != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+                                            promo?.let { offer ->
+                                                PromoBanner(
+                                                    promo = offer,
+                                                    onOpen = { openPromo(offer.couponCode) },
+                                                    onClose = { GeekGraph.promos.dismiss(offer) },
+                                                )
+                                            }
+                                        }
+                                    }
+                                    when (shownTab) {
+                                        GeekTab.Home -> HomeScreen(
+                                            state = state,
+                                            onConnect = ::requestConnect,
+                                            onDisconnect = home::disconnect,
+                                            onOpenServers = { overlay = Overlay.Servers },
+                                            onOpenRoute = { overlay = Overlay.Route },
+                                            onAutoServerChange = home::setAutoServer,
+                                            onChooseService = { tab = GeekTab.Services },
+                                        )
+                                        GeekTab.Services -> {
+                                            val switches by autoRenew.switches.collectAsStateWithLifecycle()
+                                            val serviceIds = state.services.filter { it.active }.map { it.subscriptionId }
+                                            // Each visit re-reads them: the worker may have renewed (or failed to) since.
+                                            LaunchedEffect(signedIn, serviceIds) { if (signedIn) autoRenew.load(serviceIds) }
+                                            ServicesScreen(
+                                                state = state,
+                                                isSignedIn = signedIn,
+                                                actions = servicesActions(openShop = { tab = GeekTab.Shop }),
+                                                autoRenew = switches,
+                                            )
+                                        }
+                                        GeekTab.Shop -> ShopScreen(state = shopState, actions = shopActions)
+                                        GeekTab.Account -> AccountScreen(
+                                            state = accountState,
+                                            route = state.route,
+                                            autoServer = state.autoServer,
+                                            logoutAsked = logoutAsked,
+                                            actions = accountActions(
+                                                openServers = { overlay = Overlay.Servers },
+                                                openRoute = { overlay = Overlay.Route },
+                                                openCleanIp = { openScanner?.invoke() },
+                                                openUpdate = {
+                                                    if (update.offer != null) updateOpen = true else AppUpdater.check(force = true)
+                                                },
+                                            ),
+                                            showCleanIp = openScanner != null,
+                                            update = if (AppUpdater.enabled) update else null,
+                                            onAutoUpdate = account::setAutoUpdate,
+                                            onTheme = account::setTheme,
+                                            onAskLogout = account::askLogout,
+                                            onLogout = account::logout,
+                                            onAppLock = { on -> if (!account.setAppLock(on)) showMessage(R.string.geek_lock_unavailable) },
+                                        )
+                                    }
+                                }
+                            }
+                            GeekBottomNav(
+                                selected = tab,
+                                onSelect = { tab = it },
+                                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
                             )
                         }
                     }
-                    GeekBottomNav(
-                        selected = tab,
-                        onSelect = { tab = it },
-                        modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-                    )
                 }
                 ShopSheetHost(shopState)
+                if (updateOpen && update.offer != null) {
+                    Box(Modifier.fillMaxSize()) {
+                        UpdateSheet(
+                            state = update,
+                            needsPermission = installNeedsPermission,
+                            actions = object : UpdateActions {
+                                override fun onDownload() = AppUpdater.download(this@HomeActivity)
+                                override fun onCancel() = AppUpdater.cancelDownload()
+                                override fun onInstall() {
+                                    installNeedsPermission = !AppUpdater.install(this@HomeActivity)
+                                }
+                                override fun onLater() {
+                                    update.offer?.let { offer ->
+                                        AppUpdater.dismiss(offer)
+                                        dismissedVersion = offer.versionName
+                                    }
+                                    updateOpen = false
+                                }
+                                override fun onDismiss() {
+                                    updateOpen = false
+                                }
+                            },
+                        )
+                    }
+                }
                 if (overlay == Overlay.Route) {
                     Box(Modifier.fillMaxSize()) {
                         RouteSheet(
@@ -346,7 +501,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                                 home.setRoute(it)
                                 overlay = Overlay.None
                             },
-                            onPerApp = { startActivity(Intent(this@HomeActivity, PerAppProxyActivity::class.java)) },
+                            onPerApp = { startActivity(Intent(this@HomeActivity, PerAppActivity::class.java)) },
                             onDismiss = { overlay = Overlay.None },
                         )
                     }
@@ -422,7 +577,7 @@ class HomeActivity : HelperBaseComponentActivity() {
             shop.renew(subscriptionId, title, card?.tier)
             openShop()
         }
-        override fun onAddSubscription() = startActivity(Intent(this@HomeActivity, SubEditActivity::class.java))
+        override fun onAddSubscription() = startActivity(LinkEditActivity.intent(this@HomeActivity))
         override fun onImportClipboard() {
             val clipboard = getSystemService(ClipboardManager::class.java)
             val text = clipboard?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(this@HomeActivity)?.toString()
@@ -436,18 +591,40 @@ class HomeActivity : HelperBaseComponentActivity() {
             getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(getString(R.string.geek_brand), url))
             showMessage(R.string.geek_services_copied)
         }
+        override fun onShare(url: String) {
+            val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, url)
+            try {
+                startActivity(Intent.createChooser(send, getString(R.string.geek_services_share)))
+            } catch (e: ActivityNotFoundException) {
+                LogUtil.w(AppConfig.TAG, "Services: no app to share the link with", e)
+                onCopy(url)
+            }
+        }
         override fun onUseManual(groupId: String) = home.selectGroup(groupId)
+        override fun onEditManual(groupId: String) = startActivity(LinkEditActivity.intent(this@HomeActivity, groupId))
+        override fun onAutoRenew(subscriptionId: String, enabled: Boolean) = autoRenew.set(subscriptionId, enabled)
     }
 
-    private fun accountActions(openServers: () -> Unit, openRoute: () -> Unit, openCleanIp: () -> Unit) = object : AccountActions {
+    private fun accountActions(
+        openServers: () -> Unit,
+        openRoute: () -> Unit,
+        openCleanIp: () -> Unit,
+        openUpdate: () -> Unit,
+    ) = object : AccountActions {
         override fun onWallet() = shop.openWallet()
         override fun onServers() = openServers()
         override fun onRoute() = openRoute()
         override fun onCleanIp() = openCleanIp()
-        override fun onAdvanced() = startActivity(Intent(this@HomeActivity, MainActivity::class.java))
-        override fun onProfiles() = startActivity(Intent(this@HomeActivity, SubSettingActivity::class.java))
+        override fun onAdvanced() = startActivity(Intent(this@HomeActivity, AdvancedActivity::class.java))
         override fun onSupport() = openBot()
         override fun onAbout() = startActivity(Intent(this@HomeActivity, AboutActivity::class.java))
+        override fun onUpdate() = openUpdate()
+        override fun onReport() = startActivity(Intent(this@HomeActivity, ReportActivity::class.java))
+        override fun onTickets() = startActivity(Intent(this@HomeActivity, TicketsActivity::class.java))
+        override fun onAutoConnect() = startActivity(Intent(this@HomeActivity, AutoConnectActivity::class.java))
+        override fun onSpeedTest() = startActivity(Intent(this@HomeActivity, SpeedTestActivity::class.java))
+        override fun onReferral() = startActivity(Intent(this@HomeActivity, ReferralActivity::class.java))
+        override fun onUsage() = startActivity(Intent(this@HomeActivity, UsageActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 
@@ -467,9 +644,32 @@ class HomeActivity : HelperBaseComponentActivity() {
 
     private fun showMessage(text: Int) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 
+    /** "اتصال قطع شد · ۰۱:۲۰:۳۵ · ۳۵۰ مگابایت". */
+    private fun sessionSummary(event: HomeEvent.SessionEnded): String {
+        val locale = resources.configuration.locales[0]
+        val seconds = event.durationMs / 1000
+        val time = String.format(locale, "%02d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60)
+        val bytes = event.bytes ?: return getString(R.string.geek_session_summary_time, time)
+        val (size, unit) = UsageChart.size(bytes, locale)
+        val unitLabel = getString(
+            when (unit) {
+                UsageChart.SizeUnit.Kib -> R.string.geek_usage_kb
+                UsageChart.SizeUnit.Mib -> R.string.geek_usage_mb
+                UsageChart.SizeUnit.Gib -> R.string.geek_usage_gb
+            },
+        )
+        return getString(R.string.geek_session_summary, time, "$size $unitLabel")
+    }
+
     companion object {
         /** Set by `PaymentReturnActivity`: ok | pending | failed | unknown. */
         const val EXTRA_PAYMENT_RESULT = "com.geekvpn.extra.PAYMENT_RESULT"
+
+        /** Set by `UsageNotifier`: the subscription whose renewal to open. */
+        const val EXTRA_RENEW = "com.geekvpn.extra.RENEW"
+
+        /** Set by `QuickConnect`: start smart connect once Home is up. */
+        const val EXTRA_CONNECT = "com.geekvpn.extra.CONNECT"
         private const val STATE_TAB = "geek_tab"
     }
 }

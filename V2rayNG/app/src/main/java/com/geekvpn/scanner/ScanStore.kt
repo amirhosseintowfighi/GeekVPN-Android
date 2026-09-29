@@ -1,5 +1,6 @@
 package com.geekvpn.scanner
 
+import com.geekvpn.account.SubscriptionPlan
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
 import com.google.gson.annotations.SerializedName
@@ -25,6 +26,9 @@ data class ScanRecord(val results: List<CleanIp>, val scannedAt: Long) {
         const val STALE_AFTER_MS = 24 * 60 * 60 * 1000L
     }
 }
+
+/** Whether a config's domain resolves to Cloudflare, and when that was checked. */
+data class CdnVerdict(val behind: Boolean, val checkedAt: Long)
 
 /** The address a config uses on one network instead of its own. */
 data class IpOverride(val ip: String, val appliedAt: Long, val latencyMs: Long)
@@ -56,6 +60,26 @@ class ScanStore(private val storage: MMKV, private val gson: Gson = Gson()) {
         storage.removeValueForKey(overrideKey(profileKey, network))
     }
 
+    fun cdnVerdict(target: CdnTarget): CdnVerdict? = read(verdictKey(target), CdnVerdict::class.java)
+
+    fun setCdnVerdict(target: CdnTarget, verdict: CdnVerdict) {
+        storage.encode(verdictKey(target), gson.toJson(verdict))
+    }
+
+    /**
+     * v2rayNG subscription GUIDs of the account's `direct` services. The scanner
+     * applies to these and to manual links only ([allows]); written by
+     * `AccountSync`, read in the VPN process too.
+     */
+    var directServices: Set<String>
+        get() = storage.decodeString(KEY_DIRECT)?.split(',')?.filter { it.isNotEmpty() }?.toSet().orEmpty()
+        set(value) {
+            storage.encode(KEY_DIRECT, value.sorted().joinToString(","))
+        }
+
+    /** Whether a config of subscription [subscriptionId] may use clean addresses at all. */
+    fun scanAllowed(subscriptionId: String): Boolean = allows(subscriptionId, directServices)
+
     /** The scanner screen's "download test" switch; off unless the customer turns it on. */
     var downloadTest: Boolean
         get() = storage.decodeBool(KEY_DOWNLOAD, false)
@@ -75,12 +99,22 @@ class ScanStore(private val storage: MMKV, private val gson: Gson = Gson()) {
     companion object {
         const val KEEP = 5
         private const val KEY_DOWNLOAD = "pref|download_test"
+        private const val KEY_DIRECT = "account|direct_services"
+
+        /**
+         * Tunnel and elite services reach our own servers, where a Cloudflare
+         * address means nothing; only `direct` services and links the customer
+         * added by hand go through the CDN themselves.
+         */
+        fun allows(subscriptionId: String, directServices: Set<String>): Boolean =
+            !SubscriptionPlan.isAccountGuid(subscriptionId) || subscriptionId in directServices
 
         /** Lowest latency first; jitter breaks ties, since a steady link beats a lucky one. */
         fun rank(results: List<CleanIp>): List<CleanIp> =
             results.distinctBy { it.ip }.sortedWith(compareBy<CleanIp> { it.latencyMs + it.jitterMs * 2 }.thenBy { it.pingMs })
 
         private fun resultKey(target: CdnTarget, network: String) = "scan|${target.sni}|${target.port}|$network"
+        private fun verdictKey(target: CdnTarget) = "cdn|${target.sni}|${target.host}"
         private fun overrideKey(profileKey: String, network: String) = "override|$profileKey|$network"
     }
 }

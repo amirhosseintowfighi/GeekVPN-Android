@@ -34,6 +34,10 @@ class ApiException(
     val isNetwork: Boolean get() = status == null
 }
 
+/** A server-issued id (a UUID) put into a path; anything else never reaches the URL. */
+private fun String.pathSegment(): String =
+    takeIf { Regex("[0-9A-Fa-f-]{8,64}").matches(it) } ?: throw ApiException(null, "not an id: ${take(8)}")
+
 /** The part of a problem+json body the app shows. */
 private data class Problem(val title: String?, @SerializedName("message_fa") val messageFa: String?)
 
@@ -159,6 +163,59 @@ class GeekApi(
             object : TypeToken<PendingPayment>() {},
         )
 
+    /** Public: a signed-out app still has to learn that it is out of date. */
+    suspend fun appVersion(): AppVersionResponse =
+        get(anonymous, "/api/app/version", object : TypeToken<AppVersionResponse>() {})
+
+    /** Public, like the version: a guest sees the offer too. */
+    suspend fun promo(): AppPromoResponse = get(anonymous, "/api/app/promo", object : TypeToken<AppPromoResponse>() {})
+
+    /** A support ticket, as the Mini App opens one; the operator answers in the bot. */
+    suspend fun openTicket(request: OpenTicketRequest): TicketCard = post(authorized, "/api/miniapp/tickets", request)
+
+    suspend fun referral(): ReferralSummary =
+        get(authorized, "/api/miniapp/referral", object : TypeToken<ReferralSummary>() {})
+
+    /** This customer's tickets; the same ones the bot and the Mini App show. */
+    suspend fun tickets(): List<TicketCard> =
+        get(authorized, "/api/miniapp/tickets", object : TypeToken<List<TicketCard>>() {})
+
+    /** One ticket's conversation, without support's internal notes. */
+    suspend fun ticketMessages(ticketId: String): List<TicketMessage> =
+        get(authorized, "/api/miniapp/tickets/${ticketId.pathSegment()}/messages", object : TypeToken<List<TicketMessage>>() {})
+
+    suspend fun replyToTicket(ticketId: String, message: String): TicketMessage =
+        post(authorized, "/api/miniapp/tickets/${ticketId.pathSegment()}/messages", TicketReplyRequest(message))
+
+    /** Traffic per day for one account service, all its devices together, oldest first. */
+    suspend fun usageDays(subscriptionId: String, days: Int): List<UsageDayResponse> =
+        get(
+            authorized,
+            "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/usage-days?days=$days",
+            object : TypeToken<List<UsageDayResponse>>() {},
+        )
+
+    suspend fun autoRenew(subscriptionId: String): AutoRenewResponse =
+        get(authorized, "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/auto-renew", object : TypeToken<AutoRenewResponse>() {})
+
+    /** The server's worker renews from the wallet shortly before the service runs out. */
+    suspend fun setAutoRenew(subscriptionId: String, enabled: Boolean): AutoRenewResponse =
+        execute(
+            authorized,
+            request("/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/auto-renew")
+                .put(gson.toJson(AutoRenewRequest(enabled)).toRequestBody(JSON))
+                .build(),
+            object : TypeToken<AutoRenewResponse>() {},
+        )
+
+    /** This install's FCM token, so a support reply reaches the phone (com.geekvpn.push). */
+    suspend fun registerPushToken(token: String) =
+        send(authorized, request("/api/miniapp/push-token").post(gson.toJson(PushTokenRequest(token)).toRequestBody(JSON)).build())
+
+    /** Sign-out: the server stops pushing this account's replies to this install. */
+    suspend fun forgetPushToken(token: String) =
+        send(authorized, request("/api/miniapp/push-token/forget").post(gson.toJson(PushTokenRequest(token)).toRequestBody(JSON)).build())
+
     override suspend fun trialOffer(): TrialOffer = get(authorized, "/api/miniapp/trial", object : TypeToken<TrialOffer>() {})
 
     override suspend fun claimTrial(): TrialClaim = post(authorized, "/api/miniapp/trial", emptyMap<String, String>())
@@ -181,21 +238,7 @@ class GeekApi(
                 throw ApiException(null, "network failure on ${request.url.encodedPath}", e)
             }
             response.use {
-                if (!it.isSuccessful) {
-                    val problem = try {
-                        gson.fromJson(it.body.string(), Problem::class.java)
-                    } catch (_: JsonParseException) {
-                        null
-                    } catch (_: IOException) {
-                        null
-                    }
-                    throw ApiException(
-                        it.code,
-                        "HTTP ${it.code} on ${request.url.encodedPath}",
-                        code = problem?.title,
-                        messageFa = problem?.messageFa?.takeIf { text -> text.isNotBlank() },
-                    )
-                }
+                if (!it.isSuccessful) throw failure(it, request)
                 val text = it.body.string()
                 try {
                     gson.fromJson(text, type.type)
@@ -206,6 +249,34 @@ class GeekApi(
                 }
             }
         }
+
+    /** For endpoints that answer 204 with no body. */
+    private suspend fun send(client: OkHttpClient, request: Request) {
+        withContext(Dispatchers.IO) {
+            val response = try {
+                client.newCall(request).execute()
+            } catch (e: IOException) {
+                throw ApiException(null, "network failure on ${request.url.encodedPath}", e)
+            }
+            response.use { if (!it.isSuccessful) throw failure(it, request) }
+        }
+    }
+
+    private fun failure(response: Response, request: Request): ApiException {
+        val problem = try {
+            gson.fromJson(response.body.string(), Problem::class.java)
+        } catch (_: JsonParseException) {
+            null
+        } catch (_: IOException) {
+            null
+        }
+        return ApiException(
+            response.code,
+            "HTTP ${response.code} on ${request.url.encodedPath}",
+            code = problem?.title,
+            messageFa = problem?.messageFa?.takeIf { text -> text.isNotBlank() },
+        )
+    }
 
     /**
      * On a 401, trades the refresh token for a new pair once and retries.

@@ -49,7 +49,7 @@ jobs:
       uses: actions/cache/restore@v6
       with:
         path: V2rayNG/app/libs/libv2ray.aar
-        key: libv2ray-${{ env.NDK_VERSION }}-${{ steps.key.outputs.core }}-${{ hashFiles('cfscan/**', 'scripts/build-libv2ray.sh') }}
+        key: libv2ray-${{ env.NDK_VERSION }}-${{ steps.key.outputs.core }}-${{ hashFiles('cfscan/**', 'scripts/build-libv2ray.sh', 'scripts/xray-patches/**', 'scripts/libv2ray-extra/**') }}
 
     - name: Setup Golang
       if: steps.cache-libv2ray.outputs.cache-hit != 'true'
@@ -196,6 +196,12 @@ jobs:
         GEEK_API_BASE_PROD: ${{ secrets.GEEK_API_BASE_PROD }}
         # A repository variable, not a secret: the bot's name is public.
         GEEK_BOT_USERNAME: ${{ vars.GEEK_BOT_USERNAME }}
+        # Firebase Cloud Messaging (com.geekvpn.push); any unset leaves push off.
+        GEEK_FIREBASE_APP_ID: ${{ secrets.GEEK_FIREBASE_APP_ID }}
+        GEEK_FIREBASE_APP_ID_STAGING: ${{ secrets.GEEK_FIREBASE_APP_ID_STAGING }}
+        GEEK_FIREBASE_API_KEY: ${{ secrets.GEEK_FIREBASE_API_KEY }}
+        GEEK_FIREBASE_PROJECT_ID: ${{ secrets.GEEK_FIREBASE_PROJECT_ID }}
+        GEEK_FIREBASE_SENDER_ID: ${{ secrets.GEEK_FIREBASE_SENDER_ID }}
       run: |
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
@@ -385,6 +391,11 @@ jobs:
     permissions:
       contents: write
     steps:
+    - name: Checkout release notes
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: docs/release-notes
+
     - name: Download signed release APKs
       uses: actions/download-artifact@v8
       with:
@@ -396,5 +407,13 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ github.ref_name }}
       run: |
-        gh release create "$TAG" --repo "${{ github.repository }}" --title "GeekVPN $TAG" --generate-notes \
+        # The app shows these notes in its update sheet: Persian ones from
+        # docs/release-notes/<tag>.md when that file exists, else GitHub's list.
+        NOTES_FILE="docs/release-notes/$TAG.md"
+        if [[ -f "$NOTES_FILE" ]]; then
+          NOTES=(--notes-file "$NOTES_FILE")
+        else
+          NOTES=(--generate-notes)
+        fi
+        gh release create "$TAG" --repo "${{ github.repository }}" --title "GeekVPN $TAG" "${NOTES[@]}" \
           $(find release -name '*.apk' | sort)

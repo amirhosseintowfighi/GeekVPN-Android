@@ -1,5 +1,12 @@
 package com.geekvpn.ui.catalog
 
+import com.geekvpn.account.AutoRenewState
+import com.geekvpn.api.AppPromo
+import com.geekvpn.ui.promo.PromoBanner
+import com.geekvpn.ui.update.UpdateActions
+import com.geekvpn.ui.update.UpdateBanner
+import com.geekvpn.ui.update.UpdateSheet
+import com.geekvpn.update.UpdateState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +27,9 @@ import com.geekvpn.scanner.CleanIp
 import com.geekvpn.shop.Tier
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
+import com.geekvpn.ui.autoconnect.AutoConnectActions
+import com.geekvpn.ui.autoconnect.AutoConnectScreen
+import com.geekvpn.ui.autoconnect.AutoConnectUiState
 import com.geekvpn.ui.common.GeekHeader
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
@@ -41,7 +51,21 @@ import com.geekvpn.ui.shop.ShopActions
 import com.geekvpn.ui.shop.ShopScreen
 import com.geekvpn.ui.shop.ShopSheet
 import com.geekvpn.ui.shop.WalletSheet
+import com.geekvpn.support.TicketTopic
+import com.geekvpn.ui.support.TicketsActions
+import com.geekvpn.ui.support.TicketsScreen
+import com.geekvpn.api.ReferralSummary
+import com.geekvpn.speedtest.SpeedResult
+import com.geekvpn.ui.referral.ReferralScreen
+import com.geekvpn.ui.referral.ReferralUiState
+import com.geekvpn.ui.speedtest.SpeedTestScreen
+import com.geekvpn.ui.speedtest.SpeedTestUiState
+import com.geekvpn.lock.LockScreen
 import com.geekvpn.ui.theme.GeekTheme
+import com.geekvpn.ui.usage.UsageScreen
+import com.geekvpn.ui.usage.UsageSource
+import com.geekvpn.ui.usage.UsageUiState
+import com.geekvpn.usage.DayUsage
 import com.v2ray.ang.ui.base.BaseComponentActivity
 
 /**
@@ -63,7 +87,58 @@ class ScreenPreviewActivity : BaseComponentActivity() {
             when (val screen = intent.getStringExtra(EXTRA_SCREEN).orEmpty()) {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
+                // What a TV shows: the QR code of the bot link, to sign in from a phone.
+                SCREEN_WAIT_QR -> WaitingScreen(
+                    LinkPurpose.SignIn,
+                    expiresAt,
+                    onReopen = {},
+                    onCancel = {},
+                    deepLink = "https://t.me/example_bot?start=applogin_SAMPLE",
+                    qrFirst = true,
+                )
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
+                SCREEN_LOCK -> GeekBackdrop { LockScreen(onUnlock = {}) }
+                SCREEN_USAGE -> GeekBackdrop {
+                    val today = java.time.LocalDate.of(2026, 9, 28)
+                    val sample = listOf(310L, 820L, 145L, 0L, 1260L, 530L, 690L)
+                    val service = UsageSource("sample", "سرویس ۳۰ روزه")
+                    UsageScreen(
+                        UsageUiState(
+                            7,
+                            sample.mapIndexed { i, mib -> DayUsage(today.minusDays((6 - i).toLong()), mib * 1024 * 1024) },
+                            sources = listOf(UsageSource.Phone, service),
+                            source = service,
+                        ),
+                        onRange = {},
+                        onSource = {},
+                        onBack = {},
+                    )
+                }
+                SCREEN_REFERRAL -> GeekBackdrop {
+                    ReferralScreen(
+                        ReferralUiState(ReferralSummary("GEEK42", 7, 3, 186_000, 24_000, 20_000, 1_000, 500)),
+                        onCopy = {},
+                        onShare = {},
+                        onRetry = {},
+                        onBack = {},
+                    )
+                }
+                SCREEN_SPEED -> GeekBackdrop {
+                    SpeedTestScreen(
+                        SpeedTestUiState(throughVpn = true, result = SpeedResult(pingMs = 184, downloadMbps = 42.7, uploadMbps = 11.3)),
+                        onToggle = {},
+                        onBack = {},
+                    )
+                }
+                SCREEN_AUTO_CONNECT -> GeekBackdrop {
+                    AutoConnectScreen(
+                        AutoConnectUiState(loaded = true, startOnBoot = true, autoOnWifi = true, currentWifi = "wifi:1", trustedCount = 1, canStartInBackground = false),
+                        PreviewAutoConnectActions,
+                    )
+                }
+                SCREEN_TICKETS, SCREEN_TICKET_THREAD -> GeekBackdrop {
+                    TicketsScreen(if (screen == SCREEN_TICKETS) PreviewSamples.tickets else PreviewSamples.ticketThread, PreviewTicketsActions)
+                }
                 in TAB_SCREENS -> TabPreview(screen)
                 else -> WaitingScreen(LinkPurpose.SignIn, expiresAt, onReopen = {}, onCancel = {})
             }
@@ -73,12 +148,20 @@ class ScreenPreviewActivity : BaseComponentActivity() {
     companion object {
         const val EXTRA_SCREEN = "screen"
         const val SCREEN_CREATE = "create"
+        const val SCREEN_WAIT_QR = "wait-qr"
         const val SCREEN_SYNCING = "syncing"
         const val SCREEN_USERNAME = "username"
+        const val SCREEN_TICKETS = "tickets"
+        const val SCREEN_AUTO_CONNECT = "auto-connect"
+        const val SCREEN_SPEED = "speed"
+        const val SCREEN_REFERRAL = "referral"
+        const val SCREEN_USAGE = "usage"
+        const val SCREEN_LOCK = "lock"
+        const val SCREEN_TICKET_THREAD = "ticket-thread"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
             "shop", "shop-guest", "checkout", "wallet", "deposit", "scanner", "scanner-running",
-            "home-finding-ip", "home-attempt",
+            "home-finding-ip", "home-attempt", "update", "update-downloading",
         )
     }
 }
@@ -122,6 +205,11 @@ private fun TabPreview(screen: String) {
             "deposit" -> PreviewSamples.deposit
             else -> PreviewSamples.shop
         }
+        val update = when (screen) {
+            "update" -> UpdateState.Available(PreviewSamples.updateOffer)
+            "update-downloading" -> UpdateState.Downloading(PreviewSamples.updateOffer, 0.42f)
+            else -> null
+        }
         val state = when (screen) {
             "home-on" -> PreviewSamples.homeOn
             "home-empty" -> PreviewSamples.homeEmpty
@@ -139,6 +227,11 @@ private fun TabPreview(screen: String) {
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             if (tab == GeekTab.Home) GeekHeader(balance = state.balance, onWallet = none)
+            if (update != null) UpdateBanner(update.offer!!, onOpen = none, onClose = none)
+            // The shop shows a running offer, as the operator would set one.
+            if (tab == GeekTab.Shop) {
+                PromoBanner(AppPromo("۲۰٪ تخفیف پاییزه", "روی همه‌ی پلن‌های ماهانه", "AUTUMN20", "2026-10-15"), onOpen = none, onClose = none)
+            }
             when (tab) {
                 GeekTab.Home -> HomeScreen(
                     state = state,
@@ -149,7 +242,13 @@ private fun TabPreview(screen: String) {
                     onAutoServerChange = {},
                     onChooseService = none,
                 )
-                GeekTab.Services -> ServicesScreen(state = state, isSignedIn = true, actions = PreviewActions)
+                GeekTab.Services -> ServicesScreen(
+                    state = state,
+                    isSignedIn = true,
+                    actions = PreviewActions,
+                    // The first card with auto-renew on, the rest without a reading yet.
+                    autoRenew = state.services.take(1).associate { it.subscriptionId to AutoRenewState(enabled = true, available = true) },
+                )
                 GeekTab.Shop -> ShopScreen(state = shop, actions = PreviewShopActions)
                 GeekTab.Account -> AccountScreen(
                     state = PreviewSamples.account,
@@ -158,6 +257,7 @@ private fun TabPreview(screen: String) {
                     logoutAsked = false,
                     actions = PreviewActions,
                     showCleanIp = true,
+                    update = UpdateState.UpToDate,
                     onAutoUpdate = {},
                     onTheme = {},
                     onAskLogout = {},
@@ -178,6 +278,11 @@ private fun TabPreview(screen: String) {
             }
             null -> Unit
         }
+        if (update != null) {
+            Box(Modifier.fillMaxSize()) {
+                UpdateSheet(update, needsPermission = false, actions = PreviewUpdateActions)
+            }
+        }
         if (screen == "route") {
             Box(Modifier.fillMaxSize()) {
                 RouteSheet(current = RouteMode.Smart, onSave = {}, onPerApp = none, onDismiss = none)
@@ -197,16 +302,56 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onRefresh() = Unit
     override fun onRenew(subscriptionId: String) = Unit
     override fun onCopy(url: String) = Unit
+    override fun onShare(url: String) = Unit
     override fun onUseManual(groupId: String) = Unit
+    override fun onEditManual(groupId: String) = Unit
+    override fun onAutoRenew(subscriptionId: String, enabled: Boolean) = Unit
     override fun onWallet() = Unit
     override fun onServers() = Unit
     override fun onRoute() = Unit
     override fun onCleanIp() = Unit
     override fun onAdvanced() = Unit
-    override fun onProfiles() = Unit
     override fun onSupport() = Unit
     override fun onAbout() = Unit
     override fun onLogin() = Unit
+    override fun onUpdate() = Unit
+    override fun onReport() = Unit
+    override fun onTickets() = Unit
+    override fun onAutoConnect() = Unit
+    override fun onSpeedTest() = Unit
+    override fun onReferral() = Unit
+    override fun onUsage() = Unit
+}
+
+private object PreviewAutoConnectActions : AutoConnectActions {
+    override fun onBack() = Unit
+    override fun onStartOnBoot(on: Boolean) = Unit
+    override fun onAutoOnWifi(on: Boolean) = Unit
+    override fun onTrustCurrent(trusted: Boolean) = Unit
+    override fun onClearTrusted() = Unit
+    override fun onBatterySettings() = Unit
+    override fun onVpnSettings() = Unit
+}
+
+private object PreviewTicketsActions : TicketsActions {
+    override fun onBack() = Unit
+    override fun onRetry() = Unit
+    override fun onOpen(ticketId: String) = Unit
+    override fun onNew() = Unit
+    override fun onReply(text: String) = Unit
+    override fun onSendReply() = Unit
+    override fun onTopic(topic: TicketTopic) = Unit
+    override fun onSubject(text: String) = Unit
+    override fun onBody(text: String) = Unit
+    override fun onSubmit() = Unit
+}
+
+private object PreviewUpdateActions : UpdateActions {
+    override fun onDownload() = Unit
+    override fun onCancel() = Unit
+    override fun onInstall() = Unit
+    override fun onLater() = Unit
+    override fun onDismiss() = Unit
 }
 
 private object PreviewShopActions : ShopActions {

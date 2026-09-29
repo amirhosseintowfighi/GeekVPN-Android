@@ -43,6 +43,31 @@ cp -v data/*.dat assets/
 # cfscan again, because no package of the core module imports it.
 go mod tidy
 
+# GeekVPN's patches to the Xray core (scripts/xray-patches/README.md): the
+# module at the version go.mod pins is copied, patched, tested and swapped in.
+XRAY_MODULE="github.com/xtls/xray-core"
+XRAY_SRC="$(go mod download -json "$XRAY_MODULE" | jq -r .Dir)"
+cp -a "$XRAY_SRC" "$WORK/xray-core"
+chmod -R u+w "$WORK/xray-core"
+for p in "$ROOT"/scripts/xray-patches/*.patch; do
+    patch -d "$WORK/xray-core" -p1 --forward < "$p"
+done
+cp "$ROOT"/scripts/xray-patches/*_test.go "$WORK/xray-core/infra/conf/"
+(cd "$WORK/xray-core" && go test ./infra/conf/ -run 'TestGeekVPN')
+go mod edit -replace="$XRAY_MODULE=./xray-core"
+# GeekVPN's additions to the libv2ray package itself (what the patches expose).
+cp "$ROOT"/scripts/libv2ray-extra/*.go "$WORK/"
+
+# The geo files ship inside the AAR; v2rayNG's routing fails to build without
+# any of them (geoip-only-cn-private.dat backs every geoip:private rule), and
+# gen_assets.sh's curl does not fail on an HTTP error.
+for dat in geosite.dat geoip.dat geoip-only-cn-private.dat; do
+    if [[ ! -s "assets/$dat" ]] || [[ "$(stat -c %s "assets/$dat")" -lt 10000 ]]; then
+        echo "assets/$dat is missing or too small" >&2
+        exit 1
+    fi
+done
+
 # cfscan joins the core's module graph through a local replace, so both
 # packages resolve against one set of dependency versions.
 go mod edit -replace="$CFSCAN_MODULE=$ROOT/cfscan"
@@ -53,6 +78,10 @@ mkdir -p "$(dirname "$OUT")"
 gomobile bind -v -target=android -androidapi 24 -trimpath \
     -ldflags='-s -w -buildid= -checklinkname=0' \
     -o "$OUT" ./ "$CFSCAN_MODULE"
+
+for dat in geosite.dat geoip.dat geoip-only-cn-private.dat; do
+    unzip -l "$OUT" "assets/$dat" >/dev/null || { echo "$OUT lacks assets/$dat" >&2; exit 1; }
+done
 
 # The app puts every *.jar in libs/ on its classpath; the sources jar is not code.
 rm -f "${OUT%.aar}-sources.jar"

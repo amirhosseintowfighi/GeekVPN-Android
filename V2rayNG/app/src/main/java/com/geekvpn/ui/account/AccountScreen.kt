@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +43,8 @@ import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.home.label
 import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
+import com.geekvpn.ui.update.updateHint
+import com.geekvpn.update.UpdateState
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
 
@@ -54,10 +57,30 @@ interface AccountActions {
     /** The clean-IP scanner, offered only where it applies. */
     fun onCleanIp()
     fun onAdvanced()
-    fun onProfiles()
     fun onSupport()
     fun onAbout()
     fun onLogin()
+
+    /** Opens the update sheet when a version waits, else checks now. */
+    fun onUpdate()
+
+    /** "گزارش مشکل": a support ticket with a technical report attached. */
+    fun onReport()
+
+    /** "تیکت‌های من": the customer's tickets and support's answers. */
+    fun onTickets()
+
+    /** "اتصال خودکار و Kill Switch". */
+    fun onAutoConnect()
+
+    /** "تست سرعت". */
+    fun onSpeedTest()
+
+    /** "دعوت از دوستان"; signed in only. */
+    fun onReferral()
+
+    /** "مصرف روزانه". */
+    fun onUsage()
 }
 
 @Composable
@@ -69,10 +92,14 @@ fun AccountScreen(
     actions: AccountActions,
     /** The selected config is a CDN-fronted direct one: offer the scanner. */
     showCleanIp: Boolean = false,
+    /** Where the self-update stands; null in builds that cannot update themselves. */
+    update: UpdateState? = null,
     onAutoUpdate: (Boolean) -> Unit,
     onTheme: (ThemeChoice) -> Unit,
     onAskLogout: (Boolean) -> Unit,
     onLogout: () -> Unit,
+    /** "قفل برنامه". */
+    onAppLock: (Boolean) -> Unit = {},
 ) {
     val colors = Geek.colors
     val signedIn = state.session as? Session.SignedIn
@@ -83,6 +110,14 @@ fun AccountScreen(
 
         if (signedIn != null) {
             WalletCard(state.balance, actions)
+            SettingsCard {
+                SettingRow(
+                    icon = GeekIcons.Gift,
+                    title = stringResource(R.string.geek_referral_title),
+                    hint = stringResource(R.string.geek_referral_entry_hint),
+                    onClick = actions::onReferral,
+                )
+            }
         }
 
         SectionLabel(stringResource(R.string.geek_account_connection))
@@ -121,22 +156,45 @@ fun AccountScreen(
             }
             SettingsDivider()
             SettingRow(
+                icon = GeekIcons.ArrowDown,
+                title = stringResource(R.string.geek_usage_title),
+                hint = stringResource(R.string.geek_usage_entry_hint),
+                onClick = actions::onUsage,
+            )
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Gauge,
+                title = stringResource(R.string.geek_speed_title),
+                hint = stringResource(R.string.geek_speed_entry_hint),
+                onClick = actions::onSpeedTest,
+            )
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Shield,
+                title = stringResource(R.string.geek_auto_entry),
+                hint = stringResource(R.string.geek_auto_entry_hint),
+                onClick = actions::onAutoConnect,
+            )
+            SettingsDivider()
+            SettingRow(
                 icon = GeekIcons.Sliders,
                 title = stringResource(R.string.geek_account_advanced),
                 hint = stringResource(R.string.geek_account_advanced_hint),
                 onClick = actions::onAdvanced,
             )
-            SettingsDivider()
-            SettingRow(
-                icon = GeekIcons.Folder,
-                title = stringResource(R.string.geek_account_profiles),
-                hint = stringResource(R.string.geek_account_profiles_hint),
-                onClick = actions::onProfiles,
-            )
         }
 
         SectionLabel(stringResource(R.string.geek_account_appearance))
         ThemeSelector(state.theme, onTheme)
+        SettingsCard {
+            SettingRow(
+                icon = GeekIcons.Lock,
+                title = stringResource(R.string.geek_lock_setting),
+                hint = stringResource(R.string.geek_lock_setting_hint),
+                onClick = { onAppLock(!state.appLock) },
+                role = Role.Switch,
+            ) { GeekSwitch(checked = state.appLock, onCheckedChange = null) }
+        }
 
         SectionLabel(stringResource(R.string.geek_account_support))
         SettingsCard {
@@ -146,6 +204,35 @@ fun AccountScreen(
                     title = stringResource(R.string.geek_account_support_telegram),
                     hint = stringResource(R.string.geek_account_support_hint),
                     onClick = actions::onSupport,
+                )
+                SettingsDivider()
+            }
+            if (signedIn != null) {
+                SettingRow(
+                    icon = GeekIcons.List,
+                    title = stringResource(R.string.geek_tickets_title),
+                    hint = if (state.unreadTickets > 0) {
+                        pluralStringResource(R.plurals.geek_tickets_unread_hint, state.unreadTickets, state.unreadTickets)
+                    } else {
+                        stringResource(R.string.geek_tickets_entry_hint)
+                    },
+                    onClick = actions::onTickets,
+                )
+                SettingsDivider()
+            }
+            SettingRow(
+                icon = GeekIcons.Receipt,
+                title = stringResource(R.string.geek_report_title),
+                hint = stringResource(R.string.geek_report_entry_hint),
+                onClick = actions::onReport,
+            )
+            SettingsDivider()
+            if (update != null) {
+                SettingRow(
+                    icon = GeekIcons.Refresh,
+                    title = stringResource(R.string.geek_update_title),
+                    hint = updateHint(update),
+                    onClick = actions::onUpdate,
                 )
                 SettingsDivider()
             }
@@ -277,7 +364,9 @@ private fun WalletButton(text: String, icon: ImageVector?, primary: Boolean, onC
         modifier = modifier
             .height(46.dp)
             .clip(Geek.shapes.button)
-            .background(if (primary) colors.logoBlue else colors.onAction.copy(alpha = 0.12f))
+            // The card is colors.action; its inverse stays visible in both themes
+            // (logoBlue is the dark theme's action colour, so it vanished there).
+            .background(if (primary) colors.onAction else colors.onAction.copy(alpha = 0.12f))
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

@@ -25,13 +25,30 @@ object ServerNames {
         return LEADING_CODE.find(remarks.trim())?.groupValues?.get(1)?.uppercase(Locale.ROOT)
     }
 
-    /** The remarks without their flag emoji, which the badge already shows. */
+    /**
+     * The remarks as the panel wrote them, minus the one flag the badge
+     * already shows. Only that pair of regional indicators goes: every other
+     * emoji (a second flag, "📊", "⏳", a ZWJ sequence) stays whole.
+     */
     fun title(remarks: String): String {
-        val builder = StringBuilder()
-        remarks.codePoints().forEach { cp ->
-            if (cp !in REGIONAL_A..REGIONAL_Z) builder.appendCodePoint(cp)
+        val codePoints = remarks.trim().codePoints().toArray()
+        for (i in 0 until codePoints.size - 1) {
+            if (codePoints[i] in REGIONAL_A..REGIONAL_Z && codePoints[i + 1] in REGIONAL_A..REGIONAL_Z) {
+                val rest = codePoints.copyOfRange(0, i) + codePoints.copyOfRange(i + 2, codePoints.size)
+                return tidy(String(rest, 0, rest.size)).ifEmpty { remarks.trim() }
+            }
         }
-        return builder.toString().trim().ifEmpty { remarks.trim() }
+        return tidy(remarks).ifEmpty { remarks.trim() }
+    }
+
+    /** Separators left dangling at either end ("server1 amir -") go. */
+    private fun tidy(text: String): String = text.trim().trim('-', '|', '·', '_').trim()
+
+    /** "🇩🇪" for "DE": the flag emoji spelled by two regional indicators. Null for anything but two letters. */
+    fun flag(code: String): String? {
+        if (code.length != 2 || !code.all { it in 'A'..'Z' || it in 'a'..'z' }) return null
+        val upper = code.uppercase(Locale.ROOT)
+        return String(intArrayOf(REGIONAL_A + (upper[0] - 'A'), REGIONAL_A + (upper[1] - 'A')), 0, 2)
     }
 
     /** "آلمان" for "DE" in Persian; the code itself when the platform has no name for it. */

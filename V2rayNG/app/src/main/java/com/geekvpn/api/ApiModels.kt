@@ -264,3 +264,112 @@ data class TrialClaim(
     /** Services still being built; they arrive with a later sync. */
     val pending: Int?,
 )
+
+/* -- app updates and support ------------------------------------------- */
+
+/** `/api/app/version` (public). */
+data class AppVersionResponse(
+    /** Null while updates are switched off server-side or nothing is published. */
+    val latest: AppLatest?,
+    /** Older versions must update; empty when none must. */
+    val minVersion: String?,
+)
+
+data class AppLatest(
+    val versionName: String?,
+    val notes: String?,
+    val publishedAt: String?,
+    val apks: List<AppApk>?,
+)
+
+data class AppApk(
+    /** arm64-v8a | armeabi-v7a | x86 | x86_64 | universal */
+    val abi: String?,
+    val fileName: String?,
+    val url: String?,
+    /** Lowercase hex; null when the server has none for this file. */
+    val sha256: String?,
+    val sizeBytes: Long?,
+)
+
+/**
+ * `POST /api/miniapp/tickets`. A topic that is a category key sets the
+ * category; a non-empty [subject] is the ticket's title instead of the topic.
+ */
+data class OpenTicketRequest(
+    val topic: String,
+    val message: String,
+    val subject: String = "",
+)
+
+/** One row of `GET /api/miniapp/tickets`, and the answer to opening one. */
+data class TicketCard(
+    val ticketId: String?,
+    /** Printed in every bot message about the ticket, e.g. `SUP-1405-000123`. */
+    val reference: String?,
+    val topicFa: String? = null,
+    /** open | waiting (support answered, the customer's turn) | answered | closed */
+    val state: String? = null,
+    val createdAt: String? = null,
+    val lastReplyAt: String? = null,
+    val lastMessageFa: String? = null,
+    val unreadCount: Int? = null,
+)
+
+/** One message of `GET /api/miniapp/tickets/{id}/messages`, oldest first. */
+data class TicketMessage(
+    val messageId: String?,
+    val fromSupport: Boolean?,
+    val bodyFa: String?,
+    val createdAt: String?,
+)
+
+/** `POST /api/miniapp/tickets/{id}/messages`. */
+data class TicketReplyRequest(val message: String)
+
+/** `GET /api/app/promo`: the offer banner, set in the admin panel. */
+data class AppPromoResponse(val promo: AppPromo?)
+
+data class AppPromo(
+    val titleFa: String?,
+    val bodyFa: String?,
+    /** Filled in at checkout; the quote still decides whether it applies. */
+    val couponCode: String?,
+    /** Last day shown, ISO; null = until removed. */
+    val until: String?,
+)
+
+/** `GET/PUT /api/miniapp/subscriptions/{id}/auto-renew`. */
+data class AutoRenewResponse(
+    val enabled: Boolean?,
+    /** False for a service that cannot renew by itself (a reseller's, or one without a plan). */
+    val available: Boolean?,
+    val lastResult: String?,
+    val lastAttemptAt: String?,
+)
+
+data class AutoRenewRequest(val enabled: Boolean)
+
+/** One day of `GET /api/miniapp/subscriptions/{id}/usage-days`: `day` is ISO (Tehran), traffic in MiB. */
+data class UsageDayResponse(val day: String?, val usedMib: Long?)
+
+/** `POST /api/miniapp/push-token` and `/push-token/forget`. */
+data class PushTokenRequest(val token: String)
+
+/** `GET /api/miniapp/referral`: the invite code, its results and the current terms. */
+data class ReferralSummary(
+    val code: String?,
+    val invitedCount: Int?,
+    /** Invitees who bought something. */
+    val convertedCount: Int?,
+    /** Toman credited so far. */
+    val totalEarned: Long?,
+    /** Toman earned but not yet credited. */
+    val pendingEarned: Long?,
+    /** Toman the invitee gets on joining. */
+    val inviteeBonus: Long?,
+    /** Share of the invitee's first purchase, in basis points (1% = 100). */
+    val firstPurchaseBps: Int?,
+    /** Share of each later purchase, in basis points. */
+    val recurringBps: Int?,
+)

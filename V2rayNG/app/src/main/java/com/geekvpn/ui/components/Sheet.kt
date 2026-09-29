@@ -1,5 +1,8 @@
 package com.geekvpn.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,10 +28,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -42,7 +47,8 @@ import com.v2ray.ang.R
  * A milk-glass sheet from the bottom over a navy scrim (Wallet.html,
  * Deposit.html): handle, title and subtitle, a close button when
  * [closeLabel] is given, then [content], scrolling when it is taller than
- * most of the screen. Tapping the scrim calls [onDismiss].
+ * most of the screen. Tapping the scrim calls [onDismiss]. The scrim fades
+ * in and the sheet slides up when it appears.
  */
 @Composable
 fun BoxScope.GeekSheet(
@@ -54,9 +60,14 @@ fun BoxScope.GeekSheet(
 ) {
     val colors = Geek.colors
     val dismissLabel = stringResource(R.string.geek_sheet_close)
+    val appear = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        appear.animateTo(1f, tween(GeekMotion.SHEET_MS, easing = FastOutSlowInEasing))
+    }
     Box(
         Modifier
             .fillMaxSize()
+            .graphicsLayer { alpha = appear.value }
             .background(colors.scrim)
             // TalkBack reads the backdrop as a button; name it like the sheet's own close.
             .semantics { contentDescription = dismissLabel }
@@ -67,7 +78,11 @@ fun BoxScope.GeekSheet(
         GlassSurface(
             kind = GlassKind.Milk,
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().heightIn(max = limit),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .heightIn(max = limit)
+                .graphicsLayer { translationY = (1f - appear.value) * size.height },
         ) {
             Column(
                 modifier = Modifier

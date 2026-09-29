@@ -31,7 +31,13 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- GeekVPN: no camera. v2rayNG uses it only to scan a QR code, and no GeekVPN
+         screen or shortcut leads there; an unused sensitive permission is one
+         more reason for Play Protect to distrust a sideloaded APK. "remove" also
+         drops it if a library's manifest declares it. -->
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        tools:node="remove" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
         tools:ignore="ForegroundServicesPolicy" />
     <uses-permission
@@ -43,6 +49,8 @@
         android:minSdkVersion="34" />
     <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- GeekVPN: the app updates itself (com.geekvpn.update.AppUpdater); it is not on Google Play. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
@@ -86,6 +94,58 @@
             android:name="com.geekvpn.ui.home.HomeActivity"
             android:exported="false"
             android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.geekvpn.ui.about.AboutActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.geekvpn.ui.support.ReportActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.geekvpn.ui.support.TicketsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.geekvpn.ui.autoconnect.AutoConnectActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.geekvpn.ui.speedtest.SpeedTestActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.geekvpn.ui.referral.ReferralActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.geekvpn.ui.usage.UsageActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.geekvpn.lock.LockActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <!-- The system's Wi-Fi callback (AutoConnect); in the VPN process, which knows whether the core runs. -->
+        <receiver
+            android:name="com.geekvpn.autoconnect.WifiJoinReceiver"
+            android:exported="false"
+            android:process=":daemon" />
+        <receiver
+            android:name="com.geekvpn.autoconnect.AutoConnectBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+        <activity
+            android:name="com.geekvpn.ui.links.LinkEditActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.geekvpn.ui.perapp.PerAppActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.geekvpn.ui.advanced.AdvancedActivity"
+            android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <service
             android:name="com.geekvpn.scanner.ScanService"
@@ -328,6 +388,20 @@
                 <action android:name="${applicationId}.action.activity" />
             </intent-filter>
         </receiver>
+        <!-- GeekVPN: service status + connect button on the home screen (com.geekvpn.widget). -->
+        <receiver
+            android:name="com.geekvpn.widget.InfoWidget"
+            android:exported="true"
+            android:label="@string/geek_widget_name"
+            android:process=":daemon">
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_geek_info" />
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="${applicationId}.action.activity" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".receiver.BootReceiver"
             android:exported="true"
@@ -386,6 +460,21 @@
                 tools:node="remove" />
 
         </provider>
+
+        <!-- GeekVPN: announcements from the Firebase console (com.geekvpn.push). -->
+        <service
+            android:name="com.geekvpn.push.GeekMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="geek_announcements" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_name" />
 
         <service
             android:name="androidx.work.multiprocess.RemoteWorkManagerService"

@@ -19,6 +19,7 @@ import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.connection.TrafficMeter
 import com.geekvpn.scanner.CleanIpTarget
 import com.geekvpn.scanner.CleanIps
+import com.geekvpn.scanner.ProfileKey
 import com.geekvpn.scanner.ScanController
 import com.geekvpn.smartconnect.FailoverThreshold
 import com.geekvpn.smartconnect.SmartConnectPorts
@@ -45,6 +46,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -61,6 +63,8 @@ data class ServerRow(
     val countryCode: String?,
     /** > 0 milliseconds, 0 untested, < 0 failed. */
     val delayMs: Long,
+    /** Starred: listed first. */
+    val favorite: Boolean = false,
 )
 
 /** A subscription the user added by hand (Services.html, "لینک‌های دستی"). */
@@ -88,6 +92,8 @@ data class HomeUiState(
     val exitIp: ExitIp? = null,
     val exitIpLoading: Boolean = false,
     val speed: TrafficMeter.Speed? = null,
+    /** Open connections through the core (the VPN process counts them). */
+    val connections: Int = 0,
     val testing: Boolean = false,
     val manualGroups: List<ManualGroup> = emptyList(),
     /** An account sync or import is running. */
@@ -107,6 +113,9 @@ sealed interface HomeEvent {
 
     /** Smart connect gave up after [attempts] servers. */
     data class Failed(val attempts: Int) : HomeEvent
+
+    /** A connection this screen saw end: how long it lasted and what went through (null: unknown). */
+    data class SessionEnded(val durationMs: Long, val bytes: Long?) : HomeEvent
 }
 
 /**
@@ -142,6 +151,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private var testJob: Job? = null
     private var pendingTest: Pair<String, CompletableDeferred<Unit>>? = null
     private var smartJob: Job? = null
+
+    /**
+     * What v2rayNG's own main screen does on start and GeekVPN must do in its
+     * place: copy the geosite/geoip files the routing rules need (without them
+     * Xray fails to build "geosite:ir" and refuses to start) and schedule the
+     * periodic subscription refresh. Every connect waits for it.
+     */
+    private val prepared: Job = viewModelScope.launch(Dispatchers.IO) {
+        repository.initAssets()
+        repository.syncSubscriptions()
+    }
 
     /** While smart connect runs, the daemon's start/stop reports go to it instead of the phase. */
     private var smartSignals: Channel<ServiceSignal>? = null
@@ -184,6 +204,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // -- actions -------------------------------------------------------------
 
     /** The glasses button, after the activity has the VPN permission. */
+    /**
+     * Waits (briefly) for the services and servers to load, for a connect that
+     * arrives with the screen: the tile, the widget, a shortcut.
+     */
+    suspend fun awaitServers() {
+        withTimeoutOrNull(SERVERS_WAIT_MS) { state.first { it.servers.isNotEmpty() } }
+    }
+
     fun connect() {
         val current = state.value
         if (current.phase != ConnectionPhase.Off) return
@@ -199,20 +227,26 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         if (!current.autoServer) {
             // The customer's own pick: connect with it as it stands.
             state.update { it.copy(phase = ConnectionPhase.Connecting) }
-            LauncherManager.startService(app)
+            viewModelScope.launch {
+                prepared.join()
+                LauncherManager.startService(app)
+            }
             return
         }
-        smartJob = viewModelScope.launch { smartConnect(groupId, current) }
+        smartJob = viewModelScope.launch {
+            prepared.join()
+            smartConnect(groupId, current)
+        }
     }
 
     /**
      * Spec §3.6 through [SmartConnectUseCase]: clean addresses, the delay
      * test, then up to three connection attempts, each shown on Home.
      */
-    private suspend fun smartConnect(groupId: String, current: HomeUiState) {
+    private suspend fun smartConnect(groupId: String, current: HomeUiState, fallbackAllowed: Boolean = true) {
         val signals = Channel<ServiceSignal>(Channel.UNLIMITED)
         smartSignals = signals
-        val ports = HomePorts(signals, current)
+        val ports = HomePorts(signals)
         state.update { it.copy(phase = ConnectionPhase.Testing, stage = SmartStage.Testing) }
         try {
             val result = SmartConnectUseCase(ports).run(groupId, current.selected?.guid) { stage ->
@@ -235,6 +269,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 is SmartResult.Failed -> {
                     stopAfterSmart(ports.started)
+                    // A direct service that did not connect at all: the account's tunnel service instead, once.
+                    val fallback = if (fallbackAllowed) ConnectionLogic.tunnelFallback(current.activeService, state.value.services) else null
+                    if (fallback != null && switchForFallback(fallback)) {
+                        eventChannel.send(HomeEvent.Message(R.string.geek_home_tunnel_fallback))
+                        smartConnect(SubscriptionPlan.guidOf(fallback.subscriptionId), state.value, fallbackAllowed = false)
+                        return
+                    }
                     eventChannel.send(HomeEvent.Failed(result.attempts))
                 }
             }
@@ -248,6 +289,36 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             smartSignals = null
             pendingProbe = null
         }
+    }
+
+    /**
+     * Makes [service] the selected one for the tunnel fallback, once the failed
+     * attempt has stopped. False when it has no servers yet or the core did not
+     * come down, and the fallback is skipped.
+     */
+    private suspend fun switchForFallback(service: ServiceStatus): Boolean {
+        withTimeoutOrNull(FALLBACK_STOP_WAIT_MS) { state.first { it.phase == ConnectionPhase.Off } } ?: return false
+        val groupId = SubscriptionPlan.guidOf(service.subscriptionId)
+        val snapshot = withContext(Dispatchers.IO) {
+            val guids = MmkvManager.decodeServerList(groupId)
+            val delays = guids.map { ConnectionLogic.Delay(it, delayOf(it)) }
+            val chosen = ConnectionLogic.best(delays) ?: guids.firstOrNull() ?: return@withContext null
+            MmkvManager.setSelectServer(chosen)
+            MmkvManager.encodeSettings(AppConfig.CACHE_SUBSCRIPTION_ID, groupId)
+            loadServers()
+        } ?: return false
+        state.update {
+            it.copy(
+                services = snapshot.services,
+                activeService = snapshot.active,
+                groupId = snapshot.groupId,
+                servers = snapshot.servers,
+                selected = snapshot.selected,
+                manualGroups = snapshot.manual,
+                cleanIp = snapshot.cleanIp,
+            )
+        }
+        return state.value.groupId == groupId && state.value.servers.isNotEmpty()
     }
 
     private fun stopAfterSmart(started: Boolean) {
@@ -304,6 +375,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.IO) { MmkvManager.setSelectServer(guid) }
             reloadServers()
             restartIfRunning()
+        }
+    }
+
+    /** Stars or unstars a server; starred ones are listed first. */
+    fun toggleFavorite(guid: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val profile = MmkvManager.decodeServerConfig(guid) ?: return@withContext
+                val key = ProfileKey.of(profile)
+                prefs.setFavorite(key, key !in prefs.favorites)
+            }
+            reloadServers()
         }
     }
 
@@ -410,6 +493,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // -- daemon events ---------------------------------------------------------
 
     private fun onServiceEvent(event: MainServiceEvent) {
+        if (event is MainServiceEvent.StateStartFailure) {
+            prefs.recordFailure(event.message?.takeIf { it.isNotBlank() } ?: "start failure (no message)")
+        }
         val smart = smartSignals
         if (smart != null) {
             val forwarded = when (event) {
@@ -466,6 +552,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
         val before = state.value.phase
         val after = ConnectionLogic.next(before, signal)
+        val previousSince = prefs.connectedSince
         val since = when {
             after != ConnectionPhase.On -> 0L
             signal == ServiceSignal.StartSuccess || prefs.connectedSince == 0L -> System.currentTimeMillis()
@@ -474,8 +561,28 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         prefs.connectedSince = since
         state.update { it.copy(phase = after, connectedSince = since) }
         if (before != after && (after == ConnectionPhase.On || after == ConnectionPhase.Off)) onConnectionChanged()
+        if (before != after && after == ConnectionPhase.On) sessionStartBytes = uidBytes()
+        if (before == ConnectionPhase.On && after == ConnectionPhase.Off && previousSince > 0) {
+            val duration = System.currentTimeMillis() - previousSince
+            val start = sessionStartBytes
+            val end = uidBytes()
+            sessionStartBytes = null
+            if (duration >= MIN_SESSION_MS) {
+                eventChannel.trySend(HomeEvent.SessionEnded(duration, if (start != null && end != null && end >= start) end - start else null))
+            }
+        }
         // The VPN process's failover monitor reports a server switch as "running".
         if (signal == ServiceSignal.Running && before == ConnectionPhase.On) reloadServers()
+    }
+
+    /** The app UID's traffic when the connection this screen saw came up; null when it was already up. */
+    private var sessionStartBytes: Long? = null
+
+    private fun uidBytes(): Long? {
+        val uid = android.os.Process.myUid()
+        val rx = android.net.TrafficStats.getUidRxBytes(uid)
+        val tx = android.net.TrafficStats.getUidTxBytes(uid)
+        return if (rx < 0 || tx < 0) null else rx + tx
     }
 
     private fun onConnectionChanged() {
@@ -519,7 +626,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     /** Smart connect on this screen: v2rayNG's test service, `LauncherManager` and the daemon's reports. */
     private inner class HomePorts(
         private val signals: Channel<ServiceSignal>,
-        private val snapshot: HomeUiState,
     ) : SmartConnectPorts {
         /** A start was sent, so a failure or cancel must stop the daemon. */
         var started = false
@@ -530,17 +636,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         override fun servers(groupId: String): List<String> = MmkvManager.decodeServerList(groupId)
 
-        override fun scannable(guid: String): Boolean {
-            val profile = MmkvManager.decodeServerConfig(guid) ?: return false
-            val isAccount = snapshot.groupId?.let { SubscriptionPlan.isAccountGuid(it) } == true
-            return CleanIpTarget.of(guid, "", profile, snapshot.activeService?.tier, isAccount) != null
+        override suspend fun scannable(guid: String): Boolean = withContext(Dispatchers.IO) {
+            val profile = MmkvManager.decodeServerConfig(guid) ?: return@withContext false
+            CleanIpTarget.of(guid, "", profile, ScanController.store.scanAllowed(profile.subscriptionId)) != null &&
+                // Never scanned for automatically unless the domain is known to be Cloudflare's.
+                CleanIps.verify(app, guid) == true
         }
 
         override fun freshIps(guid: String): List<String> = CleanIps.fresh(app, guid)
 
         override suspend fun quickScan(guid: String): List<String> = ScanController.quickScan(app, guid)
 
-        override fun useIp(guid: String, ip: String, delayMs: Long) = CleanIps.use(app, guid, ip, delayMs)
+        override fun useIp(guid: String, ip: String?, delayMs: Long) = CleanIps.use(app, guid, ip, delayMs)
 
         override suspend fun measure(guids: List<String>): Map<String, Long> {
             val delays = measureDelays(guids, TestServiceMessage(key = AppConfig.MSG_MEASURE_CONFIG_START, serverGuids = guids))
@@ -641,7 +748,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     TrafficStats.getUidTxBytes(uid),
                     System.currentTimeMillis(),
                 )
-                if (speed != null) state.update { it.copy(speed = speed) }
+                val connections = prefs.activeConnections
+                state.update { if (speed != null) it.copy(speed = speed, connections = connections) else it.copy(connections = connections) }
                 delay(SPEED_INTERVAL_MS)
             }
         }
@@ -688,6 +796,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 .map { SubscriptionPlan.guidOf(it.subscriptionId) }
                 .firstOrNull { MmkvManager.decodeServerList(it).isNotEmpty() }
             ?: MmkvManager.decodeSubsList().firstOrNull { MmkvManager.decodeServerList(it).isNotEmpty() }
+        val favorites = prefs.favorites
         val rows = groupId?.let { group ->
             MmkvManager.decodeServerList(group).mapNotNull { guid ->
                 val profile = MmkvManager.decodeServerConfig(guid) ?: return@mapNotNull null
@@ -696,9 +805,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     title = ServerNames.title(profile.remarks),
                     countryCode = ServerNames.countryCode(profile.remarks),
                     delayMs = delayOf(guid),
+                    favorite = ProfileKey.of(profile) in favorites,
                 )
             }
-        }.orEmpty()
+        }.orEmpty().let { list -> ConnectionLogic.favoritesFirst(list) { it.favorite } }
         var selected = rows.firstOrNull { it.guid == selectedGuid }
         if (selected == null && rows.isNotEmpty()) {
             // Nothing selected in this group yet: v2rayNG needs one to start.
@@ -721,8 +831,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             )
         val cleanIp = selected?.let { row ->
             val profile = MmkvManager.decodeServerConfig(row.guid) ?: return@let null
-            val isAccount = groupId?.let { SubscriptionPlan.isAccountGuid(it) } == true
-            CleanIpTarget.of(row.guid, row.title, profile, active?.tier, isAccount)
+            CleanIpTarget.of(row.guid, row.title, profile, ScanController.store.scanAllowed(profile.subscriptionId))
+                ?.takeIf { CleanIps.knownBehindCloudflare(row.guid) != false }
         }
         return Snapshot(services, active, groupId, rows, selected, manual, cleanIp)
     }
@@ -736,9 +846,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private companion object {
         const val SPEED_INTERVAL_MS = 1_000L
+        const val SERVERS_WAIT_MS = 3_000L
+
+        /** Shorter ones are a failed start or a quick toggle, not a session worth summing up. */
+        const val MIN_SESSION_MS = 60_000L
         const val TEST_TIMEOUT_MS = 45_000L
         const val START_TIMEOUT_MS = 20_000L
         const val STOP_SETTLE_MS = 8_000L
+        /** The failed attempt stopping, before the tunnel fallback starts (stop settles within [STOP_SETTLE_MS]). */
+        const val FALLBACK_STOP_WAIT_MS = STOP_SETTLE_MS + 2_000L
 
         /** v2rayNG's check tries two URLs, then looks up the exit address. */
         const val PROBE_TIMEOUT_MS = 20_000L

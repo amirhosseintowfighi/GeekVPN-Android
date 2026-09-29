@@ -8,6 +8,7 @@ import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.core.content.ContextCompat
+import com.geekvpn.quick.QuickConnect
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
@@ -81,7 +82,8 @@ class QSTileService : TileService() {
         super.onClick()
         when (qsTile.state) {
             Tile.STATE_INACTIVE -> {
-                LauncherManager.startServiceFromToggle(this)
+                // GeekVPN: with "server: auto" the app's smart connect picks the server.
+                if (QuickConnect.viaApp()) QuickConnect.openFromTile(this) else LauncherManager.startServiceFromToggle(this)
             }
 
             Tile.STATE_ACTIVE -> {

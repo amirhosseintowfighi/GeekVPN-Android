@@ -1,0 +1,32 @@
+--- a/app/proxyman/outbound/handler.go
++++ b/app/proxyman/outbound/handler.go
+@@ -8,6 +8,7 @@
+ 	"math/big"
+ 
+ 	"github.com/xtls/xray-core/common/dice"
++	"github.com/xtls/xray-core/common/geekstats"
+ 
+ 	"github.com/xtls/xray-core/app/proxyman"
+ 	"github.com/xtls/xray-core/common"
+@@ -176,6 +177,9 @@
+ 
+ // Dispatch implements proxy.Outbound.Dispatch.
+ func (h *Handler) Dispatch(ctx context.Context, link *transport.Link) {
++	// GeekVPN: Home shows how many connections are open (geekstats).
++	geekstats.Active.Add(1)
++	defer geekstats.Active.Add(-1)
+ 	outbounds := session.OutboundsFromContext(ctx)
+ 	ob := outbounds[len(outbounds)-1]
+ 	content := session.ContentFromContext(ctx)
+--- a/common/geekstats/geekstats.go
++++ b/common/geekstats/geekstats.go
+@@ -0,0 +1,9 @@
++// Package geekstats is GeekVPN's addition to the core: counters the app
++// reads through libv2ray. See scripts/xray-patches/README.md.
++package geekstats
++
++import "sync/atomic"
++
++// Active is the number of outbound connections being carried right now.
++// Connections a mux session carries are not counted one by one.
++var Active atomic.Int64

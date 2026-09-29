@@ -26,15 +26,15 @@ class SmartConnectTest {
         val connects = mutableListOf<Choice>()
 
         override fun servers(groupId: String) = guids
-        override fun scannable(guid: String) = guid in cdn
+        override suspend fun scannable(guid: String) = guid in cdn
         override fun freshIps(guid: String) = if (guid in cdn) fresh else emptyList()
         override suspend fun quickScan(guid: String): List<String> {
             scans += guid
             return scanFinds
         }
 
-        override fun useIp(guid: String, ip: String, delayMs: Long) {
-            ipOf[guid] = ip
+        override fun useIp(guid: String, ip: String?, delayMs: Long) {
+            if (ip == null) ipOf.remove(guid) else ipOf[guid] = ip
         }
 
         override suspend fun measure(guids: List<String>): Map<String, Long> {
@@ -101,8 +101,8 @@ class SmartConnectTest {
         val result = SmartConnectUseCase(ports).run("g", fallback = null) { seen += it }
 
         assertEquals(SmartResult.Connected(Choice("cdn", "2.2.2.2"), 120), result)
-        // The plain config is tested once, with the first round; the CDN one per address.
-        assertEquals(listOf(listOf("cdn", "plain"), listOf("cdn")), ports.rounds)
+        // Everything on its own address first, then the CDN config once per clean address.
+        assertEquals(listOf(listOf("cdn", "plain"), listOf("cdn"), listOf("cdn")), ports.rounds)
         assertEquals(Choice("cdn", "2.2.2.2"), ports.connects.single())
         assertTrue(ports.scans.isEmpty())
         assertFalse(SmartStage.FindingIp in seen)
@@ -121,6 +121,7 @@ class SmartConnectTest {
 
         assertEquals(listOf("cdn"), ports.scans)
         assertEquals(SmartStage.FindingIp, seen.first())
+        assertEquals(listOf(listOf("cdn"), listOf("cdn")), ports.rounds)
         assertEquals(SmartResult.Connected(Choice("cdn", "3.3.3.3"), 200), result)
     }
 
@@ -136,7 +137,24 @@ class SmartConnectTest {
     fun only_three_addresses_are_tried() = runTest {
         val ports = FakePorts(listOf("cdn"), cdn = setOf("cdn"), fresh = listOf("1", "2", "3", "4", "5"), delay = { _, _ -> 100L })
         SmartConnectUseCase(ports).rank(listOf("cdn"))
-        assertEquals(SmartConnectUseCase.MAX_IPS, ports.rounds.size)
+        // Its own address, then three clean ones.
+        assertEquals(1 + SmartConnectUseCase.MAX_IPS, ports.rounds.size)
+    }
+
+    @Test
+    fun a_clean_address_is_used_only_where_it_beats_the_configs_own() = runTest {
+        // The case from the field: a ws+tls config whose domain is not really on Cloudflare.
+        val ports = FakePorts(
+            guids = listOf("ws"),
+            cdn = setOf("ws"),
+            fresh = listOf("1.1.1.1"),
+            delay = { _, ip -> if (ip == null) 180L else -1L },
+        )
+        ports.ipOf["ws"] = "9.9.9.9" // a bad override left by an earlier scan
+        val result = SmartConnectUseCase(ports).run("g", fallback = null) {}
+        assertEquals(SmartResult.Connected(Choice("ws"), 180), result)
+        assertTrue("ws" !in ports.ipOf)
+        assertEquals(Choice("ws"), ports.connects.single())
     }
 
     @Test
@@ -145,7 +163,13 @@ class SmartConnectTest {
             guids = listOf("x", "y"),
             cdn = setOf("x", "y"),
             fresh = listOf("1.1.1.1", "2.2.2.2"),
-            delay = { g, ip -> if ((g == "x") == (ip == "1.1.1.1")) 100L else 400L },
+            delay = { g, ip ->
+                when {
+                    ip == null -> 500L
+                    (g == "x") == (ip == "1.1.1.1") -> 100L
+                    else -> 400L
+                }
+            },
         )
         SmartConnectUseCase(ports).rank(ports.guids)
         assertEquals(mapOf("x" to "1.1.1.1", "y" to "2.2.2.2"), ports.ipOf)

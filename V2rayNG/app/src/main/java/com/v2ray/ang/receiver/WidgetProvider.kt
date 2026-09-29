@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import com.geekvpn.quick.QuickConnect
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
@@ -44,7 +45,9 @@ class WidgetProvider : AppWidgetProvider() {
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        remoteViews.setOnClickPendingIntent(R.id.layout_switch, pendingIntent)
+        // GeekVPN: starting with "server: auto" opens the app's smart connect instead.
+        val click = if (!isRunning && QuickConnect.viaApp()) QuickConnect.pendingIntent(context) else pendingIntent
+        remoteViews.setOnClickPendingIntent(R.id.layout_switch, click)
         if (isRunning) {
             remoteViews.setInt(R.id.image_switch, "setImageResource", R.drawable.ic_stop_24dp)
             remoteViews.setInt(R.id.layout_background, "setBackgroundResource", R.drawable.ic_rounded_corner_active)

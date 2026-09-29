@@ -52,7 +52,8 @@ def check(path, px_per_dp, package):
         # A node cut by the screen edge (a scrolled list) is not too small.
         clipped = y1 <= 0 or x1 <= 0 or y2 >= root_height(root) or x2 >= root_width(root) \
             or cut_by_scroller(node, parents, (x1, y1, x2, y2)) \
-            or covered_below(root, node, parents, (x1, y1, x2, y2), px_per_dp)
+            or covered_below(root, node, parents, (x1, y1, x2, y2), px_per_dp) \
+            or larger_inside(node, (x1, y1, x2, y2))
         what = describe(node)
         if not clipped and w < MIN_DP - 0.5 or not clipped and h < MIN_DP - 0.5:
             problems.append(f"{path}: {what} is {w:.0f}x{h:.0f}dp, under {MIN_DP}dp")
@@ -61,6 +62,23 @@ def check(path, px_per_dp, package):
         if not (clipped and small) and not label(node):
             problems.append(f"{path}: {what} has no text or content description")
     return problems
+
+
+def larger_inside(node, box):
+    """The dump gives a node its visible bounds only; a descendant taller or
+    wider than it (the row's own content) shows the rest is off screen or under
+    an overlay, not that the node is small."""
+    x1, y1, x2, y2 = box
+    for child in node.iter("node"):
+        if child is node:
+            continue
+        m = BOUNDS.fullmatch(child.get("bounds", ""))
+        if not m:
+            continue
+        cx1, cy1, cx2, cy2 = map(int, m.groups())
+        if cy2 - cy1 > y2 - y1 or cx2 - cx1 > x2 - x1:
+            return True
+    return False
 
 
 def cut_by_scroller(node, parents, box):

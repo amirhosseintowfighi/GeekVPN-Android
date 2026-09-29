@@ -64,13 +64,19 @@ class ScannerTest {
 
     @Test
     fun the_scanner_is_offered_only_for_direct_services_and_manual_links() {
+        val direct = setOf("geek-d1")
+        assertTrue(ScanStore.allows("geek-d1", direct))
+        // A tunnel or elite service, or one not (yet) known to be direct.
+        assertFalse(ScanStore.allows("geek-t1", direct))
+        assertFalse(ScanStore.allows("geek-d1", emptySet()))
+        // Links the customer added by hand, and v2rayNG's default group.
+        assertTrue(ScanStore.allows("a3f0c2", direct))
+        assertTrue(ScanStore.allows("", direct))
+
         val p = profile()
-        assertEquals("g", CleanIpTarget.of("g", "t", p, "direct", isAccountService = true)?.guid)
-        assertNull(CleanIpTarget.of("g", "t", p, "tunnel", isAccountService = true))
-        assertNull(CleanIpTarget.of("g", "t", p, "elite", isAccountService = true))
-        assertNull(CleanIpTarget.of("g", "t", p, null, isAccountService = true))
-        assertEquals("g", CleanIpTarget.of("g", "t", p, null, isAccountService = false)?.guid)
-        assertNull(CleanIpTarget.of("g", "t", profile(network = "tcp"), null, isAccountService = false))
+        assertEquals("g", CleanIpTarget.of("g", "t", p, scanAllowed = true)?.guid)
+        assertNull(CleanIpTarget.of("g", "t", p, scanAllowed = false))
+        assertNull(CleanIpTarget.of("g", "t", profile(network = "tcp"), scanAllowed = true))
     }
 
     @Test
@@ -149,5 +155,45 @@ class ScannerTest {
         val home = NetworkIdentity.wifi(listOf("192.168.1.1"), "lan")
         assertEquals(home, NetworkIdentity.wifi(listOf("192.168.1.1"), "lan"))
         assertNotEquals(home.key, NetworkIdentity.wifi(listOf("10.0.0.1"), null).key)
+    }
+}
+
+class CloudflareCheckTest {
+    private val table = CloudflareCheck.parse(
+        """
+        104.16.0.0/13
+        # comment
+        172.64.0.0/13
+        1.1.1.0/24
+        not an ip
+        8.8.8.8
+        """.trimIndent()
+    )
+
+    private fun ip(text: String) = CloudflareCheck.parseIpv4(text)!!
+
+    @Test
+    fun addresses_inside_the_listed_ranges_are_cloudflare() {
+        assertTrue(CloudflareCheck.contains(table, ip("104.16.0.1")))
+        assertTrue(CloudflareCheck.contains(table, ip("104.23.255.255")))
+        assertTrue(CloudflareCheck.contains(table, ip("172.67.1.2")))
+        assertTrue(CloudflareCheck.contains(table, ip("1.1.1.1")))
+        assertTrue(CloudflareCheck.contains(table, ip("8.8.8.8")))
+    }
+
+    @Test
+    fun addresses_outside_are_not() {
+        assertFalse(CloudflareCheck.contains(table, ip("104.24.0.0")))
+        assertFalse(CloudflareCheck.contains(table, ip("185.220.101.7")))
+        assertFalse(CloudflareCheck.contains(table, ip("1.1.2.1")))
+        assertFalse(CloudflareCheck.contains(table, ip("0.0.0.1")))
+    }
+
+    @Test
+    fun a_filtered_answer_is_private_and_no_verdict() {
+        assertTrue(CloudflareCheck.isPrivate(ip("10.10.34.35")))
+        assertTrue(CloudflareCheck.isPrivate(ip("127.0.0.1")))
+        assertTrue(CloudflareCheck.isPrivate(ip("192.168.1.1")))
+        assertFalse(CloudflareCheck.isPrivate(ip("104.16.1.1")))
     }
 }

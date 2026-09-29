@@ -4,6 +4,7 @@ import android.app.Service
 import android.os.PowerManager
 import com.geekvpn.connection.ConnectionPrefs
 import com.geekvpn.scanner.CleanIps
+import com.geekvpn.usage.DailyUsage
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.dto.RealPingEvent
 import com.v2ray.ang.handler.MmkvManager
@@ -22,6 +23,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.ConcurrentHashMap
+import libv2ray.Libv2ray
 
 /**
  * Failover while connected (spec §3.5): runs in the VPN process for exactly
@@ -43,13 +45,47 @@ class FailoverMonitor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineName("geek-failover"))
     private val prefs = ConnectionPrefs.open()
+    private val usage = DailyUsage.open().let { book -> DailyUsage.Recorder(book::add) }
 
     fun start() {
+        usage.sample()
         scope.launch { watch() }
+        scope.launch { publishConnections() }
+        scope.launch { recordUsage() }
     }
 
     fun stop() {
         scope.cancel()
+        prefs.activeConnections = 0
+        // What moved since the last sample, so a short connection still counts.
+        usage.sample()
+    }
+
+    /** «مصرف روزانه»: books the traffic to today every half minute, screen on or off. */
+    private suspend fun recordUsage() {
+        while (scope.isActive) {
+            delay(USAGE_INTERVAL_MS)
+            usage.sample()
+        }
+    }
+
+    /**
+     * Home's «اتصالات»: the core counts its open connections in this process
+     * (`Libv2ray.activeConnections`), and the app's process reads the number
+     * from the shared MMKV. Only while the screen is on; nobody looks otherwise.
+     */
+    private suspend fun publishConnections() {
+        while (scope.isActive) {
+            if (interactive()) {
+                prefs.activeConnections = try {
+                    Libv2ray.activeConnections().toInt().coerceAtLeast(0)
+                } catch (e: UnsatisfiedLinkError) {
+                    LogUtil.w(AppConfig.TAG, "Failover: connection count unavailable", e)
+                    return
+                }
+            }
+            delay(CONNECTIONS_INTERVAL_MS)
+        }
     }
 
     private suspend fun watch() {
@@ -92,7 +128,7 @@ class FailoverMonitor(
             LogUtil.i(AppConfig.TAG, "Failover: no config answered, keeping $current")
             return
         }
-        best.choice.ip?.let { CleanIps.use(service, best.choice.guid, it, best.delayMs) }
+        // rank() left each CDN-fronted config on its best address already.
         MmkvManager.setSelectServer(best.choice.guid)
         if (reload()) {
             LogUtil.i(AppConfig.TAG, "Failover: moved from $current to ${best.choice.guid} (${best.delayMs} ms)")
@@ -106,14 +142,15 @@ class FailoverMonitor(
 
         // The account tier is not known in this process; a config the scanner
         // ran for on this network is one it applies to.
-        override fun scannable(guid: String): Boolean = CleanIps.scanned(service, guid)
+        override suspend fun scannable(guid: String): Boolean =
+            CleanIps.knownBehindCloudflare(guid) == true && CleanIps.scanned(service, guid)
 
         override fun freshIps(guid: String): List<String> = CleanIps.fresh(service, guid)
 
         // No scanning in the background: it costs data and is the customer's call.
         override suspend fun quickScan(guid: String): List<String> = emptyList()
 
-        override fun useIp(guid: String, ip: String, delayMs: Long) = CleanIps.use(service, guid, ip, delayMs)
+        override fun useIp(guid: String, ip: String?, delayMs: Long) = CleanIps.use(service, guid, ip, delayMs)
 
         override suspend fun measure(guids: List<String>): Map<String, Long> {
             val results = ConcurrentHashMap<String, Long>()
@@ -146,6 +183,8 @@ class FailoverMonitor(
         /** Let a fresh connection settle before judging it. */
         const val FIRST_CHECK_MS = 20_000L
         const val CHECK_INTERVAL_MS = 30_000L
+        const val CONNECTIONS_INTERVAL_MS = 2_000L
+        const val USAGE_INTERVAL_MS = 30_000L
 
         /** Fewer checks with the screen off: Doze stretches them anyway, and they cost battery. */
         const val CHECK_INTERVAL_SCREEN_OFF_MS = 120_000L

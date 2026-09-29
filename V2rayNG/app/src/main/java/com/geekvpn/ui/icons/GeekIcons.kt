@@ -193,6 +193,30 @@ object GeekIcons {
         }
     }
 
+    val Qr: ImageVector by lazy {
+        icon("Qr") {
+            stroke("M4 4h6v6H4z")
+            stroke("M14 4h6v6h-6z")
+            stroke("M4 14h6v6H4z")
+            stroke("M14 14h2v2h-2z")
+            stroke("M18 14h2")
+            stroke("M14 20h6v-2")
+            stroke("M18 17v1")
+        }
+    }
+
+    val Star: ImageVector by lazy {
+        icon("Star") {
+            stroke("M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z")
+        }
+    }
+
+    val StarFilled: ImageVector by lazy {
+        icon("StarFilled") {
+            fill("M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z")
+        }
+    }
+
     val Link: ImageVector by lazy {
         icon("Link") {
             stroke("M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1")
