@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -42,6 +44,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.geekvpn.account.AutoRenewState
 import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.ui.common.GlassIconButton
@@ -51,6 +54,7 @@ import com.geekvpn.ui.common.formatGib
 import com.geekvpn.ui.common.formatNumber
 import com.geekvpn.ui.components.GeekDangerButton
 import com.geekvpn.ui.components.GeekSecondaryButton
+import com.geekvpn.ui.components.GeekSwitch
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.home.HomeUiState
@@ -77,11 +81,19 @@ interface ServicesActions {
     fun onShare(url: String)
     fun onUseManual(groupId: String)
     fun onEditManual(groupId: String)
+
+    /** "تمدید خودکار از کیف پول" on one service. */
+    fun onAutoRenew(subscriptionId: String, enabled: Boolean)
 }
 
 /** Services.html: the account's services as cards, then the manual links. */
 @Composable
-fun ServicesScreen(state: HomeUiState, isSignedIn: Boolean, actions: ServicesActions) {
+fun ServicesScreen(
+    state: HomeUiState,
+    isSignedIn: Boolean,
+    actions: ServicesActions,
+    autoRenew: Map<String, AutoRenewState> = emptyMap(),
+) {
     val colors = Geek.colors
     var showAll by rememberSaveable { mutableStateOf(false) }
     val active = state.services.filter { it.active }
@@ -110,6 +122,7 @@ fun ServicesScreen(state: HomeUiState, isSignedIn: Boolean, actions: ServicesAct
                     isActive = state.activeService?.subscriptionId == service.subscriptionId,
                     phase = state.phase,
                     updating = state.updating,
+                    autoRenew = autoRenew[service.subscriptionId],
                     actions = actions,
                 )
             }
@@ -155,6 +168,7 @@ private fun ServiceCard(
     isActive: Boolean,
     phase: ConnectionPhase,
     updating: Boolean,
+    autoRenew: AutoRenewState?,
     actions: ServicesActions,
 ) {
     val colors = Geek.colors
@@ -198,6 +212,9 @@ private fun ServiceCard(
                         barColor = colors.action,
                         modifier = Modifier.weight(1f),
                     )
+                }
+                if (autoRenew != null && autoRenew.available) {
+                    AutoRenewRow(autoRenew) { actions.onAutoRenew(service.subscriptionId, it) }
                 }
             }
             TicketDivider()
@@ -251,6 +268,38 @@ private fun ServiceCard(
                 }
             }
         }
+    }
+}
+
+/** The wallet renews this service shortly before it runs out (the server's worker does it). */
+@Composable
+private fun AutoRenewRow(state: AutoRenewState, onChange: (Boolean) -> Unit) {
+    val colors = Geek.colors
+    val note = when (state.lastResult) {
+        "insufficient_funds" -> R.string.geek_autorenew_last_funds
+        "unavailable" -> R.string.geek_autorenew_last_unavailable
+        "pending" -> R.string.geek_autorenew_last_pending
+        "renewed" -> R.string.geek_autorenew_last_renewed
+        else -> R.string.geek_autorenew_hint
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Geek.shapes.tile)
+            .toggleable(value = state.enabled, enabled = !state.busy, role = Role.Switch, onValueChange = onChange)
+            .heightIn(min = 48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.geek_autorenew_title), style = Geek.type.label, color = colors.onGlass)
+            Text(
+                stringResource(note),
+                style = Geek.type.caption,
+                color = if (state.lastResult == "insufficient_funds" || state.lastResult == "unavailable") colors.danger else colors.onGlassMuted,
+            )
+        }
+        GeekSwitch(checked = state.enabled, onCheckedChange = null, enabled = !state.busy)
     }
 }
 

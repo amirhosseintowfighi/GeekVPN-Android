@@ -327,6 +327,17 @@ data class TicketMessage(
 /** `POST /api/miniapp/tickets/{id}/messages`. */
 data class TicketReplyRequest(val message: String)
 
+/** `GET/PUT /api/miniapp/subscriptions/{id}/auto-renew`. */
+data class AutoRenewResponse(
+    val enabled: Boolean?,
+    /** False for a service that cannot renew by itself (a reseller's, or one without a plan). */
+    val available: Boolean?,
+    val lastResult: String?,
+    val lastAttemptAt: String?,
+)
+
+data class AutoRenewRequest(val enabled: Boolean)
+
 /** One day of `GET /api/miniapp/subscriptions/{id}/usage-days`: `day` is ISO (Tehran), traffic in MiB. */
 data class UsageDayResponse(val day: String?, val usedMib: Long?)
 

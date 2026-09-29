@@ -560,4 +560,11 @@
     <string name="geek_widget_disconnect">قطع اتصال</string>
     <string name="geek_widget_remaining">%1$s گیگ مانده</string>
     <string name="geek_widget_unlimited">حجم نامحدود</string>
+    <string name="geek_autorenew_title">تمدید خودکار از کیف پول</string>
+    <string name="geek_autorenew_hint">یک روز قبل از پایان، یا وقتی حجم تقریباً تمام شد، همین پلن از کیف پول خریده می‌شود.</string>
+    <string name="geek_autorenew_last_renewed">آخرین بار خودکار تمدید شد.</string>
+    <string name="geek_autorenew_last_pending">تمدید پرداخت شد و سرویس در حال آماده شدن است.</string>
+    <string name="geek_autorenew_last_funds">تمدید انجام نشد: موجودی کیف پول کافی نبود. کیف پول را شارژ کن.</string>
+    <string name="geek_autorenew_last_unavailable">تمدید انجام نشد: این پلن دیگر فروخته نمی‌شود. از فروشگاه پلن دیگری بخر.</string>
+    <string name="geek_autorenew_failed">تنظیم تمدید خودکار ذخیره نشد. دوباره امتحان کن.</string>
 </resources>

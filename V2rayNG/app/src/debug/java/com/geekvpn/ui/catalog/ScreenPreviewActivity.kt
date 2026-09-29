@@ -1,5 +1,6 @@
 package com.geekvpn.ui.catalog
 
+import com.geekvpn.account.AutoRenewState
 import com.geekvpn.ui.update.UpdateActions
 import com.geekvpn.ui.update.UpdateBanner
 import com.geekvpn.ui.update.UpdateSheet
@@ -225,7 +226,13 @@ private fun TabPreview(screen: String) {
                     onAutoServerChange = {},
                     onChooseService = none,
                 )
-                GeekTab.Services -> ServicesScreen(state = state, isSignedIn = true, actions = PreviewActions)
+                GeekTab.Services -> ServicesScreen(
+                    state = state,
+                    isSignedIn = true,
+                    actions = PreviewActions,
+                    // The first card with auto-renew on, the rest without a reading yet.
+                    autoRenew = state.services.take(1).associate { it.subscriptionId to AutoRenewState(enabled = true, available = true) },
+                )
                 GeekTab.Shop -> ShopScreen(state = shop, actions = PreviewShopActions)
                 GeekTab.Account -> AccountScreen(
                     state = PreviewSamples.account,
@@ -282,6 +289,7 @@ private object PreviewActions : ServicesActions, AccountActions {
     override fun onShare(url: String) = Unit
     override fun onUseManual(groupId: String) = Unit
     override fun onEditManual(groupId: String) = Unit
+    override fun onAutoRenew(subscriptionId: String, enabled: Boolean) = Unit
     override fun onWallet() = Unit
     override fun onServers() = Unit
     override fun onRoute() = Unit

@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
+import com.geekvpn.account.AutoRenewViewModel
 import com.geekvpn.account.UsageNotifier
 import com.geekvpn.autoconnect.AutoConnect
 import com.geekvpn.lock.AppLock
@@ -117,6 +118,7 @@ class HomeActivity : HelperBaseComponentActivity() {
     private val account: AccountViewModel by viewModels()
     private val shop: ShopViewModel by viewModels()
     private val scanner: ScannerViewModel by viewModels()
+    private val autoRenew: AutoRenewViewModel by viewModels { AutoRenewViewModel.factory() }
 
     /** The open tab. Here rather than in composition so shop events can switch it. */
     private var tab by mutableStateOf(GeekTab.Home)
@@ -163,6 +165,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                     }
                 }
                 launch { shop.events.collect { onShopEvent(it) } }
+                launch { autoRenew.failed.collect { showMessage(R.string.geek_autorenew_failed) } }
                 launch {
                     scanner.events.collect { event ->
                         when (event) {
@@ -401,11 +404,18 @@ class HomeActivity : HelperBaseComponentActivity() {
                                             onAutoServerChange = home::setAutoServer,
                                             onChooseService = { tab = GeekTab.Services },
                                         )
-                                        GeekTab.Services -> ServicesScreen(
-                                            state = state,
-                                            isSignedIn = signedIn,
-                                            actions = servicesActions(openShop = { tab = GeekTab.Shop }),
-                                        )
+                                        GeekTab.Services -> {
+                                            val switches by autoRenew.switches.collectAsStateWithLifecycle()
+                                            val serviceIds = state.services.filter { it.active }.map { it.subscriptionId }
+                                            // Each visit re-reads them: the worker may have renewed (or failed to) since.
+                                            LaunchedEffect(signedIn, serviceIds) { if (signedIn) autoRenew.load(serviceIds) }
+                                            ServicesScreen(
+                                                state = state,
+                                                isSignedIn = signedIn,
+                                                actions = servicesActions(openShop = { tab = GeekTab.Shop }),
+                                                autoRenew = switches,
+                                            )
+                                        }
                                         GeekTab.Shop -> ShopScreen(state = shopState, actions = shopActions)
                                         GeekTab.Account -> AccountScreen(
                                             state = accountState,
@@ -574,6 +584,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         }
         override fun onUseManual(groupId: String) = home.selectGroup(groupId)
         override fun onEditManual(groupId: String) = startActivity(LinkEditActivity.intent(this@HomeActivity, groupId))
+        override fun onAutoRenew(subscriptionId: String, enabled: Boolean) = autoRenew.set(subscriptionId, enabled)
     }
 
     private fun accountActions(

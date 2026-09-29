@@ -192,6 +192,19 @@ class GeekApi(
             object : TypeToken<List<UsageDayResponse>>() {},
         )
 
+    suspend fun autoRenew(subscriptionId: String): AutoRenewResponse =
+        get(authorized, "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/auto-renew", object : TypeToken<AutoRenewResponse>() {})
+
+    /** The server's worker renews from the wallet shortly before the service runs out. */
+    suspend fun setAutoRenew(subscriptionId: String, enabled: Boolean): AutoRenewResponse =
+        execute(
+            authorized,
+            request("/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/auto-renew")
+                .put(gson.toJson(AutoRenewRequest(enabled)).toRequestBody(JSON))
+                .build(),
+            object : TypeToken<AutoRenewResponse>() {},
+        )
+
     /** This install's FCM token, so a support reply reaches the phone (com.geekvpn.push). */
     suspend fun registerPushToken(token: String) =
         send(authorized, request("/api/miniapp/push-token").post(gson.toJson(PushTokenRequest(token)).toRequestBody(JSON)).build())

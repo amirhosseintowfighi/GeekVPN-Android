@@ -564,4 +564,11 @@
     <string name="geek_widget_disconnect">Disconnect</string>
     <string name="geek_widget_remaining">%1$s GB left</string>
     <string name="geek_widget_unlimited">Unlimited traffic</string>
+    <string name="geek_autorenew_title">Auto-renew from wallet</string>
+    <string name="geek_autorenew_hint">A day before it ends, or when the traffic is nearly used up, the same plan is bought from your wallet.</string>
+    <string name="geek_autorenew_last_renewed">Last renewed automatically.</string>
+    <string name="geek_autorenew_last_pending">The renewal is paid and the service is being set up.</string>
+    <string name="geek_autorenew_last_funds">Not renewed: the wallet balance was too low. Top up your wallet.</string>
+    <string name="geek_autorenew_last_unavailable">Not renewed: this plan is no longer sold. Buy another one in the shop.</string>
+    <string name="geek_autorenew_failed">Auto-renew was not saved. Try again.</string>
 </resources>
