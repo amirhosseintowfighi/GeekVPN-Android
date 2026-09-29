@@ -571,4 +571,5 @@
     <string name="geek_autorenew_last_funds">Not renewed: the wallet balance was too low. Top up your wallet.</string>
     <string name="geek_autorenew_last_unavailable">Not renewed: this plan is no longer sold. Buy another one in the shop.</string>
     <string name="geek_autorenew_failed">Auto-renew was not saved. Try again.</string>
+    <string name="geek_home_tunnel_fallback">The direct service did not connect; trying your tunnel service.</string>
 </resources>

@@ -567,4 +567,5 @@
     <string name="geek_autorenew_last_funds">تمدید انجام نشد: موجودی کیف پول کافی نبود. کیف پول را شارژ کن.</string>
     <string name="geek_autorenew_last_unavailable">تمدید انجام نشد: این پلن دیگر فروخته نمی‌شود. از فروشگاه پلن دیگری بخر.</string>
     <string name="geek_autorenew_failed">تنظیم تمدید خودکار ذخیره نشد. دوباره امتحان کن.</string>
+    <string name="geek_home_tunnel_fallback">سرویس مستقیم وصل نشد؛ با سرویس تونل وصل می‌شویم.</string>
 </resources>

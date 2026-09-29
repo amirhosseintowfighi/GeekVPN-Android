@@ -54,4 +54,18 @@ object ConnectionLogic {
     /** Starred servers first; each part keeps the subscription's own order. */
     fun <T> favoritesFirst(items: List<T>, favorite: (T) -> Boolean): List<T> =
         items.filter(favorite) + items.filterNot(favorite)
+
+    /**
+     * Where smart connect goes when a direct service could not connect at all:
+     * another active service of the account that runs through a tunnel
+     * (tunnel or elite). Null for anything but a direct service, or when
+     * there is no such service.
+     */
+    fun tunnelFallback(failed: ServiceStatus?, services: List<ServiceStatus>): ServiceStatus? {
+        if (failed?.tier != TIER_DIRECT) return null
+        return services.firstOrNull { it.active && it.subscriptionId != failed.subscriptionId && it.tier in TUNNEL_TIERS }
+    }
+
+    private const val TIER_DIRECT = "direct"
+    private val TUNNEL_TIERS = setOf("tunnel", "elite")
 }

@@ -64,6 +64,25 @@ class ConnectionLogicTest {
         assertEquals(listOf("b", "d", "a", "c"), ConnectionLogic.favoritesFirst(servers) { it.second }.map { it.first })
     }
 
+    private fun service(id: String, tier: String?, active: Boolean = true) =
+        ServiceStatus(id, id, active, 50.0, 1.0, 10, tier, null)
+
+    @Test
+    fun a_failed_direct_service_falls_back_to_an_active_tunnel_one() {
+        val direct = service("d", "direct")
+        val services = listOf(direct, service("t0", "tunnel", active = false), service("e", "elite"), service("t", "tunnel"))
+        assertEquals("e", ConnectionLogic.tunnelFallback(direct, services)?.subscriptionId)
+    }
+
+    @Test
+    fun only_a_direct_service_falls_back_and_only_to_a_tunnel() {
+        val tunnel = service("t", "tunnel")
+        assertEquals(null, ConnectionLogic.tunnelFallback(tunnel, listOf(tunnel, service("t2", "tunnel"))))
+        assertEquals(null, ConnectionLogic.tunnelFallback(null, listOf(tunnel)))
+        val direct = service("d", "direct")
+        assertEquals(null, ConnectionLogic.tunnelFallback(direct, listOf(direct, service("d2", "direct"))))
+    }
+
     @Test
     fun country_codes_come_from_flags_or_a_leading_code() {
         assertEquals("DE", ServerNames.countryCode("🇩🇪 Germany"))

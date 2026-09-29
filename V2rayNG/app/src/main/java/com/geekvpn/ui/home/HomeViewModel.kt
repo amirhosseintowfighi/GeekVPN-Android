@@ -243,7 +243,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
      * Spec §3.6 through [SmartConnectUseCase]: clean addresses, the delay
      * test, then up to three connection attempts, each shown on Home.
      */
-    private suspend fun smartConnect(groupId: String, current: HomeUiState) {
+    private suspend fun smartConnect(groupId: String, current: HomeUiState, fallbackAllowed: Boolean = true) {
         val signals = Channel<ServiceSignal>(Channel.UNLIMITED)
         smartSignals = signals
         val ports = HomePorts(signals)
@@ -269,6 +269,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 is SmartResult.Failed -> {
                     stopAfterSmart(ports.started)
+                    // A direct service that did not connect at all: the account's tunnel service instead, once.
+                    val fallback = if (fallbackAllowed) ConnectionLogic.tunnelFallback(current.activeService, state.value.services) else null
+                    if (fallback != null && switchForFallback(fallback)) {
+                        eventChannel.send(HomeEvent.Message(R.string.geek_home_tunnel_fallback))
+                        smartConnect(SubscriptionPlan.guidOf(fallback.subscriptionId), state.value, fallbackAllowed = false)
+                        return
+                    }
                     eventChannel.send(HomeEvent.Failed(result.attempts))
                 }
             }
@@ -282,6 +289,36 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             smartSignals = null
             pendingProbe = null
         }
+    }
+
+    /**
+     * Makes [service] the selected one for the tunnel fallback, once the failed
+     * attempt has stopped. False when it has no servers yet or the core did not
+     * come down, and the fallback is skipped.
+     */
+    private suspend fun switchForFallback(service: ServiceStatus): Boolean {
+        withTimeoutOrNull(FALLBACK_STOP_WAIT_MS) { state.first { it.phase == ConnectionPhase.Off } } ?: return false
+        val groupId = SubscriptionPlan.guidOf(service.subscriptionId)
+        val snapshot = withContext(Dispatchers.IO) {
+            val guids = MmkvManager.decodeServerList(groupId)
+            val delays = guids.map { ConnectionLogic.Delay(it, delayOf(it)) }
+            val chosen = ConnectionLogic.best(delays) ?: guids.firstOrNull() ?: return@withContext null
+            MmkvManager.setSelectServer(chosen)
+            MmkvManager.encodeSettings(AppConfig.CACHE_SUBSCRIPTION_ID, groupId)
+            loadServers()
+        } ?: return false
+        state.update {
+            it.copy(
+                services = snapshot.services,
+                activeService = snapshot.active,
+                groupId = snapshot.groupId,
+                servers = snapshot.servers,
+                selected = snapshot.selected,
+                manualGroups = snapshot.manual,
+                cleanIp = snapshot.cleanIp,
+            )
+        }
+        return state.value.groupId == groupId && state.value.servers.isNotEmpty()
     }
 
     private fun stopAfterSmart(started: Boolean) {
@@ -816,6 +853,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         const val TEST_TIMEOUT_MS = 45_000L
         const val START_TIMEOUT_MS = 20_000L
         const val STOP_SETTLE_MS = 8_000L
+        /** The failed attempt stopping, before the tunnel fallback starts (stop settles within [STOP_SETTLE_MS]). */
+        const val FALLBACK_STOP_WAIT_MS = STOP_SETTLE_MS + 2_000L
 
         /** v2rayNG's check tries two URLs, then looks up the exit address. */
         const val PROBE_TIMEOUT_MS = 20_000L
