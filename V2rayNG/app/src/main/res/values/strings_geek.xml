@@ -409,6 +409,9 @@
     <string name="geek_alert_expiry_text">Renew now so the connection doesn\'t stop.</string>
     <string name="geek_alert_renew">Renew</string>
     <string name="geek_push_channel">Announcements</string>
+    <string name="geek_push_support_channel">Support replies</string>
+    <string name="geek_push_ticket_title">Support replied</string>
+    <string name="geek_push_ticket_title_ref">Support replied · %1$s</string>
     <string name="geek_tickets_title">My tickets</string>
     <string name="geek_tickets_entry_hint">Support\'s answers, in the app</string>
     <string name="geek_tickets_intro">Answers also come in the Telegram bot.</string>

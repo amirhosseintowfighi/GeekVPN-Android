@@ -143,6 +143,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         // A force-stop drops the Wi-Fi callback; opening the app puts it back.
         lifecycleScope.launch(Dispatchers.IO) { AutoConnect.sync(applicationContext) }
         Push.init(applicationContext)
+        GeekGraph.syncPushToken()
         AppLock.install(application)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         lifecycleScope.launch {

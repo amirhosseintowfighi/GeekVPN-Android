@@ -1,5 +1,6 @@
 package com.geekvpn.ui.support
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -80,6 +81,8 @@ class TicketsActivity : BaseComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // From a support-reply notification: straight to that conversation.
+        if (savedInstanceState == null) openFrom(intent)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.pollWhileVisible() }
@@ -95,6 +98,15 @@ class TicketsActivity : BaseComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        openFrom(intent)
+    }
+
+    private fun openFrom(intent: Intent) {
+        intent.getStringExtra(EXTRA_TICKET_ID)?.takeIf { it.isNotBlank() }?.let(viewModel::open)
+    }
+
     @Composable
     override fun ScreenContent() {
         GeekTheme {
@@ -104,6 +116,11 @@ class TicketsActivity : BaseComponentActivity() {
                 TicketsScreen(state, TicketsViewActions(viewModel) { if (!viewModel.back()) finish() })
             }
         }
+    }
+
+    companion object {
+        /** A ticket id (dashed UUID) whose conversation opens at once. */
+        const val EXTRA_TICKET_ID = "com.geekvpn.extra.TICKET_ID"
     }
 }
 

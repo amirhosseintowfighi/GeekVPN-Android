@@ -28,6 +28,7 @@ import com.v2ray.ang.util.LogUtil
 object Push {
     const val TOPIC_ALL = "all"
     const val CHANNEL_ID = "geek_announcements"
+    const val SUPPORT_CHANNEL_ID = "geek_support"
 
     val configured: Boolean
         get() = listOf(
@@ -58,6 +59,13 @@ object Push {
         } catch (e: IllegalArgumentException) {
             LogUtil.e(AppConfig.TAG, "Push: Firebase could not start", e)
         }
+    }
+
+    /** Support replies: a person answered, so it sounds, unlike announcements. */
+    fun ensureSupportChannel(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val channel = NotificationChannel(SUPPORT_CHANNEL_ID, context.getString(R.string.geek_push_support_channel), NotificationManager.IMPORTANCE_HIGH)
+        context.getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
     }
 
     fun ensureChannel(context: Context) {

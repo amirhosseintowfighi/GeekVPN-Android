@@ -10,6 +10,7 @@ import com.geekvpn.connection.ConnectionPrefs
 import com.geekvpn.auth.SecureStore
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.SessionStore
+import com.geekvpn.push.PushRegistration
 import com.tencent.mmkv.MMKV
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
@@ -87,6 +88,21 @@ object GeekGraph {
         }
     }
 
+    private val pushRegistration: PushRegistration by lazy { PushRegistration.open(api) }
+    private var pushJob: Job? = null
+
+    /**
+     * Gives the server this install's FCM token for the signed-in account, so
+     * support replies arrive as notifications. Called when Home opens and when
+     * Firebase rotates the token; sends only when something changed.
+     */
+    fun syncPushToken() {
+        val user = (session.session.value as? Session.SignedIn)?.user ?: return
+        val account = user.id ?: user.telegramId?.toString() ?: return
+        if (pushJob?.isActive == true) return
+        pushJob = launchScope.launch { pushRegistration.sync(account) }
+    }
+
     /**
      * Sign out on this device: tell the server (best effort, in the
      * background), drop the account's services, then the session.
@@ -96,6 +112,8 @@ object GeekGraph {
             launchScope.launch {
                 // Bounded: a phone offline must still be able to sign out.
                 withTimeoutOrNull(LOGOUT_TIMEOUT_MS) {
+                    // While the tokens still work: this phone stops getting the account's replies.
+                    pushRegistration.forget()
                     try {
                         api.logout()
                     } catch (e: java.io.IOException) {

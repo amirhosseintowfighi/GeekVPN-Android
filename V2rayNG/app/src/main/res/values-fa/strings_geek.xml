@@ -405,6 +405,9 @@
     <string name="geek_alert_expiry_text">همین حالا تمدید کن تا اتصال قطع نشود.</string>
     <string name="geek_alert_renew">تمدید</string>
     <string name="geek_push_channel">اطلاعیه‌ها</string>
+    <string name="geek_push_support_channel">پاسخ پشتیبانی</string>
+    <string name="geek_push_ticket_title">پشتیبانی جواب داد</string>
+    <string name="geek_push_ticket_title_ref">پشتیبانی جواب داد · %1$s</string>
     <string name="geek_tickets_title">تیکت‌های من</string>
     <string name="geek_tickets_entry_hint">جواب‌های پشتیبانی، داخل اپ</string>
     <string name="geek_tickets_intro">جواب‌ها در ربات تلگرام هم می‌آیند.</string>

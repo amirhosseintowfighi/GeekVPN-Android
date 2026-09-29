@@ -204,6 +204,13 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
 - Firebase هنگام باز شدن اپ (`LaunchActivity`، `HomeActivity`) و در `GeekMessagingService`
   راه می‌افتد، نه با androidx.startup: `LogUtil` به MMKV نیاز دارد و MMKV در
   `AngApplication.onCreate` آماده می‌شود.
+- جواب پشتیبانی به تیکت هم push می‌شود: اپ بعد از ورود توکن FCM را به
+  `POST /api/miniapp/push-token` می‌دهد (`PushRegistration`، فقط وقتی توکن یا حساب
+  عوض شده) و موقع خروج `push-token/forget` را صدا می‌زند. بک‌اند
+  (`PUSH__FCM_SERVICE_ACCOUNT`) یک پیام فقط-داده با `type=ticket` می‌فرستد؛
+  `GeekMessagingService` آن را روی کانال «پاسخ پشتیبانی» نشان می‌دهد و زدنش همان
+  گفتگو را در `TicketsActivity` (`EXTRA_TICKET_ID`) باز می‌کند. پیام تلگرام مثل قبل
+  هم می‌رود.
 - تحویل push به سرویس‌های گوگل روی گوشی بستگی دارد؛ در ایران وقتی VPN قطع است
   ممکن است دیر برسد.
 

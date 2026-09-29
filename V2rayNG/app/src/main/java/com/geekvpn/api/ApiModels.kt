@@ -327,6 +327,9 @@ data class TicketMessage(
 /** `POST /api/miniapp/tickets/{id}/messages`. */
 data class TicketReplyRequest(val message: String)
 
+/** `POST /api/miniapp/push-token` and `/push-token/forget`. */
+data class PushTokenRequest(val token: String)
+
 /** `GET /api/miniapp/referral`: the invite code, its results and the current terms. */
 data class ReferralSummary(
     val code: String?,

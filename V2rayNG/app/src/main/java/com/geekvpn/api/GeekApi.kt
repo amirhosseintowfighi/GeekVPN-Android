@@ -184,6 +184,14 @@ class GeekApi(
     suspend fun replyToTicket(ticketId: String, message: String): TicketMessage =
         post(authorized, "/api/miniapp/tickets/${ticketId.pathSegment()}/messages", TicketReplyRequest(message))
 
+    /** This install's FCM token, so a support reply reaches the phone (com.geekvpn.push). */
+    suspend fun registerPushToken(token: String) =
+        send(authorized, request("/api/miniapp/push-token").post(gson.toJson(PushTokenRequest(token)).toRequestBody(JSON)).build())
+
+    /** Sign-out: the server stops pushing this account's replies to this install. */
+    suspend fun forgetPushToken(token: String) =
+        send(authorized, request("/api/miniapp/push-token/forget").post(gson.toJson(PushTokenRequest(token)).toRequestBody(JSON)).build())
+
     override suspend fun trialOffer(): TrialOffer = get(authorized, "/api/miniapp/trial", object : TypeToken<TrialOffer>() {})
 
     override suspend fun claimTrial(): TrialClaim = post(authorized, "/api/miniapp/trial", emptyMap<String, String>())
@@ -206,21 +214,7 @@ class GeekApi(
                 throw ApiException(null, "network failure on ${request.url.encodedPath}", e)
             }
             response.use {
-                if (!it.isSuccessful) {
-                    val problem = try {
-                        gson.fromJson(it.body.string(), Problem::class.java)
-                    } catch (_: JsonParseException) {
-                        null
-                    } catch (_: IOException) {
-                        null
-                    }
-                    throw ApiException(
-                        it.code,
-                        "HTTP ${it.code} on ${request.url.encodedPath}",
-                        code = problem?.title,
-                        messageFa = problem?.messageFa?.takeIf { text -> text.isNotBlank() },
-                    )
-                }
+                if (!it.isSuccessful) throw failure(it, request)
                 val text = it.body.string()
                 try {
                     gson.fromJson(text, type.type)
@@ -231,6 +225,34 @@ class GeekApi(
                 }
             }
         }
+
+    /** For endpoints that answer 204 with no body. */
+    private suspend fun send(client: OkHttpClient, request: Request) {
+        withContext(Dispatchers.IO) {
+            val response = try {
+                client.newCall(request).execute()
+            } catch (e: IOException) {
+                throw ApiException(null, "network failure on ${request.url.encodedPath}", e)
+            }
+            response.use { if (!it.isSuccessful) throw failure(it, request) }
+        }
+    }
+
+    private fun failure(response: Response, request: Request): ApiException {
+        val problem = try {
+            gson.fromJson(response.body.string(), Problem::class.java)
+        } catch (_: JsonParseException) {
+            null
+        } catch (_: IOException) {
+            null
+        }
+        return ApiException(
+            response.code,
+            "HTTP ${response.code} on ${request.url.encodedPath}",
+            code = problem?.title,
+            messageFa = problem?.messageFa?.takeIf { text -> text.isNotBlank() },
+        )
+    }
 
     /**
      * On a 401, trades the refresh token for a new pair once and retries.
