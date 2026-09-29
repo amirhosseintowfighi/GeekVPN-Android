@@ -144,6 +144,8 @@ internal fun LoginScaffold(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        // A landscape TV is short: a sheet taller than the screen scrolls instead of losing its buttons.
+                        .verticalScroll(rememberScrollState())
                         .navigationBarsPadding()
                         .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 30.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),

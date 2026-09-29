@@ -168,7 +168,7 @@ if [[ "$probe" != *Error* ]]; then
         preview "$screen" false
         preview "$screen" true
     done
-    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt update-downloading; do
+    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt update-downloading wait-qr; do
         preview "$screen" false
     done
     # A name the preview activity does not know falls back to the waiting screen.

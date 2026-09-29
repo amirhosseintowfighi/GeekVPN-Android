@@ -87,6 +87,15 @@ class ScreenPreviewActivity : BaseComponentActivity() {
             when (val screen = intent.getStringExtra(EXTRA_SCREEN).orEmpty()) {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
+                // What a TV shows: the QR code of the bot link, to sign in from a phone.
+                SCREEN_WAIT_QR -> WaitingScreen(
+                    LinkPurpose.SignIn,
+                    expiresAt,
+                    onReopen = {},
+                    onCancel = {},
+                    deepLink = "https://t.me/example_bot?start=applogin_SAMPLE",
+                    qrFirst = true,
+                )
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
                 SCREEN_LOCK -> GeekBackdrop { LockScreen(onUnlock = {}) }
                 SCREEN_USAGE -> GeekBackdrop {
@@ -139,6 +148,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
     companion object {
         const val EXTRA_SCREEN = "screen"
         const val SCREEN_CREATE = "create"
+        const val SCREEN_WAIT_QR = "wait-qr"
         const val SCREEN_SYNCING = "syncing"
         const val SCREEN_USERNAME = "username"
         const val SCREEN_TICKETS = "tickets"

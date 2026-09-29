@@ -23,7 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +43,7 @@ import com.geekvpn.ui.components.GeekPrimaryButton
 import com.geekvpn.ui.components.GeekSecondaryButton
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
+import com.geekvpn.ui.components.QrCode
 import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
 import com.v2ray.ang.R
@@ -58,7 +61,12 @@ fun WaitingScreen(
     expiresAt: Long,
     onReopen: () -> Unit,
     onCancel: () -> Unit,
+    /** The t.me link, for the QR code: sign in by scanning it with a phone. */
+    deepLink: String? = null,
+    /** Open from the start where Telegram is not on this device (a TV). */
+    qrFirst: Boolean = false,
 ) {
+    var showQr by rememberSaveable { mutableStateOf(qrFirst) }
     LoginScaffold(
         hero = {
             PulsingLogo()
@@ -83,6 +91,21 @@ fun WaitingScreen(
                     ),
                 )
                 Step(3, stringResource(R.string.geek_wait_step_approve))
+            }
+            if (deepLink != null) {
+                if (showQr) {
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        QrCode(deepLink, stringResource(R.string.geek_wait_qr_description), 200.dp)
+                        Text(stringResource(R.string.geek_wait_qr_hint), style = Geek.type.caption, color = Geek.colors.onGlassMuted)
+                    }
+                } else {
+                    GeekSecondaryButton(
+                        text = stringResource(R.string.geek_wait_qr_show),
+                        icon = GeekIcons.Qr,
+                        onClick = { showQr = true },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
             GeekPrimaryButton(
                 text = stringResource(R.string.geek_wait_reopen),

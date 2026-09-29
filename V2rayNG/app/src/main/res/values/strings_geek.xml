@@ -574,4 +574,7 @@
     <string name="geek_home_tunnel_fallback">The direct service did not connect; trying your tunnel service.</string>
     <string name="geek_promo_until">Until %1$s</string>
     <string name="geek_promo_dismiss_description">Close the offer</string>
+    <string name="geek_wait_qr_show">Sign in with your phone (QR)</string>
+    <string name="geek_wait_qr_hint">Scan it with your phone\'s camera to open the bot in Telegram there.</string>
+    <string name="geek_wait_qr_description">QR code of the bot sign-in link</string>
 </resources>

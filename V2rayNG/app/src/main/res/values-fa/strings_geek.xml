@@ -570,4 +570,7 @@
     <string name="geek_home_tunnel_fallback">سرویس مستقیم وصل نشد؛ با سرویس تونل وصل می‌شویم.</string>
     <string name="geek_promo_until">تا %1$s</string>
     <string name="geek_promo_dismiss_description">بستن پیشنهاد</string>
+    <string name="geek_wait_qr_show">ورود با گوشی (QR)</string>
+    <string name="geek_wait_qr_hint">با دوربین گوشی اسکن کن تا ربات در تلگرامِ گوشی باز شود.</string>
+    <string name="geek_wait_qr_description">QR لینک ورود به ربات</string>
 </resources>

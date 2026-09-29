@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -22,6 +23,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import com.geekvpn.ui.common.contentWidth
 import com.geekvpn.ui.theme.Geek
 import com.geekvpn.ui.theme.GeekColors
 
@@ -67,9 +69,11 @@ fun GeekBackdrop(
                 handle.size = it.size.toSize()
             }
             .drawBehind { handle.draw(this, size) },
+        contentAlignment = Alignment.TopCenter,
     ) {
         CompositionLocalProvider(LocalBackdrop provides handle) {
-            content()
+            // The backdrop fills a tablet or a TV; the screen itself stays phone-wide, centred.
+            Box(Modifier.contentWidth().fillMaxSize(), content = content)
         }
     }
 }
