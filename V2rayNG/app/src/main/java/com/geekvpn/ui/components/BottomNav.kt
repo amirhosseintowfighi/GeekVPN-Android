@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.geekvpn.ui.icons.GeekIcons
@@ -44,10 +45,10 @@ enum class GeekTab(@StringRes val label: Int, val icon: ImageVector) {
 }
 
 /**
- * Floating tab bar: the selected tab is a 60dp milk-glass tile with its label
- * under it; the others are 52dp clear-glass tiles whose labels are kept (for
- * layout) but invisible, as in the design. Switching tabs animates between
- * the two.
+ * Floating tab bar: the selected tab is a 60dp milk-glass tile, the others
+ * 52dp clear-glass tiles; every tab has its label under it (the design hid the
+ * unselected ones, which left people guessing). Switching tabs animates
+ * between the two.
  *
  * The tiles sit on a nearly opaque dock. Without it, a card scrolling under the
  * bar showed through the clear tiles in the same colour and the tabs got lost.
@@ -94,7 +95,7 @@ private fun NavItem(tab: GeekTab, selected: Boolean, onClick: () -> Unit) {
     val shown = progress.coerceIn(0f, 1f)
     Column(
         modifier = Modifier
-            // selectable merges the label below into one Tab node, even when the label is invisible.
+            // selectable merges the label below into one Tab node.
             .selectable(selected = selected, role = Role.Tab, onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -123,10 +124,11 @@ private fun NavItem(tab: GeekTab, selected: Boolean, onClick: () -> Unit) {
                     .align(Alignment.Center),
             )
         }
+        // Every tab is named, so it is clear what each one opens; the selected one reads stronger.
         Text(
             text = label,
-            style = Geek.type.micro,
-            color = colors.onBackground.copy(alpha = shown),
+            style = Geek.type.micro.copy(fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium),
+            color = colors.onBackground.copy(alpha = 0.7f + 0.3f * shown),
         )
     }
 }

@@ -117,21 +117,18 @@ fun ServicesScreen(state: HomeUiState, isSignedIn: Boolean, actions: ServicesAct
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.geek_services_manual), style = Geek.type.label, color = colors.onBackground, modifier = Modifier.weight(1f))
-            AddChip(actions)
         }
-        if (state.manualGroups.isEmpty()) {
-            ManualHint()
-        } else {
-            state.manualGroups.forEach { group ->
-                ManualRow(
-                    group = group,
-                    selected = state.groupId == group.guid,
-                    onClick = { actions.onUseManual(group.guid) },
-                    // Configs imported one by one live in v2rayNG's default group, which has no link to edit.
-                    onEdit = if (group.name != null) ({ actions.onEditManual(group.guid) }) else null,
-                )
-            }
+        state.manualGroups.forEach { group ->
+            ManualRow(
+                group = group,
+                selected = state.groupId == group.guid,
+                onClick = { actions.onUseManual(group.guid) },
+                // Configs imported one by one live in v2rayNG's default group, which has no link to edit.
+                onEdit = if (group.name != null) ({ actions.onEditManual(group.guid) }) else null,
+            )
         }
+        // Always last: the way to add another link.
+        ManualHint(actions)
     }
 }
 
@@ -322,35 +319,12 @@ private fun SquareButton(icon: ImageVector, description: String, enabled: Boolea
     }
 }
 
-/** The link button in the header and "افزودن" share one menu. */
+/** The link button in the header and the manual-links card share one menu. */
 @Composable
 private fun AddLinkButton(actions: ServicesActions) {
     var open by rememberSaveable { mutableStateOf(false) }
     Box {
         GlassIconButton(GeekIcons.Link, stringResource(R.string.geek_services_link_description), { open = true })
-        AddMenu(open, { open = false }, actions)
-    }
-}
-
-@Composable
-private fun AddChip(actions: ServicesActions) {
-    val colors = Geek.colors
-    var open by rememberSaveable { mutableStateOf(false) }
-    Box {
-        GlassSurface(
-            kind = GlassKind.Clear,
-            shape = Geek.shapes.pill,
-            modifier = Modifier.clickable(role = Role.Button) { open = true },
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Icon(GeekIcons.Plus, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(16.dp))
-                Text(stringResource(R.string.geek_services_add), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onBackground)
-            }
-        }
         AddMenu(open, { open = false }, actions)
     }
 }
@@ -377,21 +351,29 @@ private fun AddMenu(open: Boolean, onDismiss: () -> Unit, actions: ServicesActio
     }
 }
 
+/** The whole card is the "add a link" button: it reads like one, so it is one. */
 @Composable
-private fun ManualHint() {
+private fun ManualHint(actions: ServicesActions) {
     val colors = Geek.colors
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, colors.onBackground.copy(alpha = 0.34f), Geek.shapes.row)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(38.dp)) {
-            Icon(GeekIcons.Link, contentDescription = null, tint = colors.onBackground, modifier = Modifier.align(Alignment.Center).size(20.dp))
+    var open by rememberSaveable { mutableStateOf(false) }
+    Box {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(Geek.shapes.row)
+                .border(1.dp, colors.onBackground.copy(alpha = 0.34f), Geek.shapes.row)
+                .clickable(role = Role.Button, onClickLabel = stringResource(R.string.geek_services_add)) { open = true }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(38.dp)) {
+                Icon(GeekIcons.Link, contentDescription = null, tint = colors.onBackground, modifier = Modifier.align(Alignment.Center).size(20.dp))
+            }
+            Text(stringResource(R.string.geek_services_manual_hint), style = Geek.type.body, color = colors.onBackground, modifier = Modifier.weight(1f))
+            Icon(GeekIcons.Plus, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(20.dp))
         }
-        Text(stringResource(R.string.geek_services_manual_hint), style = Geek.type.body, color = colors.onBackground, modifier = Modifier.weight(1f))
+        AddMenu(open, { open = false }, actions)
     }
 }
 

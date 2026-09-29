@@ -79,6 +79,9 @@ class ConnectionLogicTest {
         assertEquals("Germany", ServerNames.title("🇩🇪 Germany"))
         assertEquals("server1 amir", ServerNames.title("🇩🇪 - server1 amir"))
         assertEquals("🇩🇪", ServerNames.title("🇩🇪"))
+        assertEquals("server1 alidaemi", ServerNames.title("server1 alidaemi -"))
+        assertEquals("server1 alidaemi", ServerNames.title("server1 alidaemi - 🇩🇪"))
+        assertEquals("-", ServerNames.title("-"))
     }
 
     @Test

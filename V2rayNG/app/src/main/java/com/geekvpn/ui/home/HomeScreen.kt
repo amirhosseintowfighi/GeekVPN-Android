@@ -2,8 +2,10 @@ package com.geekvpn.ui.home
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -150,12 +152,22 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
             else -> R.string.geek_home_connect_description
         }
     )
-    // Turning on fills the ring; a press sinks the button a little.
-    val sweep by animateFloatAsState(
-        targetValue = if (on) 300f else 0f,
-        animationSpec = tween(if (on) 700 else 250, easing = FastOutSlowInEasing),
-        label = "ring",
-    )
+    // Turning on fills the ring from the bottom, both halves at once, until
+    // they meet at the top; then one soft ring pulses out. A press sinks the button a little.
+    val fill = remember { Animatable(if (on) 1f else 0f) }
+    val pulse = remember { Animatable(1f) }
+    LaunchedEffect(on) {
+        if (on) {
+            if (fill.value < 1f) {
+                fill.animateTo(1f, tween(1_100, easing = FastOutSlowInEasing))
+                pulse.snapTo(0f)
+                pulse.animateTo(1f, tween(900, easing = LinearOutSlowInEasing))
+            }
+        } else {
+            pulse.snapTo(1f)
+            fill.animateTo(0f, tween(250))
+        }
+    }
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -176,15 +188,30 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
             when {
                 on -> {
                     drawCircle(colors.onBackground.copy(alpha = 0.22f), radius = radius, style = Stroke(stroke * 2))
-                    drawArc(
-                        color = colors.onBackground,
-                        startAngle = 110f,
-                        sweepAngle = sweep,
-                        useCenter = false,
-                        topLeft = center - androidx.compose.ui.geometry.Offset(radius, radius),
-                        size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
-                        style = Stroke(stroke * 2, cap = StrokeCap.Round),
-                    )
+                    val half = 180f * fill.value
+                    if (fill.value >= 1f) {
+                        drawCircle(colors.onBackground, radius = radius, style = Stroke(stroke * 2))
+                    } else if (half > 0f) {
+                        // Two halves from the bottom (90°), one each way, meeting at the top.
+                        for (direction in listOf(1f, -1f)) {
+                            drawArc(
+                                color = colors.onBackground,
+                                startAngle = 90f,
+                                sweepAngle = half * direction,
+                                useCenter = false,
+                                topLeft = center - androidx.compose.ui.geometry.Offset(radius, radius),
+                                size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
+                                style = Stroke(stroke * 2, cap = StrokeCap.Round),
+                            )
+                        }
+                    }
+                    if (pulse.value < 1f) {
+                        drawCircle(
+                            color = colors.onBackground.copy(alpha = 0.5f * (1f - pulse.value)),
+                            radius = radius + 10.dp.toPx() * pulse.value,
+                            style = Stroke(stroke * 2),
+                        )
+                    }
                 }
                 busy -> drawArc(
                     color = colors.onBackground,

@@ -35,12 +35,14 @@ object ServerNames {
         for (i in 0 until codePoints.size - 1) {
             if (codePoints[i] in REGIONAL_A..REGIONAL_Z && codePoints[i + 1] in REGIONAL_A..REGIONAL_Z) {
                 val rest = codePoints.copyOfRange(0, i) + codePoints.copyOfRange(i + 2, codePoints.size)
-                val title = String(rest, 0, rest.size).trim().trim('-', '|', '·').trim()
-                return title.ifEmpty { remarks.trim() }
+                return tidy(String(rest, 0, rest.size)).ifEmpty { remarks.trim() }
             }
         }
-        return remarks.trim()
+        return tidy(remarks).ifEmpty { remarks.trim() }
     }
+
+    /** Separators left dangling at either end ("server1 amir -") go. */
+    private fun tidy(text: String): String = text.trim().trim('-', '|', '·', '_').trim()
 
     /** "🇩🇪" for "DE": the flag emoji spelled by two regional indicators. Null for anything but two letters. */
     fun flag(code: String): String? {
