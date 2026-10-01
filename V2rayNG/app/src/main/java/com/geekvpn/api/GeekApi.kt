@@ -30,6 +30,8 @@ class ApiException(
     val code: String? = null,
     /** The server's own Persian sentence for the failure, when it sent one. */
     val messageFa: String? = null,
+    /** An answer came but it was not the API's (a captive portal, a proxy's error page, an empty body). */
+    val badBody: Boolean = false,
 ) : IOException(message, cause) {
     val isNetwork: Boolean get() = status == null
 }
@@ -242,10 +244,10 @@ class GeekApi(
                 val text = it.body.string()
                 try {
                     gson.fromJson(text, type.type)
-                        ?: throw ApiException(null, "empty body on ${request.url.encodedPath}")
+                        ?: throw ApiException(null, "empty body on ${request.url.encodedPath}", badBody = true)
                 } catch (e: JsonParseException) {
                     // A captive portal or a proxy's HTML error page, not the API.
-                    throw ApiException(null, "unexpected body on ${request.url.encodedPath}", e)
+                    throw ApiException(null, "unexpected body on ${request.url.encodedPath}", e, badBody = true)
                 }
             }
         }

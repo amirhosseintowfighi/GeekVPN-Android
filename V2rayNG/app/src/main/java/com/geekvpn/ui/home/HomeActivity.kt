@@ -42,7 +42,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.geekvpn.GeekGraph
+import com.geekvpn.account.ApiFailureKind
 import com.geekvpn.account.AutoRenewViewModel
+import com.geekvpn.account.RefreshOutcome
 import com.geekvpn.account.UsageNotifier
 import com.geekvpn.autoconnect.AutoConnect
 import com.geekvpn.lock.AppLock
@@ -157,6 +159,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                             is HomeEvent.Message -> showMessage(event.text)
                             is HomeEvent.Text -> Toast.makeText(this@HomeActivity, event.text, Toast.LENGTH_LONG).show()
                             is HomeEvent.SessionEnded -> Toast.makeText(this@HomeActivity, sessionSummary(event), Toast.LENGTH_LONG).show()
+                            is HomeEvent.Refreshed -> Toast.makeText(this@HomeActivity, refreshText(event.outcome), Toast.LENGTH_LONG).show()
                             is HomeEvent.Failed -> Toast.makeText(
                                 this@HomeActivity,
                                 getString(R.string.geek_smart_failed, event.attempts),
@@ -645,6 +648,26 @@ class HomeActivity : HelperBaseComponentActivity() {
     private fun showMessage(text: Int) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 
     /** "اتصال قطع شد · ۰۱:۲۰:۳۵ · ۳۵۰ مگابایت". */
+    /** The refresh result, with the reason the service list could not be read (what a report needs). */
+    private fun refreshText(outcome: RefreshOutcome): String {
+        val failure = outcome.failure
+        if (failure == null) {
+            return getString(if (outcome.fetchFailures > 0) R.string.geek_services_sync_fetch_failed else R.string.geek_services_synced)
+        }
+        val reason = outcome.serverText ?: when (failure) {
+            ApiFailureKind.Network -> getString(R.string.geek_sync_reason_network)
+            ApiFailureKind.Session -> getString(R.string.geek_sync_reason_session)
+            ApiFailureKind.Busy -> getString(R.string.geek_sync_reason_busy)
+            ApiFailureKind.Server -> getString(R.string.geek_sync_reason_server, outcome.status ?: 0)
+            ApiFailureKind.BadResponse -> getString(R.string.geek_sync_reason_bad_response)
+            ApiFailureKind.Other -> getString(R.string.geek_sync_reason_other, outcome.status ?: 0)
+        }
+        return getString(
+            if (outcome.fetched > 0) R.string.geek_services_sync_partial else R.string.geek_services_sync_failed_reason,
+            reason,
+        )
+    }
+
     private fun sessionSummary(event: HomeEvent.SessionEnded): String {
         val locale = resources.configuration.locales[0]
         val seconds = event.durationMs / 1000

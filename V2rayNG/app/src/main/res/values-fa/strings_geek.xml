@@ -129,7 +129,6 @@
     <string name="geek_services_add">افزودن</string>
     <string name="geek_services_manual_hint">لینک اشتراک، لینک هوشمند یا کانفیگ دیگری داری؟ اینجا اضافه کن.</string>
     <string name="geek_services_empty">هنوز سرویسی نداری. از فروشگاه بخر یا تست رایگان بگیر.</string>
-    <string name="geek_services_sync_failed">بروزرسانی سرویس‌ها ممکن نشد.</string>
     <string name="geek_services_synced">سرویس‌ها بروز شد.</string>
     <string name="geek_services_buy_description">خرید سرویس</string>
     <string name="geek_services_link_description">افزودن لینک دستی</string>
@@ -573,4 +572,13 @@
     <string name="geek_wait_qr_show">ورود با گوشی (QR)</string>
     <string name="geek_wait_qr_hint">با دوربین گوشی اسکن کن تا ربات در تلگرامِ گوشی باز شود.</string>
     <string name="geek_wait_qr_description">QR لینک ورود به ربات</string>
+    <string name="geek_services_sync_failed_reason">بروزرسانی سرویس‌ها ممکن نشد: %1$s</string>
+    <string name="geek_services_sync_partial">سرورها دوباره دریافت شدند، ولی فهرست سرویس‌ها از سرور خوانده نشد: %1$s</string>
+    <string name="geek_services_sync_fetch_failed">سرویس‌ها خوانده شدند، ولی دریافت سرورهای بعضی سرویس‌ها ممکن نشد.</string>
+    <string name="geek_sync_reason_network">سرور GeekVPN در دسترس نیست.</string>
+    <string name="geek_sync_reason_session">ورودت دیگر معتبر نیست؛ یک بار از حساب خارج شو و دوباره وارد شو.</string>
+    <string name="geek_sync_reason_busy">درخواست‌ها زیاد بود؛ یک دقیقه بعد دوباره بزن.</string>
+    <string name="geek_sync_reason_server">خطای سرور (کد %1$d).</string>
+    <string name="geek_sync_reason_bad_response">جوابی که رسید از سرور GeekVPN نبود (شبکه یا پروکسی جلوی آن را گرفته).</string>
+    <string name="geek_sync_reason_other">سرور درخواست را نپذیرفت (کد %1$d).</string>
 </resources>

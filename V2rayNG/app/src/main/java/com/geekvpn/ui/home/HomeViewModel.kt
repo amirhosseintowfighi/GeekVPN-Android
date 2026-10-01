@@ -7,7 +7,10 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.geekvpn.GeekGraph
+import com.geekvpn.account.ApiFailureKind
+import com.geekvpn.account.RefreshOutcome
 import com.geekvpn.account.SubscriptionPlan
+import com.geekvpn.api.ApiException
 import com.geekvpn.connection.ConnectionLogic
 import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.connection.ExitIp
@@ -113,6 +116,9 @@ sealed interface HomeEvent {
 
     /** Smart connect gave up after [attempts] servers. */
     data class Failed(val attempts: Int) : HomeEvent
+
+    /** The services refresh finished; the activity words it. */
+    data class Refreshed(val outcome: RefreshOutcome) : HomeEvent
 
     /** A connection this screen saw end: how long it lasted and what went through (null: unknown). */
     data class SessionEnded(val durationMs: Long, val bytes: Long?) : HomeEvent
@@ -417,20 +423,34 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
      * Services' refresh: services from the server, then their servers.
      * [announce] false for a refresh the customer did not ask for (after a purchase).
      */
+    /**
+     * Services' and Servers' refresh: the service list from the backend, then
+     * every account service's servers downloaded again. When the list cannot be
+     * read the servers are still downloaded, and the message says why the list
+     * failed, so a report names the actual cause.
+     */
     fun refreshAccount(announce: Boolean = true) {
         if (state.value.updating || GeekGraph.session.session.value !is com.geekvpn.auth.Session.SignedIn) return
         viewModelScope.launch {
             state.update { it.copy(updating = true) }
-            val message = try {
-                GeekGraph.accountSync.sync()
-                R.string.geek_services_synced
+            val outcome = try {
+                val result = GeekGraph.accountSync.sync(refetchAll = true)
+                RefreshOutcome(failure = null, fetched = result.fetched, fetchFailures = result.fetchFailures)
             } catch (e: java.io.IOException) {
-                LogUtil.w(AppConfig.TAG, "Home: account refresh failed", e)
-                R.string.geek_services_sync_failed
+                val api = e as? ApiException ?: ApiException(null, "account refresh failed", e)
+                LogUtil.w(AppConfig.TAG, "Home: account refresh failed (status=${api.status}, kind=${ApiFailureKind.of(api)})", e)
+                val local = GeekGraph.accountSync.refetchLocal()
+                RefreshOutcome(
+                    failure = ApiFailureKind.of(api),
+                    status = api.status,
+                    serverText = api.messageFa,
+                    fetched = local.fetched,
+                    fetchFailures = local.fetchFailures,
+                )
             }
             state.update { it.copy(updating = false) }
             reloadServers()
-            if (announce || message == R.string.geek_services_sync_failed) eventChannel.send(HomeEvent.Message(message))
+            if (announce || outcome.worthSaying) eventChannel.send(HomeEvent.Refreshed(outcome))
         }
     }
 
