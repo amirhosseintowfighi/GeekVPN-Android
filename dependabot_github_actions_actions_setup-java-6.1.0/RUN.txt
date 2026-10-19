@@ -1,0 +1,4 @@
+source=dependabot/github_actions/actions/setup-java-6.1.0
+sha=6d18eae70c1b4b0e1aad0869b381d13a4d70704a
+run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/39317826771
+smoke=success
