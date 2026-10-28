@@ -196,9 +196,6 @@
     <string name="geek_shop_duration">مدت اعتبار</string>
     <string name="geek_shop_volume">حجم (گیگابایت)</string>
     <string name="geek_shop_discount">٪%1$s تخفیف</string>
-    <string name="geek_tier_direct">مستقیم</string>
-    <string name="geek_tier_tunnel">تونل</string>
-    <string name="geek_tier_elite">ویژه</string>
     <string name="geek_shop_months_unit">ماهه</string>
     <string name="geek_shop_coupon_ask">کد تخفیف داری؟</string>
     <string name="geek_shop_coupon_hint">کد تخفیف</string>

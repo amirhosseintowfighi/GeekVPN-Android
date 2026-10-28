@@ -6,47 +6,59 @@ import com.geekvpn.api.Storefront
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-/** The product tiers the shop switches between, in the order they are shown. */
-enum class Tier(val key: String) {
-    Direct("direct"),
-    Tunnel("tunnel"),
-    Elite("elite"),
-    ;
-
-    companion object {
-        fun of(key: String?): Tier? = entries.firstOrNull { it.key == key }
-    }
-}
+/**
+ * One choice on the shop's "service type" switch: a category of the bot's
+ * shop, named as the bot names it. [tier] is the tier of its products, kept
+ * so a renewal can still find its category on a server that does not send
+ * the category name.
+ */
+data class ServiceKind(val id: String, val name: String, val tier: String?)
 
 /** A validity shown as "۳ ماهه" when it is whole months, else as days. */
 data class DurationLabel(val count: Int, val months: Boolean)
 
 /**
- * Turns the storefront into the design's pickers: a tier switch, then the
- * durations of that tier's product, then the volumes sold for the chosen
- * duration. Each (duration, volume) pair is one real plan; nothing is priced
- * here, the server's quote is the price.
+ * Turns the storefront into the design's pickers: a service-type switch, then
+ * the durations sold in it, then the volumes sold for the chosen duration.
+ * Each (duration, volume) pair is one real plan; nothing is priced here, the
+ * server's quote is the price.
+ *
+ * The service type is the bot's category, and every product in it adds its
+ * plans. It was the product tier, labelled with the model name, and showed
+ * only one product of each tier - so a shop whose volumes are separate
+ * products ("10GB", "20GB", "100GB") of one tier offered just one volume.
  */
 object ShopCatalog {
 
-    /** Tiers with at least one product that has a plan to sell. */
-    fun tiers(storefront: Storefront): List<Tier> {
-        val present = products(storefront).mapNotNull { Tier.of(it.tier) }.toSet()
-        return Tier.entries.filter { it in present }
+    /** Categories with something to sell, in the server's order. */
+    fun kinds(storefront: Storefront): List<ServiceKind> =
+        storefront.categories.orEmpty().mapNotNull { category ->
+            val id = category.categoryId?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val selling = category.products.orEmpty().filter { plansOf(it).isNotEmpty() }
+            if (selling.isEmpty()) return@mapNotNull null
+            ServiceKind(id, category.nameFa?.takeIf { it.isNotBlank() } ?: id, selling.first().tier)
+        }
+
+    /** Where the switch starts: the category of a featured product, else the first. */
+    fun defaultKind(storefront: Storefront): ServiceKind? {
+        val kinds = kinds(storefront)
+        val featured = categoryOf(storefront) { it.isFeatured == true }
+        return kinds.firstOrNull { it.id == featured } ?: kinds.firstOrNull()
     }
 
-    /** Where the tier switch starts: the tier of a featured product, else the first. */
-    fun defaultTier(storefront: Storefront): Tier? {
-        val tiers = tiers(storefront)
-        return tiers.firstOrNull { productFor(storefront, it)?.isFeatured == true } ?: tiers.firstOrNull()
-    }
+    /** Every buyable plan of every product in the category. */
+    fun plansFor(storefront: Storefront, kind: ServiceKind): List<StorePlan> =
+        storefront.categories.orEmpty()
+            .filter { it.categoryId == kind.id }
+            .flatMap { it.products.orEmpty() }
+            .flatMap { plansOf(it) }
 
-    /** The tier's product: the featured one, else the first the server listed. */
-    fun productFor(storefront: Storefront, tier: Tier): StoreProduct? =
-        products(storefront)
-            .filter { Tier.of(it.tier) == tier }
-            .sortedByDescending { it.isFeatured == true }
-            .firstOrNull()
+    /** The category a renewed service belongs to: by its name, else by its tier. */
+    fun kindFor(storefront: Storefront, categoryName: String?, tier: String?): ServiceKind? {
+        val kinds = kinds(storefront)
+        return kinds.firstOrNull { !categoryName.isNullOrBlank() && it.name == categoryName }
+            ?: kinds.firstOrNull { tier != null && it.tier == tier }
+    }
 
     /** Plans that can actually be bought: an id, a length and a price. */
     fun plansOf(product: StoreProduct?): List<StorePlan> =
@@ -90,6 +102,8 @@ object ShopCatalog {
     fun durationLabel(days: Int): DurationLabel =
         if (days >= 30 && days % 30 == 0) DurationLabel(days / 30, months = true) else DurationLabel(days, months = false)
 
-    private fun products(storefront: Storefront): List<StoreProduct> =
-        storefront.categories.orEmpty().flatMap { it.products.orEmpty() }.filter { plansOf(it).isNotEmpty() }
+    private fun categoryOf(storefront: Storefront, wanted: (StoreProduct) -> Boolean): String? =
+        storefront.categories.orEmpty().firstOrNull { category ->
+            category.products.orEmpty().any { wanted(it) && plansOf(it).isNotEmpty() }
+        }?.categoryId
 }

@@ -29,7 +29,6 @@ import com.geekvpn.scanner.NetworkIdentity
 import com.geekvpn.scanner.ScanRecord
 import com.geekvpn.scanner.ScanState
 import com.geekvpn.shop.ShopCatalog
-import com.geekvpn.shop.Tier
 import com.geekvpn.smartconnect.SmartStage
 import com.geekvpn.ui.account.AccountUiState
 import com.geekvpn.ui.account.ThemeChoice
@@ -126,27 +125,22 @@ internal object PreviewSamples {
 
     private val storefront = Storefront(
         categories = listOf(
-            StoreCategory(
-                "c1",
-                "VPN",
-                listOf(
-                    StoreProduct("direct", "direct", "گیک مستقیم", null, false, listOf(plan("direct", 30, 50, 90_000))),
-                    StoreProduct("tunnel", "tunnel", "گیک تونل", null, true, tunnelPlans),
-                    StoreProduct("elite", "elite", "گیک ویژه", null, false, listOf(plan("elite", 30, 100, 450_000))),
-                ),
-            ),
+            StoreCategory("c1", "اروپا", listOf(StoreProduct("direct", "direct", "گیک مستقیم", null, false, listOf(plan("direct", 30, 50, 90_000))))),
+            StoreCategory("c2", "گیمینگ", listOf(StoreProduct("tunnel", "tunnel", "گیک تونل", null, true, tunnelPlans))),
+            StoreCategory("c3", "ویژه", listOf(StoreProduct("elite", "elite", "گیک ویژه", null, false, listOf(plan("elite", 30, 100, 450_000))))),
         ),
         walletBalance = 185_000,
         isFirstPurchase = true,
     )
 
     val shop: ShopUiState = run {
-        val plans = ShopCatalog.plansOf(ShopCatalog.productFor(storefront, Tier.Tunnel))
+        val kind = ShopCatalog.defaultKind(storefront)!!
+        val plans = ShopCatalog.plansFor(storefront, kind)
         val chosen = ShopCatalog.defaultPlan(plans)!!
         ShopUiState(
             signedIn = true,
-            tiers = ShopCatalog.tiers(storefront),
-            tier = Tier.Tunnel,
+            kinds = ShopCatalog.kinds(storefront),
+            kind = kind,
             durations = ShopCatalog.durations(plans),
             duration = chosen.durationDays,
             volumes = ShopCatalog.volumes(plans, chosen.durationDays!!),

@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.geekvpn.connection.RouteMode
 import com.geekvpn.scanner.CleanIp
-import com.geekvpn.shop.Tier
+import com.geekvpn.shop.ServiceKind
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
 import com.geekvpn.ui.autoconnect.AutoConnectActions
@@ -358,7 +358,7 @@ private object PreviewShopActions : ShopActions {
     override fun onWallet() = Unit
     override fun onLogin() = Unit
     override fun onRetry() = Unit
-    override fun onTier(tier: Tier) = Unit
+    override fun onKind(kind: ServiceKind) = Unit
     override fun onDuration(days: Int) = Unit
     override fun onPlan(planId: String) = Unit
     override fun onApplyCoupon(code: String) = Unit

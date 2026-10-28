@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
@@ -45,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import com.geekvpn.api.StorePlan
 import com.geekvpn.api.TrialOffer
 import com.geekvpn.shop.ShopCatalog
-import com.geekvpn.shop.Tier
+import com.geekvpn.shop.ServiceKind
 import com.geekvpn.ui.common.PageTitle
 import com.geekvpn.ui.common.WalletChip
 import com.geekvpn.ui.common.appLocale
@@ -63,7 +64,7 @@ interface ShopActions {
     fun onWallet()
     fun onLogin()
     fun onRetry()
-    fun onTier(tier: Tier)
+    fun onKind(kind: ServiceKind)
     fun onDuration(days: Int)
     fun onPlan(planId: String)
     fun onApplyCoupon(code: String)
@@ -83,10 +84,10 @@ fun ShopScreen(state: ShopUiState, actions: ShopActions) {
         }
         when {
             !state.signedIn -> GuestCard(actions::onLogin)
-            state.tiers.isEmpty() && state.loading -> NoticeCard(stringResource(R.string.geek_shop_loading), null, null)
-            state.tiers.isEmpty() && state.loadFailed ->
+            state.kinds.isEmpty() && state.loading -> NoticeCard(stringResource(R.string.geek_shop_loading), null, null)
+            state.kinds.isEmpty() && state.loadFailed ->
                 NoticeCard(stringResource(R.string.geek_shop_err_load), stringResource(R.string.geek_shop_retry), actions::onRetry)
-            state.tiers.isEmpty() -> NoticeCard(stringResource(R.string.geek_shop_empty), stringResource(R.string.geek_shop_retry), actions::onRetry)
+            state.kinds.isEmpty() -> NoticeCard(stringResource(R.string.geek_shop_empty), stringResource(R.string.geek_shop_retry), actions::onRetry)
             else -> {
                 state.trial?.takeIf { it.available == true }?.let { TrialCard(it, state.busy, actions::onTrial) }
                 state.renewing?.let { RenewBanner(it.title, actions::onCancelRenew) }
@@ -192,8 +193,8 @@ private fun PlanCard(state: ShopUiState, actions: ShopActions) {
     val locale = appLocale()
     GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (state.tiers.size > 1) {
-                TierSwitch(state.tiers, state.tier, actions::onTier)
+            if (state.kinds.size > 1) {
+                KindSwitch(state.kinds, state.kind, actions::onKind)
             }
             Text(stringResource(R.string.geek_shop_duration), style = Geek.type.label, color = colors.onGlass)
             ChoiceRows(state.durations, columns = 4) { days, modifier ->
@@ -219,7 +220,7 @@ private fun PlanCard(state: ShopUiState, actions: ShopActions) {
 }
 
 @Composable
-private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> Unit) {
+private fun KindSwitch(kinds: List<ServiceKind>, selected: ServiceKind?, onSelect: (ServiceKind) -> Unit) {
     val colors = Geek.colors
     Row(
         modifier = Modifier
@@ -230,8 +231,8 @@ private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> U
             .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        tiers.forEach { tier ->
-            val isSelected = tier == selected
+        kinds.forEach { kind ->
+            val isSelected = kind == selected
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -240,11 +241,14 @@ private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> U
                     .background(if (isSelected) colors.chip else colors.soft)
                     // In the dark theme chip and soft are close shades; the edge tells them apart.
                     .then(if (isSelected) Modifier.border(1.dp, colors.link, RoundedCornerShape(12.dp)) else Modifier)
-                    .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tier) }),
+                    .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(kind) }),
                 contentAlignment = Alignment.Center,
             ) {
+                // The category's own name, as the bot's shop shows it.
                 Text(
-                    stringResource(tier.label),
+                    kind.name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = Geek.type.caption.copy(fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium),
                     color = if (isSelected) colors.onGlass else colors.onGlassMuted,
                 )
@@ -252,13 +256,6 @@ private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> U
         }
     }
 }
-
-val Tier.label: Int
-    get() = when (this) {
-        Tier.Direct -> R.string.geek_tier_direct
-        Tier.Tunnel -> R.string.geek_tier_tunnel
-        Tier.Elite -> R.string.geek_tier_elite
-    }
 
 /** [items] in rows of [columns] equal cells; a short last row keeps the cell width. */
 @Composable

@@ -21,7 +21,7 @@ import com.geekvpn.auth.Session
 import com.geekvpn.shop.PaymentKeys
 import com.geekvpn.shop.ShopApi
 import com.geekvpn.shop.ShopCatalog
-import com.geekvpn.shop.Tier
+import com.geekvpn.shop.ServiceKind
 import com.geekvpn.shop.TopupLimits
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
@@ -77,8 +77,9 @@ data class ShopUiState(
     val signedIn: Boolean = false,
     val loading: Boolean = false,
     val loadFailed: Boolean = false,
-    val tiers: List<Tier> = emptyList(),
-    val tier: Tier? = null,
+    /** The "service type" switch: the bot's categories, by name. */
+    val kinds: List<ServiceKind> = emptyList(),
+    val kind: ServiceKind? = null,
     val durations: List<Int> = emptyList(),
     val duration: Int? = null,
     val volumes: List<StorePlan> = emptyList(),
@@ -211,18 +212,18 @@ class ShopViewModel : ViewModel {
         }
     }
 
-    fun selectTier(tier: Tier) {
+    fun selectKind(kind: ServiceKind) {
         val front = storefront ?: return
-        if (tier == state.value.tier) return
-        val plans = ShopCatalog.plansOf(ShopCatalog.productFor(front, tier))
-        showPlan(tier, plans, ShopCatalog.defaultPlan(plans))
+        if (kind == state.value.kind) return
+        val plans = ShopCatalog.plansFor(front, kind)
+        showPlan(kind, plans, ShopCatalog.defaultPlan(plans))
     }
 
     fun selectDuration(days: Int) {
         val front = storefront ?: return
-        val tier = state.value.tier ?: return
-        val plans = ShopCatalog.plansOf(ShopCatalog.productFor(front, tier))
-        showPlan(tier, plans, ShopCatalog.withDuration(plans, state.value.plan, days))
+        val kind = state.value.kind ?: return
+        val plans = ShopCatalog.plansFor(front, kind)
+        showPlan(kind, plans, ShopCatalog.withDuration(plans, state.value.plan, days))
     }
 
     fun selectPlan(planId: String) {
@@ -231,12 +232,10 @@ class ShopViewModel : ViewModel {
         requote()
     }
 
-    /** "تمدید" on a service: the next purchase extends it, in its own tier. */
-    fun renew(subscriptionId: String, title: String, tier: String?) {
+    /** "تمدید" on a service: the next purchase extends it, in its own category. */
+    fun renew(subscriptionId: String, title: String, tier: String?, categoryName: String? = null) {
         state.update { it.copy(renewing = RenewTarget(subscriptionId, title)) }
-        Tier.of(tier)?.let { wanted ->
-            if (wanted in state.value.tiers) selectTier(wanted)
-        }
+        storefront?.let { front -> ShopCatalog.kindFor(front, categoryName, tier) }?.let(::selectKind)
         requote()
     }
 
@@ -493,23 +492,23 @@ class ShopViewModel : ViewModel {
     }
 
     private fun applyStorefront(front: Storefront) {
-        val tiers = ShopCatalog.tiers(front)
-        val tier = state.value.tier?.takeIf { it in tiers } ?: ShopCatalog.defaultTier(front)
-        state.update { it.copy(tiers = tiers) }
-        if (tier == null) {
-            state.update { it.copy(tier = null, durations = emptyList(), duration = null, volumes = emptyList(), plan = null, quote = null) }
+        val kinds = ShopCatalog.kinds(front)
+        val kind = state.value.kind?.takeIf { it in kinds } ?: ShopCatalog.defaultKind(front)
+        state.update { it.copy(kinds = kinds) }
+        if (kind == null) {
+            state.update { it.copy(kind = null, durations = emptyList(), duration = null, volumes = emptyList(), plan = null, quote = null) }
             return
         }
-        val plans = ShopCatalog.plansOf(ShopCatalog.productFor(front, tier))
+        val plans = ShopCatalog.plansFor(front, kind)
         val keep = state.value.plan?.planId?.let { id -> plans.firstOrNull { it.planId == id } }
-        showPlan(tier, plans, keep ?: ShopCatalog.defaultPlan(plans))
+        showPlan(kind, plans, keep ?: ShopCatalog.defaultPlan(plans))
     }
 
-    private fun showPlan(tier: Tier, plans: List<StorePlan>, plan: StorePlan?) {
+    private fun showPlan(kind: ServiceKind, plans: List<StorePlan>, plan: StorePlan?) {
         val duration = plan?.durationDays
         state.update {
             it.copy(
-                tier = tier,
+                kind = kind,
                 durations = ShopCatalog.durations(plans),
                 duration = duration,
                 volumes = duration?.let { days -> ShopCatalog.volumes(plans, days) }.orEmpty(),

@@ -200,9 +200,6 @@
     <string name="geek_shop_duration">Duration</string>
     <string name="geek_shop_volume">Data (GB)</string>
     <string name="geek_shop_discount">%1$s%% off</string>
-    <string name="geek_tier_direct">Direct</string>
-    <string name="geek_tier_tunnel">Tunnel</string>
-    <string name="geek_tier_elite">Elite</string>
     <string name="geek_shop_months_unit">months</string>
     <string name="geek_shop_coupon_ask">Have a discount code?</string>
     <string name="geek_shop_coupon_hint">Discount code</string>

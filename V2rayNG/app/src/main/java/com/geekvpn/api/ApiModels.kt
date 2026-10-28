@@ -87,6 +87,8 @@ data class SubscriptionCard(
     val remoteUsername: String?,
     /** direct | tunnel | elite; null for a service adopted from a link. */
     val tier: String?,
+    /** The bot's category ("اروپا"); null from a server older than the field. */
+    val categoryNameFa: String? = null,
 )
 
 /** `/api/miniapp/wallet`. Amounts are whole tomans. */
