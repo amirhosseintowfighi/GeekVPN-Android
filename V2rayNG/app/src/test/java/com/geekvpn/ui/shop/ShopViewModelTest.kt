@@ -21,7 +21,6 @@ import com.geekvpn.api.WalletCheckout
 import com.geekvpn.api.WalletSnapshot
 import com.geekvpn.api.WalletTransactions
 import com.geekvpn.shop.ShopApi
-import com.geekvpn.shop.Tier
 import com.v2ray.ang.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -41,9 +40,25 @@ class ShopViewModelTest {
     private class FakeApi : ShopApi {
         var front = Storefront(
             listOf(
+                // Two categories, as the bot's shop lists them: the switch
+                // shows their names.
                 StoreCategory(
-                    "c",
-                    "VPN",
+                    "c-direct",
+                    "Direct",
+                    listOf(
+                        StoreProduct(
+                            "direct",
+                            "direct",
+                            "Direct",
+                            null,
+                            false,
+                            listOf(StorePlan("d-30-50", "direct", null, 30, 90_000, null, 50, 2, null, false)),
+                        ),
+                    ),
+                ),
+                StoreCategory(
+                    "c-tunnel",
+                    "Tunnel",
                     listOf(
                         StoreProduct(
                             "tunnel",
@@ -56,14 +71,6 @@ class ShopViewModelTest {
                                 StorePlan("t-30-40", "tunnel", null, 30, 200_000, 250_000, 40, 2, null, true),
                                 StorePlan("t-60-40", "tunnel", null, 60, 380_000, null, 40, 2, null, false),
                             ),
-                        ),
-                        StoreProduct(
-                            "direct",
-                            "direct",
-                            "Direct",
-                            null,
-                            false,
-                            listOf(StorePlan("d-30-50", "direct", null, 30, 90_000, null, 50, 2, null, false)),
                         ),
                     ),
                 ),
@@ -159,8 +166,8 @@ class ShopViewModelTest {
         val h = loaded()
         val state = h.viewModel.uiState.value
 
-        assertEquals(listOf(Tier.Direct, Tier.Tunnel), state.tiers)
-        assertEquals(Tier.Tunnel, state.tier)
+        assertEquals(listOf("Direct", "Tunnel"), state.kinds.map { it.name })
+        assertEquals("c-tunnel", state.kind?.id)
         assertEquals(listOf(30, 60), state.durations)
         assertEquals("t-30-40", state.plan?.planId)
         assertEquals(200_000L, state.total)
@@ -177,7 +184,7 @@ class ShopViewModelTest {
         testScheduler.advanceUntilIdle()
 
         assertFalse(h.viewModel.uiState.value.signedIn)
-        assertTrue(h.viewModel.uiState.value.tiers.isEmpty())
+        assertTrue(h.viewModel.uiState.value.kinds.isEmpty())
     }
 
     @Test
@@ -201,9 +208,9 @@ class ShopViewModelTest {
     }
 
     @Test
-    fun switching_tier_shows_that_products_plans() = runTest {
+    fun switching_category_shows_its_plans() = runTest {
         val h = loaded()
-        h.viewModel.selectTier(Tier.Direct)
+        h.viewModel.selectKind(h.viewModel.uiState.value.kinds.first { it.id == "c-direct" })
         testScheduler.advanceUntilIdle()
 
         assertEquals("d-30-50", h.viewModel.uiState.value.plan?.planId)
@@ -365,7 +372,7 @@ class ShopViewModelTest {
         val h = loaded()
         h.viewModel.renew("sub-7", "Tunnel", "direct")
         testScheduler.advanceUntilIdle()
-        assertEquals(Tier.Direct, h.viewModel.uiState.value.tier)
+        assertEquals("c-direct", h.viewModel.uiState.value.kind?.id)
 
         h.viewModel.pay()
         h.viewModel.choose("wallet")
@@ -385,6 +392,6 @@ class ShopViewModelTest {
         testScheduler.advanceUntilIdle()
 
         assertNull(h.viewModel.uiState.value.renewing)
-        assertEquals(Tier.Tunnel, h.viewModel.uiState.value.tier)
+        assertEquals("c-tunnel", h.viewModel.uiState.value.kind?.id)
     }
 }

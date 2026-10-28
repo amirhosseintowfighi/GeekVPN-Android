@@ -18,37 +18,57 @@ class ShopCatalogTest {
     private fun product(id: String, tier: String?, plans: List<StorePlan>, featured: Boolean = false) =
         StoreProduct(id, tier, id, null, featured, plans)
 
-    private fun front(vararg products: StoreProduct) =
-        Storefront(listOf(StoreCategory("c", "c", products.toList())), 0, false)
+    private fun category(id: String, name: String, vararg products: StoreProduct) =
+        StoreCategory(id, name, products.toList())
+
+    private fun shop(vararg categories: StoreCategory) = Storefront(categories.toList(), 0, false)
 
     @Test
-    fun tiers_are_those_with_something_to_sell_in_a_fixed_order() {
-        val front = front(
-            product("e", "elite", listOf(plan("e1", 30, 10))),
-            product("t", "tunnel", listOf(plan("t1", 30, 10))),
-            product("d", "direct", emptyList()),
-            product("x", "unknown", listOf(plan("x1", 30, 10))),
+    fun the_service_types_are_the_bots_categories_by_name() {
+        val front = shop(
+            category("eu", "اروپا", product("t", "tunnel", listOf(plan("t1", 30, 10)))),
+            category("empty", "خالی", product("d", "direct", emptyList())),
+            category("game", "گیمینگ", product("e", "elite", listOf(plan("e1", 30, 10)))),
         )
-        assertEquals(listOf(Tier.Tunnel, Tier.Elite), ShopCatalog.tiers(front))
+        assertEquals(listOf("اروپا", "گیمینگ"), ShopCatalog.kinds(front).map { it.name })
     }
 
     @Test
-    fun the_shop_opens_on_the_featured_products_tier() {
-        val front = front(
-            product("d", "direct", listOf(plan("d1", 30, 10))),
-            product("t", "tunnel", listOf(plan("t1", 30, 10)), featured = true),
+    fun every_volume_of_a_category_is_offered_not_just_one_products() {
+        // The reported shop: volumes sold as separate products of one tier,
+        // of which only the first was ever shown.
+        val front = shop(
+            category(
+                "eu", "اروپا",
+                product("100", "direct", listOf(plan("v100", 30, 100))),
+                product("10", "direct", listOf(plan("v10", 30, 10))),
+                product("20", "direct", listOf(plan("v20", 30, 20))),
+            ),
         )
-        assertEquals(Tier.Tunnel, ShopCatalog.defaultTier(front))
-        assertEquals(Tier.Direct, ShopCatalog.defaultTier(front(product("d", "direct", listOf(plan("d1", 30, 10))))))
+        val kind = ShopCatalog.kinds(front).single()
+        val plans = ShopCatalog.plansFor(front, kind)
+        assertEquals(listOf("v10", "v20", "v100"), ShopCatalog.volumes(plans, 30).map { it.planId })
     }
 
     @Test
-    fun the_featured_product_of_a_tier_wins() {
-        val front = front(
-            product("a", "tunnel", listOf(plan("a1", 30, 10))),
-            product("b", "tunnel", listOf(plan("b1", 30, 10)), featured = true),
+    fun the_shop_opens_on_the_category_of_the_featured_product() {
+        val front = shop(
+            category("a", "A", product("d", "direct", listOf(plan("d1", 30, 10)))),
+            category("b", "B", product("t", "tunnel", listOf(plan("t1", 30, 10)), featured = true)),
         )
-        assertEquals("b", ShopCatalog.productFor(front, Tier.Tunnel)?.productId)
+        assertEquals("b", ShopCatalog.defaultKind(front)?.id)
+        assertEquals("a", ShopCatalog.defaultKind(shop(category("a", "A", product("d", "direct", listOf(plan("d1", 30, 10))))))?.id)
+    }
+
+    @Test
+    fun a_renewal_finds_its_category_by_name_then_by_tier() {
+        val front = shop(
+            category("a", "اروپا", product("d", "direct", listOf(plan("d1", 30, 10)))),
+            category("b", "گیمینگ", product("t", "tunnel", listOf(plan("t1", 30, 10)))),
+        )
+        assertEquals("b", ShopCatalog.kindFor(front, "گیمینگ", "direct")?.id)
+        assertEquals("b", ShopCatalog.kindFor(front, null, "tunnel")?.id)
+        assertNull(ShopCatalog.kindFor(front, "رفته", "elite"))
     }
 
     @Test

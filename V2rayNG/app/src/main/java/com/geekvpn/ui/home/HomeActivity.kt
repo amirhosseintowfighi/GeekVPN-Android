@@ -50,7 +50,7 @@ import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
 import com.geekvpn.auth.TelegramLink
 import com.geekvpn.scanner.CleanIp
-import com.geekvpn.shop.Tier
+import com.geekvpn.shop.ServiceKind
 import com.geekvpn.ui.about.AboutActivity
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
@@ -559,7 +559,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onWallet() = shop.openWallet()
         override fun onLogin() = GeekGraph.signOut()
         override fun onRetry() = shop.load(force = true)
-        override fun onTier(tier: Tier) = shop.selectTier(tier)
+        override fun onKind(kind: ServiceKind) = shop.selectKind(kind)
         override fun onDuration(days: Int) = shop.selectDuration(days)
         override fun onPlan(planId: String) = shop.selectPlan(planId)
         override fun onApplyCoupon(code: String) = shop.applyCoupon(code)
@@ -574,7 +574,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onRenew(subscriptionId: String) {
             val card = GeekGraph.accountStore.services.value.firstOrNull { it.subscriptionId == subscriptionId }
             val title = card?.productNameFa ?: card?.planNameFa ?: getString(R.string.geek_brand)
-            shop.renew(subscriptionId, title, card?.tier)
+            shop.renew(subscriptionId, title, card?.tier, card?.categoryNameFa)
             openShop()
         }
         override fun onAddSubscription() = startActivity(LinkEditActivity.intent(this@HomeActivity))
