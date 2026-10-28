@@ -1,0 +1,4 @@
+source=claude/shop-by-category
+sha=50b2c9a8d53843d7e8eb2ccf8beb0c08b40b15c8
+run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/40760276995
+smoke=success
