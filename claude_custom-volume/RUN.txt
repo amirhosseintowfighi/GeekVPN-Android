@@ -1,0 +1,4 @@
+source=claude/custom-volume
+sha=429aaa3527b629587c2dd77239a7e8ecbf24ce1c
+run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/40804024869
+smoke=success
