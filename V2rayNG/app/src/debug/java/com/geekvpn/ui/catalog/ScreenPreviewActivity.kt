@@ -361,6 +361,8 @@ private object PreviewShopActions : ShopActions {
     override fun onKind(kind: ServiceKind) = Unit
     override fun onDuration(days: Int) = Unit
     override fun onPlan(planId: String) = Unit
+    override fun onCustom() = Unit
+    override fun onCustomGib(value: Int?) = Unit
     override fun onApplyCoupon(code: String) = Unit
     override fun onClearCoupon() = Unit
     override fun onCancelRenew() = Unit

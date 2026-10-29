@@ -37,6 +37,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDecoration
@@ -67,6 +68,8 @@ interface ShopActions {
     fun onKind(kind: ServiceKind)
     fun onDuration(days: Int)
     fun onPlan(planId: String)
+    fun onCustom()
+    fun onCustomGib(value: Int?)
     fun onApplyCoupon(code: String)
     fun onClearCoupon()
     fun onCancelRenew()
@@ -212,8 +215,9 @@ private fun PlanCard(state: ShopUiState, actions: ShopActions) {
                 }
             }
             ChoiceRows(state.volumes, columns = 4) { plan, modifier ->
-                VolumeChip(plan, selected = plan.planId == state.plan?.planId, locale = locale, onClick = { plan.planId?.let(actions::onPlan) }, modifier = modifier)
+                VolumeChip(plan, selected = !state.customMode && plan.planId == state.plan?.planId, locale = locale, onClick = { plan.planId?.let(actions::onPlan) }, modifier = modifier)
             }
+            state.customFloor?.let { floor -> CustomVolume(state, floor, actions) }
             CouponRow(state.coupon, actions)
         }
     }
@@ -317,6 +321,67 @@ private fun VolumeChip(plan: StorePlan, selected: Boolean, locale: Locale, onCli
     }
 }
 
+/** «دلخواه»: a chip, and once chosen a field for the monthly volume. */
+@Composable
+private fun CustomVolume(state: ShopUiState, floor: Int, actions: ShopActions) {
+    val colors = Geek.colors
+    val locale = appLocale()
+    val shape = RoundedCornerShape(13.dp)
+    val selected = state.customMode
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(46.dp)
+                .clip(shape)
+                .background(if (selected) colors.soft else colors.chip)
+                .border(if (selected) 2.dp else 1.dp, if (selected) colors.link else colors.track, shape)
+                .selectable(selected = selected, role = Role.RadioButton, onClick = actions::onCustom),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(stringResource(R.string.geek_shop_custom), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onGlass)
+        }
+        if (!selected) return@Column
+        var text by rememberSaveable(state.duration, state.kind?.id) { mutableStateOf(floor.toString()) }
+        Text(stringResource(R.string.geek_shop_custom_ask), style = Geek.type.label, color = colors.onGlass)
+        Box(
+            modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(14.dp)).background(colors.softButton).padding(horizontal = 14.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            BasicTextField(
+                value = text,
+                onValueChange = { typed ->
+                    // Persian digits too: the keyboard may be in either.
+                    text = typed.map { c -> if (c in '۰'..'۹') '0' + (c - '۰') else c }.filter(Char::isDigit).joinToString("").take(5)
+                    actions.onCustomGib(text.toIntOrNull())
+                },
+                singleLine = true,
+                textStyle = Geek.type.body.copy(color = colors.onGlass, textDirection = TextDirection.Ltr, textAlign = TextAlign.Start),
+                cursorBrush = SolidColor(colors.link),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        val gib = state.customGib
+        val days = state.duration ?: 30
+        val months = days / 30
+        Text(
+            when {
+                gib == null -> stringResource(R.string.geek_shop_custom_floor, formatNumber(floor.toLong(), locale))
+                months >= 2 -> stringResource(
+                    R.string.geek_shop_custom_total,
+                    formatNumber(gib.toLong(), locale),
+                    formatNumber(months.toLong(), locale),
+                    formatNumber(ShopCatalog.termGib(gib, days).toLong(), locale),
+                )
+                else -> stringResource(R.string.geek_shop_custom_priced)
+            },
+            style = Geek.type.caption,
+            color = if (gib == null) colors.danger else colors.onGlassMuted,
+        )
+    }
+}
+
 @Composable
 private fun CouponRow(coupon: CouponState?, actions: ShopActions) {
     val colors = Geek.colors
@@ -414,7 +479,14 @@ private fun PayBar(state: ShopUiState, onPay: () -> Unit) {
                 )
             }
             if (plan != null) {
-                Text(planSummary(plan, locale), style = Geek.type.micro, color = colors.payButton)
+                val shown = if (state.customMode) {
+                    plan.copy(quotaGib = state.customGib?.let { ShopCatalog.termGib(it, plan.durationDays ?: 30) })
+                } else {
+                    plan
+                }
+                if (!state.customMode || state.customGib != null) {
+                    Text(planSummary(shown, locale), style = Geek.type.micro, color = colors.payButton)
+                }
             }
         }
         PayButton(enabled = plan != null && state.total != null && !state.busy, onClick = onPay)

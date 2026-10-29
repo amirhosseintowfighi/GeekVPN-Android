@@ -368,6 +368,48 @@ class ShopViewModelTest {
     }
 
     @Test
+    fun a_typed_volume_is_quoted_and_bought_with_the_terms_anchor() = runTest {
+        val h = loaded()
+        assertEquals(20, h.viewModel.uiState.value.customFloor)
+
+        h.viewModel.selectCustom()
+        h.viewModel.setCustomGib(35)
+        testScheduler.advanceUntilIdle()
+        assertEquals(PlanRequest("t-30-20", null, null, 35), h.api.quotes.last())
+        assertNull(h.viewModel.uiState.value.wasPrice)
+
+        h.viewModel.pay()
+        h.viewModel.choose("wallet")
+        testScheduler.advanceUntilIdle()
+        assertEquals(35, h.api.walletBuys.single().customGib)
+    }
+
+    @Test
+    fun a_volume_below_the_floor_is_not_priced_or_paid() = runTest {
+        val h = loaded()
+        h.viewModel.selectCustom()
+        testScheduler.advanceUntilIdle()
+        val asked = h.api.quotes.size
+
+        h.viewModel.setCustomGib(5)
+        testScheduler.advanceUntilIdle()
+        assertEquals(asked, h.api.quotes.size)
+        assertNull(h.viewModel.uiState.value.total)
+        h.viewModel.pay()
+        assertNull(h.viewModel.uiState.value.sheet)
+    }
+
+    @Test
+    fun picking_a_listed_volume_leaves_custom_mode() = runTest {
+        val h = loaded()
+        h.viewModel.selectCustom()
+        h.viewModel.selectPlan("t-30-40")
+        testScheduler.advanceUntilIdle()
+        assertEquals(false, h.viewModel.uiState.value.customMode)
+        assertNull(h.api.quotes.last().customGib)
+    }
+
+    @Test
     fun a_renewal_is_sent_with_the_service_it_extends() = runTest {
         val h = loaded()
         h.viewModel.renew("sub-7", "Tunnel", "direct")

@@ -137,4 +137,22 @@ class ShopCatalogTest {
         assertEquals(PaymentStart.Kind.Gateway, PaymentStart(null, null, null, null, null, "https://pay", null, "p").kind)
         assertEquals(PaymentStart.Kind.Unknown, PaymentStart(null, null, null, null, null, null, null, null).kind)
     }
+
+    @Test
+    fun a_typed_volume_starts_at_the_terms_smallest_monthly_plan() {
+        val quarter = listOf(
+            StorePlan("q60", "p", null, 90, 300_000, null, 60, 2, null, false),
+            StorePlan("q30", "p", null, 90, 200_000, null, 30, 2, null, false),
+            StorePlan("qU", "p", null, 90, 900_000, null, null, 2, null, false),
+        )
+        assertEquals(10, ShopCatalog.customFloor(quarter))
+        assertEquals(105, ShopCatalog.termGib(35, 90))
+    }
+
+    @Test
+    fun nothing_sold_by_volume_offers_no_typed_volume() {
+        val unlimited = listOf(StorePlan("u", "p", null, 30, 500_000, null, null, 2, null, false))
+        assertNull(ShopCatalog.customFloor(unlimited))
+        assertNull(ShopCatalog.customAnchor(unlimited))
+    }
 }

@@ -199,6 +199,11 @@
     <string name="geek_shop_renew_cancel">Cancel renewal</string>
     <string name="geek_shop_duration">Duration</string>
     <string name="geek_shop_volume">Data (GB)</string>
+    <string name="geek_shop_custom">Custom — any data</string>
+    <string name="geek_shop_custom_ask">How many GB a month?</string>
+    <string name="geek_shop_custom_floor">At least %1$s GB a month.</string>
+    <string name="geek_shop_custom_total">%1$s GB a month × %2$s months = %3$s GB in all</string>
+    <string name="geek_shop_custom_priced">Priced from this term\'s plans.</string>
     <string name="geek_shop_discount">%1$s%% off</string>
     <string name="geek_shop_months_unit">months</string>
     <string name="geek_shop_coupon_ask">Have a discount code?</string>
