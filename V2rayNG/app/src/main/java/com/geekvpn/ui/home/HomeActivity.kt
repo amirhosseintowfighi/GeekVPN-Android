@@ -562,6 +562,8 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onKind(kind: ServiceKind) = shop.selectKind(kind)
         override fun onDuration(days: Int) = shop.selectDuration(days)
         override fun onPlan(planId: String) = shop.selectPlan(planId)
+        override fun onCustom() = shop.selectCustom()
+        override fun onCustomGib(value: Int?) = shop.setCustomGib(value)
         override fun onApplyCoupon(code: String) = shop.applyCoupon(code)
         override fun onClearCoupon() = shop.clearCoupon()
         override fun onCancelRenew() = shop.cancelRenew()

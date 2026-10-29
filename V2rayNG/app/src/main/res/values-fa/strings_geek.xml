@@ -195,6 +195,11 @@
     <string name="geek_shop_renew_cancel">لغو تمدید</string>
     <string name="geek_shop_duration">مدت اعتبار</string>
     <string name="geek_shop_volume">حجم (گیگابایت)</string>
+    <string name="geek_shop_custom">دلخواه — هر حجمی</string>
+    <string name="geek_shop_custom_ask">چند گیگ در ماه؟</string>
+    <string name="geek_shop_custom_floor">کمترین حجم %1$s گیگ در ماه است.</string>
+    <string name="geek_shop_custom_total">ماهی %1$s گیگ × %2$s ماه = در مجموع %3$s گیگ</string>
+    <string name="geek_shop_custom_priced">قیمت از روی بسته‌های همین مدت حساب می‌شود.</string>
     <string name="geek_shop_discount">٪%1$s تخفیف</string>
     <string name="geek_shop_months_unit">ماهه</string>
     <string name="geek_shop_coupon_ask">کد تخفیف داری؟</string>

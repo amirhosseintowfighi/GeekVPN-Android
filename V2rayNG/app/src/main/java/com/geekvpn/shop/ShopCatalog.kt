@@ -99,6 +99,26 @@ object ShopCatalog {
         return ((was - price) * 100.0 / was).roundToInt().takeIf { it > 0 }
     }
 
+    /**
+     * The smallest monthly volume a customer may type for one term's plans,
+     * or null where the term sells nothing by volume. The server prices the
+     * typed volume between the term's nearest plans and refuses below this.
+     */
+    fun customFloor(volumes: List<StorePlan>): Int? =
+        volumes.mapNotNull { plan ->
+            val quota = plan.quotaGib?.takeIf { it > 0 } ?: return@mapNotNull null
+            val days = plan.durationDays ?: return@mapNotNull null
+            (quota * 30 + days - 1) / days
+        }.minOrNull()
+
+    /** The plan that names the term (and kind) of a typed volume to the server. */
+    fun customAnchor(volumes: List<StorePlan>): StorePlan? = volumes.firstOrNull { (it.quotaGib ?: 0) > 0 }
+
+    /** The term's allowance for a monthly volume: the server's own rule. */
+    fun termGib(monthlyGib: Int, days: Int): Int = monthlyGib * days / 30
+
+    const val MAX_CUSTOM_GIB = 10_000
+
     fun durationLabel(days: Int): DurationLabel =
         if (days >= 30 && days % 30 == 0) DurationLabel(days / 30, months = true) else DurationLabel(days, months = false)
 
