@@ -183,21 +183,6 @@ jobs:
           echo "::notice::GEEK_RELEASE_KEYSTORE is not set; the release APK is signed with the debug key and not published"
         fi
 
-    - name: Text font
-      env:
-        FONT_PASSPHRASE: ${{ secrets.GEEK_FONT_PASSPHRASE }}
-      run: |
-        # Yekan Bakh is licensed: the repo holds it only encrypted. Without the
-        # passphrase (forks, Dependabot) the app is built with Vazirmatn.
-        if [ -n "$FONT_PASSPHRASE" ]; then
-          mkdir -p "$RUNNER_TEMP/fonts"
-          gpg --batch --quiet --pinentry-mode loopback --passphrase "$FONT_PASSPHRASE" \
-            -d branding/fonts/yekan-bakh.tar.gpg | tar -x -C "$RUNNER_TEMP/fonts"
-          echo "GEEK_FONT_DIR=$RUNNER_TEMP/fonts" >> "$GITHUB_ENV"
-        else
-          echo "::notice::GEEK_FONT_PASSPHRASE is not set; the app is built with Vazirmatn"
-        fi
-
     - name: Lint, test and assemble
       working-directory: V2rayNG
       env:

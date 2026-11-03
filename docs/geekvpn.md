@@ -552,19 +552,10 @@ python3 branding/gen_icons.py
 
 ### فونت
 
-- متن فارسی با Yekan Bakh (نسخه‌ی FaNum، وزن‌های Light تا Fat) است. فونت لایسنس پولی دارد و
-  ریپو عمومی است، پس فایل‌هایش فقط رمزشده در ریپو هستند: `branding/fonts/yekan-bakh.tar.gpg`
-  (AES-256، `gpg --symmetric`). رمزش GitHub Secret `GEEK_FONT_PASSPHRASE` است؛ CI آن را در
-  `GEEK_FONT_DIR` باز می‌کند. یک Secret حداکثر ۴۸KB است و خود فونت‌ها جا نمی‌شوند، برای همین
-  این روش مستند خود GitHub برای Secretهای بزرگ است.
-- task `geekTextFonts` در `app/build.gradle.kts` فونت‌ها را با اسم `res/font/geek_text_<وزن>` در
-  یک پوشه‌ی generated می‌گذارد. بدون `GEEK_FONT_DIR` (بیلد محلی، فورک) همان اسم‌ها با Vazirmatn پر
-  می‌شوند، پس بیلد همیشه کامل است. برای بیلد محلی با Yekan Bakh:
-  `gpg -d branding/fonts/yekan-bakh.tar.gpg | tar -x -C <پوشه>` و `GEEK_FONT_DIR=<پوشه>` در
-  `local.properties`.
-- عوض کردن فونت: فایل‌های `yekan_bakh_{light,regular,medium,bold,extrabold,black}.ttf` را بساز
-  (از woff با fontTools، `flavor=None`)، دوباره tar و رمز کن.
-- عددها و ریزمتن لاتین Space Grotesk هستند (OFL، داخل ریپو).
+- متن فارسی Yekan Bakh (نسخه‌ی FaNum) است: `res/font/yekan_bakh_{light,regular,medium,bold,extrabold,black}.ttf`،
+  ساخته‌شده از woffهای اصلی با fontTools (`flavor=None`). عددهای داخل متن فارسی همیشه رقم فارسی‌اند.
+- عددها و ریزمتن لاتین Space Grotesk هستند (OFL). Vazirmatn هنوز در `res/font` هست ولی در UI
+  GeekVPN استفاده نمی‌شود.
 
 ## اتصال هوشمند و failover (`com.geekvpn.smartconnect`)
 

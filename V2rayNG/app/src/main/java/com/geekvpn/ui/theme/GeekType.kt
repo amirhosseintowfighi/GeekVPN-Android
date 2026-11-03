@@ -11,18 +11,14 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.v2ray.ang.R
 
-/**
- * Persian text: Yekan Bakh where the build has it, Vazirmatn otherwise (the
- * geekTextFonts task of app/build.gradle.kts fills res/font/geek_text_*).
- * SemiBold has no file of its own and resolves to Bold.
- */
+/** Persian text: Yekan Bakh (FaNum), the design's face. SemiBold has no file of its own and resolves to Bold. */
 val GeekText = FontFamily(
-    Font(R.font.geek_text_light, FontWeight.Light),
-    Font(R.font.geek_text_regular, FontWeight.Normal),
-    Font(R.font.geek_text_medium, FontWeight.Medium),
-    Font(R.font.geek_text_bold, FontWeight.Bold),
-    Font(R.font.geek_text_extrabold, FontWeight.ExtraBold),
-    Font(R.font.geek_text_black, FontWeight.Black),
+    Font(R.font.yekan_bakh_light, FontWeight.Light),
+    Font(R.font.yekan_bakh_regular, FontWeight.Normal),
+    Font(R.font.yekan_bakh_medium, FontWeight.Medium),
+    Font(R.font.yekan_bakh_bold, FontWeight.Bold),
+    Font(R.font.yekan_bakh_extrabold, FontWeight.ExtraBold),
+    Font(R.font.yekan_bakh_black, FontWeight.Black),
 )
 
 /** Latin, latency, speeds and timers. */
