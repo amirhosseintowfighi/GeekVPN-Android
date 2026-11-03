@@ -122,7 +122,7 @@ internal fun LoginScaffold(
     hero: @Composable ColumnScope.() -> Unit,
     sheet: @Composable ColumnScope.() -> Unit,
 ) {
-    GeekBackdrop(layout = BackdropLayout.Hero) {
+    GeekBackdrop(layout = BackdropLayout.Column) {
         // imePadding: the sheet (and any field in it) rides above the keyboard,
         // and the hero, which scrolls, gives up the space.
         Column(Modifier.fillMaxSize().imePadding()) {

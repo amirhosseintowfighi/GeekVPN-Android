@@ -4,10 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/**
- * GeekVPN's colour tokens. The light values are Foundations.html ("Sky Lens")
- * verbatim; every other colour in the Geek UI must come from here.
- */
+/** GeekVPN's colour tokens; every colour in the Geek UI must come from here. */
 @Immutable
 data class GeekColors(
     val isDark: Boolean,
@@ -76,104 +73,69 @@ data class GeekColors(
     val bankCard: Color,
     val onBankCard: Color,
     val actionShadow: Color,
-)
-
-internal val LightGeekColors = GeekColors(
-    isDark = false,
-    background = Color(0xFF0870D4),
-    backdropGlow = Color(0x8C00ACFE), // #00ACFE @ 55%
-    backdropGlowStrong = Color(0x7300ACFE), // #00ACFE @ 45%
-    backdropLine = Color(0xFFFFFFFF),
-    logoBlue = Color(0xFF00ACFE),
-    actionAccent = Color(0xFF00ACFE),
-    action = Color(0xFF062845),
-    onAction = Color(0xFFFFFFFF),
-    milkGlass = Color(0xE0FFFFFF), // white @ 88%
-    milkGlassBorder = Color(0xF2FFFFFF), // white @ 95%
-    milkGlassHighlight = Color(0xFFFFFFFF),
-    clearGlass = Color(0x21FFFFFF), // white @ 13%
-    clearGlassBorder = Color(0x57FFFFFF), // white @ 34%
-    clearGlassHighlight = Color(0x73FFFFFF), // white @ 45%
-    onBackground = Color(0xFFFFFFFF),
-    onBackgroundMuted = Color(0xD9FFFFFF),
-    onGlass = Color(0xFF062845),
-    onGlassMuted = Color(0xFF3F5F7E),
-    link = Color(0xFF0078C8),
-    soft = Color(0xFFEAF5FD),
-    softButton = Color(0xFFEEF5FB),
-    track = Color(0xFFD5E3EF),
-    checkboxBorder = Color(0xFFC9D9E7),
-    success = Color(0xFF0E9F6E),
-    successSoft = Color(0xFFE3F6EE),
-    warning = Color(0xFFC77700),
-    warningSoft = Color(0xFFFFF4E0),
-    successBright = Color(0xFF7DFFCB),
-    danger = Color(0xFFD93F48),
-    dangerSoft = Color(0xFFFFF1F2),
-    dangerBorder = Color(0xFFF7C9CD),
-    shadow = Color(0x47022454), // rgba(2,36,84,.28)
-    scrim = Color(0x99031B33),
-    navDock = Color(0xF00A67C4), // a shade under bg @ 94%
-    chip = Color(0xFFFFFFFF),
-    payBar = Color(0xFF062845),
-    onPayBar = Color(0xFFFFFFFF),
-    payButton = Color(0xFF00ACFE),
-    onPayButton = Color(0xFF062845),
-    bankCard = Color(0xFF00ACFE),
-    onBankCard = Color(0xFFFFFFFF),
-    actionShadow = Color(0x59021838), // rgba(2,24,56,.35)
+    /** The 1dp lines of the Swiss grid: under the header, between rows. */
+    val hairline: Color,
 )
 
 /**
- * Derived from the same tokens: the backdrop sinks from "bg" towards "navy",
- * milk glass becomes navy glass, and the action colour moves to "logo blue"
- * because navy on a navy card has no contrast. Status colours are lifted so
- * they keep ~4.5:1 on the dark glass.
+ * "Dark Swiss" (the GeekVPN Client canvas, Foundations.dc.html): a near-black
+ * ground lit by one blue glow per screen, frosted glass only for the main
+ * controls, and solid white for actions and selected states, with navy text on
+ * them. There is one palette; the design has no light variant.
  */
-internal val DarkGeekColors = GeekColors(
+internal val SwissGeekColors = GeekColors(
     isDark = true,
-    background = Color(0xFF041D38),
-    backdropGlow = Color(0x5C0870D4), // bg @ 36%
-    backdropGlowStrong = Color(0x4D00ACFE), // logo blue @ 30%
-    backdropLine = Color(0xFFFFFFFF),
-    logoBlue = Color(0xFF00ACFE),
-    actionAccent = Color(0xFF031B33),
-    action = Color(0xFF00ACFE),
-    onAction = Color(0xFF031B33),
-    milkGlass = Color(0xE00B2A4A), // navy glass @ 88%
-    milkGlassBorder = Color(0x26FFFFFF),
-    milkGlassHighlight = Color(0x33FFFFFF),
-    clearGlass = Color(0x17FFFFFF), // white @ 9%
-    clearGlassBorder = Color(0x33FFFFFF),
-    clearGlassHighlight = Color(0x40FFFFFF),
+    background = Color(0xFF02040E),
+    backdropGlow = Color(0xFF1A2FFF),
+    backdropGlowStrong = Color(0xFF3D7BFF),
+    backdropLine = Color(0xFFBFD8FF),
+    // "آبی متن": the blue words in titles, links and accents.
+    logoBlue = Color(0xFF4D8DFF),
+    actionAccent = Color(0xFF07123A),
+    action = Color(0xFFFFFFFF),
+    onAction = Color(0xFF07123A),
+    // Cards are frosted glass (see GlassSurface); this is the base under its gradient.
+    milkGlass = Color(0x0FFFFFFF),
+    milkGlassBorder = Color(0x66FFFFFF), // white @ 40%
+    milkGlassHighlight = Color(0x73FFFFFF), // white @ 45%, the inset top edge
+    clearGlass = Color(0x0FFFFFFF),
+    clearGlassBorder = Color(0x66FFFFFF),
+    clearGlassHighlight = Color(0x73FFFFFF),
     onBackground = Color(0xFFFFFFFF),
-    onBackgroundMuted = Color(0xC7FFFFFF),
-    onGlass = Color(0xFFEAF5FD),
-    onGlassMuted = Color(0xFF9DB7CF),
-    link = Color(0xFF00ACFE),
-    soft = Color(0xFF11375C),
-    softButton = Color(0xFF123B61),
-    track = Color(0xFF24496D),
-    checkboxBorder = Color(0xFF3B6187),
-    success = Color(0xFF3CC896),
-    successSoft = Color(0xFF0E3B33),
-    warning = Color(0xFFF0A63A),
-    warningSoft = Color(0xFF3D2E12),
+    onBackgroundMuted = Color(0xB8FFFFFF), // white @ 72%
+    onGlass = Color(0xFFFFFFFF),
+    onGlassMuted = Color(0xB8FFFFFF),
+    link = Color(0xFF4D8DFF),
+    soft = Color(0x1AFFFFFF), // white @ 10%: inputs, quiet chips
+    softButton = Color(0x1FFFFFFF), // white @ 12%
+    track = Color(0x29FFFFFF), // white @ 16%: progress tracks, the off switch
+    checkboxBorder = Color(0x59FFFFFF), // white @ 35%
+    success = Color(0xFF5BE3A8),
+    successSoft = Color(0x2E5BE3A8),
+    warning = Color(0xFFFFC25C),
+    warningSoft = Color(0x2EFFC25C),
     successBright = Color(0xFF7DFFCB),
-    danger = Color(0xFFF26B73),
-    dangerSoft = Color(0xFF40202A),
-    dangerBorder = Color(0xFF6B2E3A),
-    shadow = Color(0x66000814),
-    scrim = Color(0xB3000814),
-    navDock = Color(0xF0031830), // a shade under bg @ 94%
-    chip = Color(0xFF0F3357),
-    payBar = Color(0xFF0B2A4A),
+    danger = Color(0xFFFF8A9A),
+    dangerSoft = Color(0x24FF8A9A),
+    dangerBorder = Color(0x66FF8A9A),
+    shadow = Color(0x73000418), // rgba(0,4,30,.45)
+    scrim = Color(0xC7000208),
+    navDock = Color(0xEB0A1138),
+    chip = Color(0x14FFFFFF),
+    payBar = Color(0xF20A1033),
     onPayBar = Color(0xFFFFFFFF),
-    payButton = Color(0xFF00ACFE),
-    onPayButton = Color(0xFF031B33),
-    bankCard = Color(0xFF0870D4),
+    payButton = Color(0xFFFFFFFF),
+    onPayButton = Color(0xFF07123A),
+    bankCard = Color(0xFF0E1A55),
     onBankCard = Color(0xFFFFFFFF),
-    actionShadow = Color(0x4D00ACFE),
+    actionShadow = Color(0x73000418),
+    hairline = Color(0x38FFFFFF), // white @ 22%
 )
 
-val LocalGeekColors = staticCompositionLocalOf { LightGeekColors }
+/** The frosted glass of Foundations.dc.html: linear-gradient(155deg, white 22%, #78A0FF 10%, #2850DC 16%). */
+internal val GlassGradient = listOf(Color(0x38FFFFFF), Color(0x1A78A0FF), Color(0x292850DC))
+
+/** Sheets cover content, so their glass sits on an almost opaque navy. */
+internal val SheetBase = Color(0xF5070C26)
+
+val LocalGeekColors = staticCompositionLocalOf { SwissGeekColors }

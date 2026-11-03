@@ -21,25 +21,26 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RES = ROOT / "V2rayNG/app/src/main/res"
 LOGO = ROOT / "design/assets/logo.svg"
 
-# Foundations.html: "bg" and "logo blue".
-BG = "#0870D4"
-BG_LIGHT = "#00ACFE"
+# Dark Swiss (Logo-AppIcon.dc.html): the near-black ground and its blue light.
+BG = "#02040E"
+GLOW = "#1A3CFF"
+GLOW_CORE = "#7FB2FF"
 
-# The logo's own coordinate space after its transform.
-LOGO_W, LOGO_H = 340.0, 330.0
+# The logo's viewBox: two lenses joined by a bridge, 2:1.
+LOGO_W, LOGO_H = 240.0, 120.0
 
 DENSITIES = {"mdpi": 1.0, "hdpi": 1.5, "xhdpi": 2.0, "xxhdpi": 3.0, "xxxhdpi": 4.0}
 
 
+def logo_paths() -> list[str]:
+    paths = re.findall(r'<path d="([^"]+)"', LOGO.read_text())
+    if not paths:
+        raise SystemExit("logo.svg: no <path>")
+    return paths
+
+
 def logo_group(fill: str) -> str:
-    svg = LOGO.read_text()
-    match = re.search(r"<g\b[^>]*>(.*)</g>", svg, re.S)
-    if match is None:
-        raise SystemExit("logo.svg: no <g> element")
-    inner = match.group(1)
-    return (
-        f'<g transform="translate(0,{LOGO_H}) scale(0.1,-0.1)" fill="{fill}">{inner}</g>'
-    )
+    return "".join(f'<path d="{d}" fill="{fill}" fill-rule="evenodd"/>' for d in logo_paths())
 
 
 def placed_logo(fill: str, box_w: float, box_h: float, logo_w: float, dy: float = 0.0) -> str:
@@ -51,10 +52,12 @@ def placed_logo(fill: str, box_w: float, box_h: float, logo_w: float, dy: float 
 
 
 def gradient(box_h: float) -> str:
+    """The app icon's light: a blue glow right of centre on the dark ground (cairosvg has no blur)."""
     return (
-        '<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">'
-        f'<stop offset="0" stop-color="{BG_LIGHT}"/><stop offset="1" stop-color="{BG}"/>'
-        "</linearGradient></defs>"
+        '<defs><radialGradient id="bg" cx="0.62" cy="0.5" r="0.62">'
+        f'<stop offset="0" stop-color="{GLOW_CORE}"/><stop offset="0.3" stop-color="{GLOW}"/>'
+        f'<stop offset="0.75" stop-color="{BG}"/><stop offset="1" stop-color="{BG}"/>'
+        "</radialGradient></defs>"
     )
 
 
@@ -77,7 +80,7 @@ def launcher_icons() -> None:
     for density, factor in DENSITIES.items():
         folder = RES / f"mipmap-{density}"
         # Adaptive foreground: 108dp canvas, logo inside the 66dp safe zone.
-        fg = placed_logo("#FFFFFF", 108, 108, 60, dy=1)
+        fg = placed_logo("#FFFFFF", 108, 108, 62)
         save(render(fg, 108, 108, round(108 * factor), round(108 * factor)),
              folder / "ic_launcher_foreground.png")
 
@@ -86,13 +89,13 @@ def launcher_icons() -> None:
         square = (
             gradient(48)
             + '<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>'
-            + placed_logo("#FFFFFF", 48, 48, 30, dy=0.5)
+            + placed_logo("#FFFFFF", 48, 48, 32)
         )
         save(render(square, 48, 48, size, size), folder / "ic_launcher.png")
         round_icon = (
             gradient(48)
             + '<circle cx="24" cy="24" r="22" fill="url(#bg)"/>'
-            + placed_logo("#FFFFFF", 48, 48, 28, dy=0.5)
+            + placed_logo("#FFFFFF", 48, 48, 30)
         )
         save(render(round_icon, 48, 48, size, size), folder / "ic_launcher_round.png")
 
@@ -100,9 +103,9 @@ def launcher_icons() -> None:
 def banner() -> None:
     folder = RES / "mipmap-xhdpi"
     body = gradient(180) + '<rect width="320" height="180" fill="url(#bg)"/>'
-    body += placed_logo("#FFFFFF", 320, 180, 110)
+    body += placed_logo("#FFFFFF", 320, 180, 150)
     save(render(body, 320, 180, 320, 180), folder / "ic_banner.png")
-    save(render(placed_logo("#FFFFFF", 320, 180, 110), 320, 180, 320, 180),
+    save(render(placed_logo("#FFFFFF", 320, 180, 150), 320, 180, 320, 180),
          folder / "ic_banner_foreground.png")
 
 
@@ -122,14 +125,14 @@ def notification_icons() -> None:
     for density, factor in DENSITIES.items():
         folder = RES / f"drawable-{density}"
         px = round(24 * factor)
-        plain = render(placed_logo("#FFFFFF", 24, 24, 22), 24, 24, px, px)
+        plain = render(placed_logo("#FFFFFF", 24, 24, 23), 24, 24, px, px)
         save(plain, folder / "ic_stat_name.png")
-        black = render(placed_logo("#000000", 24, 24, 22), 24, 24, px, px)
+        black = render(placed_logo("#000000", 24, 24, 23), 24, 24, px, px)
         if (folder / "ic_stat_name_black.png").exists():
             save(black, folder / "ic_stat_name_black.png")
 
         for name, badge in (("ic_stat_proxy", _globe), ("ic_stat_direct", _arrow)):
-            base = render(placed_logo("#FFFFFF", 24, 24, 19, dy=-2.5), 24, 24, px, px)
+            base = render(placed_logo("#FFFFFF", 24, 24, 21, dy=-4), 24, 24, px, px)
             # Knock a hole where the badge goes so it reads as a separate mark.
             cx, cy, r = px * 0.76, px * 0.76, px * 0.24
             hole = Image.new("L", base.size, 0)
@@ -143,10 +146,9 @@ def notification_icons() -> None:
 
 def logo_vector() -> None:
     """res/drawable/ic_geek_logo.xml: the logo as a VectorDrawable for Compose (white, tint it)."""
-    svg = LOGO.read_text()
-    paths = re.findall(r'<path d="([^"]+)"', svg)
     body = "\n".join(
-        f'        <path android:fillColor="#FFFFFFFF" android:pathData="{d}" />' for d in paths
+        f'    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="{d}" />'
+        for d in logo_paths()
     )
     xml = f"""<?xml version="1.0" encoding="utf-8"?>
 <!-- Generated by branding/gen_icons.py from design/assets/logo.svg. -->
@@ -155,12 +157,7 @@ def logo_vector() -> None:
     android:height="{LOGO_H:g}dp"
     android:viewportWidth="{LOGO_W:g}"
     android:viewportHeight="{LOGO_H:g}">
-    <group
-        android:scaleX="0.1"
-        android:scaleY="-0.1"
-        android:translateY="{LOGO_H:g}">
 {body}
-    </group>
 </vector>
 """
     target = RES / "drawable/ic_geek_logo.xml"
@@ -168,8 +165,40 @@ def logo_vector() -> None:
     print(target.relative_to(ROOT))
 
 
+def launcher_background() -> None:
+    """res/drawable/ic_launcher_background_geek.xml: the adaptive icon's ground with its blue light."""
+    xml = f"""<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated by branding/gen_icons.py (Logo-AppIcon.dc.html's light). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="67"
+                android:centerY="54"
+                android:gradientRadius="67">
+                <item android:offset="0" android:color="#FF{GLOW_CORE[1:]}" />
+                <item android:offset="0.3" android:color="#FF{GLOW[1:]}" />
+                <item android:offset="0.75" android:color="#FF{BG[1:]}" />
+                <item android:offset="1" android:color="#FF{BG[1:]}" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
+"""
+    target = RES / "drawable/ic_launcher_background_geek.xml"
+    target.write_text(xml)
+    print(target.relative_to(ROOT))
+
+
 if __name__ == "__main__":
     logo_vector()
+    launcher_background()
     launcher_icons()
     banner()
     notification_icons()

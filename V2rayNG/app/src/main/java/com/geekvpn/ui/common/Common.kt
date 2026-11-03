@@ -1,10 +1,8 @@
 package com.geekvpn.ui.common
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -15,26 +13,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
@@ -99,34 +99,42 @@ fun formatGib(value: Double, locale: Locale): String {
 }
 
 /**
- * Header of the tab screens (Home-Off.html): logo, "GeekVPN", and the wallet
- * chip with the balance. [onWallet] null hides the chip (guest mode).
+ * Header of the tab screens (Home-Off.dc.html): the mark and "GeekVPN", the
+ * wallet chip with the balance at the far end, and the hairline under them.
+ * [onWallet] null hides the chip (guest mode, and the tabs without one).
  */
 @Composable
 fun GeekHeader(balance: Long?, onWallet: (() -> Unit)?) {
     val colors = Geek.colors
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Image(painterResource(R.drawable.ic_geek_logo), contentDescription = null, modifier = Modifier.size(34.dp))
-        Text(
-            text = stringResource(R.string.geek_brand),
-            style = Geek.type.body.copy(
-                fontFamily = SpaceGrotesk,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                letterSpacing = (-0.5).sp,
-                textDirection = TextDirection.Ltr,
-            ),
-            color = colors.onBackground,
-        )
-        // The brand word stays beside the logo; the wallet chip goes to the far end.
-        Spacer(Modifier.weight(1f))
-        if (onWallet != null) {
-            WalletChip(balance, onWallet)
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Row(
+            modifier = Modifier.heightIn(min = 44.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Image(painterResource(R.drawable.ic_geek_logo), contentDescription = null, modifier = Modifier.size(width = 39.dp, height = 19.dp))
+            Text(
+                text = stringResource(R.string.geek_brand),
+                style = Geek.type.body.copy(
+                    fontFamily = SpaceGrotesk,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    letterSpacing = (-0.5).sp,
+                    textDirection = TextDirection.Ltr,
+                ),
+                color = colors.onBackground,
+            )
+            // The brand word stays beside the mark; the wallet chip goes to the far end.
+            Spacer(Modifier.weight(1f))
+            if (onWallet != null) {
+                WalletChip(balance, onWallet)
+            }
         }
+        Hairline()
     }
 }
 
-/** The balance on clear glass, opening the wallet (Home-Off.html, Shop.html). */
+/** The balance on a glass pill, opening the wallet (Home-Off.dc.html, Shop.dc.html). */
 @Composable
 fun WalletChip(balance: Long?, onClick: () -> Unit) {
     val colors = Geek.colors
@@ -137,67 +145,87 @@ fun WalletChip(balance: Long?, onClick: () -> Unit) {
         modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
     ) {
         Row(
-            modifier = Modifier.height(44.dp).padding(start = 6.dp, end = 12.dp),
+            modifier = Modifier.height(44.dp).padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Box(
-                Modifier.size(28.dp).clip(RoundedCornerShape(9.dp)).background(colors.onBackground),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(GeekIcons.Wallet, contentDescription = null, tint = colors.action, modifier = Modifier.size(16.dp))
-            }
+            Icon(GeekIcons.Card, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(15.dp))
             Text(
                 text = stringResource(R.string.geek_home_balance, formatNumber(balance ?: 0, locale)),
-                style = Geek.type.caption.copy(fontWeight = FontWeight.Bold),
+                style = Geek.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold),
                 color = colors.onBackground,
             )
         }
     }
 }
 
-/** A tab screen's page title on the backdrop ("سرویس‌های من"). */
+/** The 1dp white line of the Swiss grid, between header and page and between rows. */
 @Composable
-fun PageTitle(text: String, modifier: Modifier = Modifier, subtitle: String? = null) {
-    Column(modifier) {
+fun Hairline(modifier: Modifier = Modifier) {
+    HorizontalDivider(modifier = modifier, thickness = 1.dp, color = Geek.colors.hairline)
+}
+
+/**
+ * The Latin micro label of Dark Swiss ("STATUS · OFF", "MY SERVICES"): Space
+ * Grotesk 10, upper case, tracked. Decorative: the Persian title next to it
+ * says the same, so TalkBack skips it.
+ */
+@Composable
+fun Eyebrow(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text.uppercase(Locale.ROOT),
+        style = Geek.type.eyebrow.copy(letterSpacing = 0.24.em),
+        color = Geek.colors.onBackgroundMuted,
+        maxLines = 1,
+        modifier = modifier.clearAndSetSemantics {},
+    )
+}
+
+/** A screen's title: the Latin [eyebrow] over the heavy Persian title, and a muted line under it. */
+@Composable
+fun PageTitle(text: String, modifier: Modifier = Modifier, subtitle: String? = null, eyebrow: String? = null) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (eyebrow != null) Eyebrow(eyebrow)
         Text(text, style = Geek.type.pageTitle, color = Geek.colors.onBackground)
         if (subtitle != null) {
-            Text(subtitle, style = Geek.type.caption, color = Geek.colors.onBackgroundMuted)
+            Text(subtitle, style = Geek.type.body, color = Geek.colors.onBackgroundMuted)
         }
     }
 }
 
-/** A label above a card group ("تنظیمات اتصال"). */
+/** A label above a group of rows ("تنظیمات اتصال"). */
 @Composable
 fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        style = Geek.type.label,
-        color = Geek.colors.onBackground,
-        modifier = modifier.padding(horizontal = 4.dp),
+        style = Geek.type.label.copy(fontSize = 13.sp),
+        color = Geek.colors.onBackgroundMuted,
+        modifier = modifier.padding(top = 6.dp),
     )
 }
 
-/** A milk-glass card holding [SettingRow]s separated by hairlines. */
+/**
+ * Rows of the Swiss grid (Account.dc.html): no card, just hairlines above,
+ * between and below the rows. [SettingsDivider] separates them.
+ */
 @Composable
 fun SettingsCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = modifier.fillMaxWidth()) {
-        Column(Modifier.padding(vertical = 6.dp), content = content)
+    Column(modifier.fillMaxWidth()) {
+        Hairline()
+        content()
+        Hairline()
     }
 }
 
 @Composable
 fun SettingsDivider() {
-    HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        thickness = 1.dp,
-        color = Geek.colors.soft,
-    )
+    Hairline()
 }
 
 /**
- * One row of Account.html: icon tile, title and hint, and either a chevron
- * (navigates) or a trailing control. The whole row is one focus target.
+ * One row of Account.dc.html: title and hint, and either a chevron (navigates)
+ * or a trailing control. The whole row is one focus target. [icon] is drawn
+ * small and muted at the start, as the index letters of the design's rows.
  */
 @Composable
 fun SettingRow(
@@ -214,36 +242,88 @@ fun SettingRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 60.dp)
+            .heightIn(min = 56.dp)
             .then(if (onClick != null) Modifier.clickable(role = role, onClick = onClick) else Modifier)
             .semantics(mergeDescendants = true) {
                 if (stateDescription != null) this.stateDescription = stateDescription
             }
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(
-            Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(colors.soft),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(icon, contentDescription = null, tint = colors.onGlass, modifier = Modifier.size(20.dp))
-        }
-        Column(Modifier.weight(1f)) {
+        Icon(icon, contentDescription = null, tint = colors.onBackgroundMuted, modifier = Modifier.size(18.dp))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(title, style = Geek.type.row, color = colors.onGlass, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (hint != null) {
-                Text(hint, style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted, maxLines = 2)
+                Text(hint, style = Geek.type.caption, color = colors.onGlassMuted, maxLines = 2)
             }
         }
         if (trailing != null) {
             trailing()
         } else if (onClick != null) {
-            Icon(GeekIcons.ChevronStart, contentDescription = null, tint = colors.onGlassMuted, modifier = Modifier.size(18.dp))
+            Icon(GeekIcons.ChevronRow, contentDescription = null, tint = colors.onGlassMuted, modifier = Modifier.size(16.dp))
         }
     }
 }
 
-/** A small round-cornered icon button on the backdrop (Servers.html header). */
+/**
+ * A row of the Swiss index (Home-Off.dc.html): a two-letter Latin [code] in
+ * the start column, the title (and a hint), and a muted value at the end.
+ * Clickable when [onClick] is set; the row is one focus target either way.
+ */
+@Composable
+fun IndexRow(
+    code: String,
+    title: String,
+    value: String?,
+    modifier: Modifier = Modifier,
+    hint: String? = null,
+    latinValue: Boolean = false,
+    onClick: (() -> Unit)? = null,
+    trailing: (@Composable RowScope.() -> Unit)? = null,
+) {
+    val colors = Geek.colors
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
+            .semantics(mergeDescendants = true) {}
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(
+            text = code.uppercase(Locale.ROOT),
+            style = Geek.type.eyebrow.copy(letterSpacing = 0.18.em),
+            color = colors.onBackgroundMuted,
+            textAlign = TextAlign.End,
+            maxLines = 1,
+            modifier = Modifier.width(30.dp).clearAndSetSemantics {},
+        )
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(title, style = Geek.type.row.copy(fontSize = 16.sp), color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (hint != null) {
+                Text(hint, style = Geek.type.caption, color = colors.onBackgroundMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+        if (value != null) {
+            Text(
+                text = value,
+                style = if (latinValue) Geek.type.numberSmall else Geek.type.caption.copy(fontSize = 13.sp),
+                color = colors.onBackgroundMuted,
+                maxLines = 1,
+            )
+        }
+        if (trailing != null) {
+            trailing()
+        } else if (onClick != null) {
+            Icon(GeekIcons.ChevronRow, contentDescription = null, tint = colors.onBackgroundMuted, modifier = Modifier.size(16.dp))
+        }
+    }
+}
+
+/** A round glass icon button on the backdrop (the back button of Servers.dc.html). */
 @Composable
 fun GlassIconButton(
     icon: ImageVector,
@@ -256,12 +336,12 @@ fun GlassIconButton(
     val tint = if (kind == GlassKind.Milk) Geek.colors.onGlass else Geek.colors.onBackground
     GlassSurface(
         kind = kind,
-        shape = Geek.shapes.tile,
+        shape = Geek.shapes.pill,
         modifier = modifier
-            .size(46.dp)
+            .size(44.dp)
             .clickable(enabled = enabled, role = Role.Button, onClickLabel = contentDescription, onClick = onClick)
             .semantics { this.contentDescription = contentDescription },
     ) {
-        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.align(Alignment.Center).size(22.dp))
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.align(Alignment.Center).size(18.dp))
     }
 }
