@@ -246,8 +246,10 @@ class ShopViewModel : ViewModel {
         val floor = current.customFloor ?: return
         val anchor = ShopCatalog.customAnchor(current.volumes) ?: return
         if (current.customMode) return
+        val code = couponToKeep()
         state.update { it.copy(plan = anchor, customMode = true, customGib = floor, coupon = null) }
         requote()
+        code?.let(::applyCoupon)
     }
 
     /** What was typed; null or out of range leaves nothing to price. */
@@ -255,9 +257,15 @@ class ShopViewModel : ViewModel {
         val floor = state.value.customFloor ?: return
         val valid = value?.takeIf { it in floor..ShopCatalog.MAX_CUSTOM_GIB }
         if (valid == state.value.customGib) return
+        val code = couponToKeep()
         state.update { it.copy(customGib = valid, coupon = null) }
         requote()
+        // The discount depends on the volume: preview the same code again for the new one.
+        if (valid != null) code?.let(::applyCoupon)
     }
+
+    /** The code entered or offered so far, to preview again after the volume changes. */
+    private fun couponToKeep(): String? = state.value.coupon?.code ?: offerCoupon
 
     /** The volume sent with a purchase: only in custom mode, never a stale one. */
     private fun customGib(): Int? = state.value.takeIf { it.customMode }?.customGib
