@@ -84,6 +84,7 @@ class ShopViewModelTest {
         val gatewayBuys = mutableListOf<GatewayPlanRequest>()
         val topups = mutableListOf<TopupRequest>()
         val uploads = mutableListOf<Pair<String, Int>>()
+        val couponPreviews = mutableListOf<CouponRequest>()
         var coupon = CouponPreview("OFF20", true, 40_000, 160_000, "ok")
         var trialClaim = TrialClaim(listOf("s1", "s2"), 0)
 
@@ -99,7 +100,10 @@ class ShopViewModelTest {
             val total = if (request.couponCode != null) price - 40_000 else price
             return answer(Quote(request.planId, price, total, price - total, 0, null, request.couponCode))
         }
-        override suspend fun previewCoupon(request: CouponRequest) = answer(coupon)
+        override suspend fun previewCoupon(request: CouponRequest): CouponPreview {
+            couponPreviews += request
+            return answer(coupon)
+        }
         override suspend fun paymentMethods() = answer(listOf(PaymentMethodOption("card", "Card"), PaymentMethodOption("zarinpal", "ZarinPal")))
         override suspend fun checkoutWallet(request: PlanRequest): WalletCheckout {
             walletBuys += request
@@ -382,6 +386,21 @@ class ShopViewModelTest {
         h.viewModel.choose("wallet")
         testScheduler.advanceUntilIdle()
         assertEquals(35, h.api.walletBuys.single().customGib)
+    }
+
+    @Test
+    fun the_offer_code_follows_a_typed_volume() = runTest {
+        val h = loaded()
+        h.viewModel.useOffer("OFF20")
+        testScheduler.advanceUntilIdle()
+
+        h.viewModel.selectCustom()
+        h.viewModel.setCustomGib(35)
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(35, h.api.couponPreviews.last().customGib)
+        assertEquals(true, h.viewModel.uiState.value.coupon?.valid)
+        assertEquals(PlanRequest("t-30-20", "OFF20", null, 35), h.api.quotes.last())
     }
 
     @Test

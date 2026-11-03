@@ -30,8 +30,13 @@ class AccountSync(
 
     data class Result(val services: Int, val fetched: Int, val fetchFailures: Int)
 
-    /** Throws `ApiException` when the service list cannot be read; local data is then left alone. */
-    suspend fun sync(): Result = mutex.withLock {
+    /**
+     * Throws `ApiException` when the service list cannot be read; local data is then left alone.
+     *
+     * [refetchAll]: download the servers of every enabled account service, not only the
+     * ones that changed. The refresh button asks for it; a launch sync does not.
+     */
+    suspend fun sync(refetchAll: Boolean = false): Result = mutex.withLock {
         val remote = api.subscriptions()
         store.saveServices(remote)
         UsageNotifier.check(AngApplication.application)
@@ -67,11 +72,11 @@ class AccountSync(
                 }
             }
             // Also refetch a service whose servers were deleted by hand in v2rayNG's list.
-            val toFetch = plan.upserts.filter { it.fetch }.map { it.guid }.toSet() +
+            val toFetch = plan.upserts.filter { it.fetch || refetchAll }.map { it.guid }.toSet() +
                 local.keys.filter {
                     SubscriptionPlan.isAccountGuid(it) &&
                         it !in plan.removals &&
-                        MmkvManager.decodeServerList(it).isEmpty()
+                        (refetchAll || MmkvManager.decodeServerList(it).isEmpty())
                 }
             toFetch.forEach { guid ->
                 val item = MmkvManager.decodeSubscription(guid) ?: return@forEach
@@ -85,6 +90,26 @@ class AccountSync(
                     "${plan.removals.size} removed, $fetched fetched, $failures failed"
             )
             Result(remote.size, fetched, failures)
+        }
+    }
+
+    /**
+     * Downloads the servers of every enabled account service already on the
+     * device, without asking the backend: the refresh still updates the servers
+     * when the service list cannot be read.
+     */
+    suspend fun refetchLocal(): Result = mutex.withLock {
+        withContext(Dispatchers.IO) {
+            var fetched = 0
+            var failures = 0
+            MmkvManager.decodeSubscriptions()
+                .filter { SubscriptionPlan.isAccountGuid(it.guid) && it.subscription.enabled }
+                .forEach { cache ->
+                    val result = AngConfigManager.updateConfigViaSub(cache)
+                    if (result.successCount > 0) fetched++ else failures++
+                }
+            LogUtil.i(AppConfig.TAG, "AccountSync: refetched local services, $fetched fetched, $failures failed")
+            Result(services = 0, fetched = fetched, fetchFailures = failures)
         }
     }
 
