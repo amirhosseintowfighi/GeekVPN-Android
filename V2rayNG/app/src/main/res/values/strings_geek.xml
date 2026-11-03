@@ -614,4 +614,25 @@
     <string name="geek_eyebrow_security">Security</string>
     <string name="geek_eyebrow_support">Support</string>
     <string name="geek_eyebrow_wallet">Wallet</string>
+    <plurals name="geek_eyebrow_servers_count">
+        <item quantity="one">%1$d available</item>
+        <item quantity="other">%1$d available</item>
+    </plurals>
+    <string name="geek_scan_action">Scan for a clean IP</string>
+    <string name="geek_eyebrow_route">Traffic route</string>
+    <string name="geek_eyebrow_recommended">Recommended</string>
+    <string name="geek_route_via_direct">Direct</string>
+    <string name="geek_route_via_vpn">VPN</string>
+    <string name="geek_route_part_iran">Iranian sites and apps</string>
+    <string name="geek_route_part_rest">The rest of the internet</string>
+    <string name="geek_route_part_all">The whole internet</string>
+    <string name="geek_code_iran">IR</string>
+    <string name="geek_code_world">WW</string>
+    <string name="geek_code_apps">AP</string>
+    <string name="geek_login_hero">Free internet,\nfast and secure</string>
+    <string name="geek_login_hero_accent">in one tap.</string>
+    <string name="geek_eyebrow_client">Client · v%1$s</string>
+    <string name="geek_eyebrow_recent">Recent</string>
+    <string name="geek_eyebrow_amount">Amount</string>
+    <string name="geek_eyebrow_destination_card">Destination card</string>
 </resources>

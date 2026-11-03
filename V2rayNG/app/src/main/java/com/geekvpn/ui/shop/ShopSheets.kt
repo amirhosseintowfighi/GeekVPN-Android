@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,25 +38,36 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.geekvpn.api.PaymentMethodOption
 import com.geekvpn.api.PaymentView
 import com.geekvpn.api.WalletTransaction
 import com.geekvpn.shop.PaymentKeys
 import com.geekvpn.shop.TopupLimits
+import com.geekvpn.ui.common.Hairline
+import com.geekvpn.ui.common.SectionLabel
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatDate
 import com.geekvpn.ui.common.formatNumber
+import com.geekvpn.ui.components.ChoicePill
 import com.geekvpn.ui.components.GeekPrimaryButton
+import com.geekvpn.ui.components.GeekSecondaryButton
 import com.geekvpn.ui.components.GeekSheet
+import com.geekvpn.ui.components.GlassKind
+import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
 import com.geekvpn.ui.theme.SpaceGrotesk
@@ -125,23 +137,23 @@ private fun MethodRow(icon: ImageVector, title: String, hint: String, enabled: B
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
-            .background(colors.chip)
-            .border(1.dp, colors.track, RoundedCornerShape(18.dp))
+            .clip(Geek.shapes.row)
+            .background(colors.softButton)
+            .border(1.5.dp, colors.clearGlassBorder, Geek.shapes.row)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .alpha(if (enabled) 1f else 0.5f)
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(Modifier.size(42.dp).clip(RoundedCornerShape(13.dp)).background(colors.soft), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = colors.link, modifier = Modifier.size(20.dp))
+        Box(Modifier.size(40.dp).clip(CircleShape).background(colors.soft).border(1.dp, colors.checkboxBorder, CircleShape), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = colors.onGlass, modifier = Modifier.size(19.dp))
         }
         Column(Modifier.weight(1f)) {
             Text(title, style = Geek.type.row, color = colors.onGlass)
             Text(hint, style = Geek.type.caption, color = colors.onGlassMuted)
         }
-        Icon(GeekIcons.ChevronStart, contentDescription = null, tint = colors.onGlassMuted, modifier = Modifier.size(18.dp))
+        Icon(GeekIcons.ChevronRow, contentDescription = null, tint = colors.onGlassMuted, modifier = Modifier.size(16.dp))
     }
 }
 
@@ -172,21 +184,15 @@ fun BoxScope.WalletSheet(
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     row.forEach { value ->
                         val selected = custom.isBlank() && value == preset
-                        val shape = RoundedCornerShape(14.dp)
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(52.dp)
-                                .clip(shape)
-                                .background(if (selected) colors.soft else colors.chip)
-                                .border(if (selected) 2.dp else 1.dp, if (selected) colors.link else colors.track, shape)
-                                .selectable(selected = selected, role = Role.RadioButton) {
-                                    preset = value
-                                    custom = ""
-                                },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(formatNumber(value, locale), style = Geek.type.row.copy(fontSize = 15.sp, fontWeight = FontWeight.ExtraBold), color = colors.onGlass)
+                        ChoicePill(
+                            selected = selected,
+                            onClick = {
+                                preset = value
+                                custom = ""
+                            },
+                            modifier = Modifier.weight(1f).height(56.dp),
+                        ) { color ->
+                            Text(formatNumber(value, locale), style = Geek.type.row.copy(fontSize = 17.sp, fontWeight = FontWeight.ExtraBold), color = color)
                         }
                     }
                 }
@@ -196,7 +202,13 @@ fun BoxScope.WalletSheet(
             val customLabel = stringResource(R.string.geek_wallet_custom)
             Text(customLabel, style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onGlassMuted)
             Row(
-                modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(14.dp)).background(colors.softButton).padding(horizontal = 14.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .clip(Geek.shapes.pill)
+                    .background(colors.soft)
+                    .border(1.dp, colors.checkboxBorder, Geek.shapes.pill)
+                    .padding(horizontal = 18.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
@@ -210,7 +222,7 @@ fun BoxScope.WalletSheet(
                         onValueChange = { text -> custom = text.filter { Character.isDigit(it) }.take(9) },
                         singleLine = true,
                         textStyle = Geek.type.body.copy(color = colors.onGlass),
-                        cursorBrush = SolidColor(colors.link),
+                        cursorBrush = SolidColor(colors.onGlass),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                         modifier = Modifier.fillMaxWidth().semantics { contentDescription = customLabel },
                     )
@@ -219,11 +231,11 @@ fun BoxScope.WalletSheet(
         }
         GeekPrimaryButton(
             text = stringResource(R.string.geek_wallet_charge, formatNumber(amount, locale)),
-            icon = GeekIcons.Card,
+            icon = GeekIcons.ArrowAction,
             onClick = { onTopup(amount) },
             enabled = !busy,
         )
-        Text(stringResource(R.string.geek_wallet_recent), style = Geek.type.label, color = colors.onGlass)
+        SectionLabel(stringResource(R.string.geek_wallet_recent), eyebrow = stringResource(R.string.geek_eyebrow_recent))
         val pending = wallet.pending
         val transactions = wallet.transactions
         if (pending.isEmpty() && transactions.isEmpty()) {
@@ -233,8 +245,19 @@ fun BoxScope.WalletSheet(
                 color = colors.onGlassMuted,
             )
         }
-        pending.forEach { payment -> PendingRow(payment, onPending) }
-        transactions.forEach { TransactionRow(it) }
+        if (pending.isNotEmpty() || transactions.isNotEmpty()) {
+            Column {
+                Hairline()
+                pending.forEach { payment ->
+                    PendingRow(payment, onPending)
+                    Hairline()
+                }
+                transactions.forEach {
+                    TransactionRow(it)
+                    Hairline()
+                }
+            }
+        }
     }
 }
 
@@ -286,26 +309,29 @@ private fun ActivityRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, colors.track, RoundedCornerShape(16.dp))
+            .heightIn(min = 56.dp)
             .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(tile), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(36.dp).clip(CircleShape).background(tile), contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
         }
         Column(Modifier.weight(1f)) {
             Text(amount, style = Geek.type.row.copy(fontWeight = FontWeight.ExtraBold), color = colors.onGlass)
-            if (detail != null) Text(detail, style = Geek.type.micro, color = colors.onGlassMuted)
+            if (detail != null) Text(detail, style = Geek.type.caption, color = colors.onGlassMuted)
         }
         if (badge != null) {
             Text(
                 badge,
                 style = Geek.type.micro.copy(fontWeight = FontWeight.ExtraBold),
-                color = colors.warning,
-                modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(colors.warningSoft).padding(horizontal = 10.dp, vertical = 5.dp),
+                color = colors.onGlass,
+                modifier = Modifier
+                    .clip(Geek.shapes.pill)
+                    .background(colors.softButton)
+                    .border(1.dp, colors.checkboxBorder, Geek.shapes.pill)
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
             )
         }
     }
@@ -328,96 +354,90 @@ fun BoxScope.DepositSheet(
         onDismiss = onDismiss,
     ) {
         BankCard(info, onCopy)
-        Row(
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(colors.softButton).padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(stringResource(R.string.geek_deposit_amount), style = Geek.type.caption, color = colors.onGlassMuted)
+        // Deposit.dc.html: the exact amount, its identifying last digits in the text blue.
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                SectionLabel(stringResource(R.string.geek_deposit_amount), eyebrow = stringResource(R.string.geek_eyebrow_amount))
+                val amount = formatNumber(info.amount, locale)
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(formatNumber(info.amount, locale), style = Geek.type.pageTitle.copy(fontSize = 24.sp), color = colors.onGlass)
-                    Text(stringResource(R.string.geek_account_toman), style = Geek.type.caption, color = colors.onGlassMuted, modifier = Modifier.padding(bottom = 4.dp))
+                    Text(
+                        buildAnnotatedString {
+                            append(amount.dropLast(2))
+                            withStyle(SpanStyle(color = colors.logoBlue)) { append(amount.takeLast(2)) }
+                        },
+                        style = Geek.type.display.copy(fontSize = 38.sp, lineHeight = 44.sp, fontWeight = FontWeight.Black),
+                        color = colors.onGlass,
+                    )
+                    Text(stringResource(R.string.geek_account_toman), style = Geek.type.label.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold), color = colors.onGlassMuted, modifier = Modifier.padding(bottom = 8.dp))
                 }
-                Text(stringResource(R.string.geek_deposit_rials, formatNumber(info.amount * 10, locale)), style = Geek.type.micro, color = colors.onGlassMuted)
+                Text(stringResource(R.string.geek_deposit_rials, formatNumber(info.amount * 10, locale)), style = Geek.type.caption, color = colors.onGlassMuted)
             }
-            CopyButton(stringResource(R.string.geek_deposit_copy_amount), background = colors.chip, tint = colors.onGlass) {
+            CopyButton(stringResource(R.string.geek_deposit_copy_amount), background = colors.softButton, tint = colors.onGlass) {
                 onCopy(info.amount.toString(), R.string.geek_deposit_amount_copied)
             }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(colors.warningSoft).padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Icon(GeekIcons.Clock, contentDescription = null, tint = colors.warning, modifier = Modifier.padding(top = 3.dp).size(16.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(stringResource(R.string.geek_deposit_exact), style = Geek.type.caption, color = colors.warning)
-                if (info.reviewNote.isNotBlank()) {
-                    Text(info.reviewNote, style = Geek.type.caption, color = colors.warning)
-                }
+        Hairline()
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(R.string.geek_deposit_exact), style = Geek.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Medium), color = colors.onGlassMuted)
+            if (info.reviewNote.isNotBlank()) {
+                Text(info.reviewNote, style = Geek.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Medium), color = colors.onGlassMuted)
             }
         }
         GeekPrimaryButton(
             text = stringResource(if (uploading) R.string.geek_deposit_sending else R.string.geek_deposit_send),
-            icon = GeekIcons.Receipt,
+            icon = GeekIcons.ArrowAction,
             onClick = onSendReceipt,
             enabled = !uploading,
         )
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .heightIn(min = 44.dp)
-                .clickable(enabled = !uploading, role = Role.Button, onClick = onDismiss)
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(stringResource(R.string.geek_sheet_close), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.link)
-        }
+        GeekSecondaryButton(
+            text = stringResource(R.string.geek_sheet_close),
+            onClick = onDismiss,
+            enabled = !uploading,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
+/** Deposit.dc.html's destination card: glass, the bank, the number in Space Grotesk, the holder and a copy pill. */
 @Composable
 private fun BankCard(info: DepositInfo, onCopy: (String, Int) -> Unit) {
     val colors = Geek.colors
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 190.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .background(colors.bankCard)
-            .padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(GeekIcons.Bank, contentDescription = null, tint = colors.onBankCard, modifier = Modifier.size(18.dp))
+    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                stringResource(R.string.geek_eyebrow_destination_card).uppercase(java.util.Locale.ROOT),
+                style = Geek.type.eyebrow.copy(fontSize = 9.sp),
+                color = colors.onGlassMuted,
+                modifier = Modifier.clearAndSetSemantics {},
+            )
             Text(
                 info.bank.ifBlank { stringResource(R.string.geek_deposit_bank) },
-                style = Geek.type.row.copy(fontWeight = FontWeight.ExtraBold),
-                color = colors.onBankCard,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                style = Geek.type.row.copy(fontWeight = FontWeight.Bold),
+                color = colors.onGlass,
             )
-            Image(painterResource(R.drawable.ic_geek_logo), contentDescription = null, modifier = Modifier.size(40.dp))
-        }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
                 groupCardNumber(info.cardNumber),
-                style = Geek.type.body.copy(
-                    fontFamily = SpaceGrotesk,
-                    fontSize = 21.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.5.sp,
-                    textDirection = TextDirection.Ltr,
-                    textAlign = TextAlign.End,
-                ),
-                color = colors.onBankCard,
-                modifier = Modifier.weight(1f),
+                style = Geek.type.numberLarge.copy(fontSize = 24.sp, letterSpacing = 0.08.em, textAlign = TextAlign.End),
+                color = colors.onGlass,
+                modifier = Modifier.fillMaxWidth(),
             )
-            CopyButton(stringResource(R.string.geek_deposit_copy_card), background = colors.onBankCard, tint = colors.bankCard) {
-                onCopy(info.cardNumber.filter { it.isDigit() }, R.string.geek_deposit_card_copied)
+            if (info.cardHolder.isNotBlank()) {
+                Text(stringResource(R.string.geek_deposit_holder, info.cardHolder), style = Geek.type.caption, color = colors.onGlassMuted)
             }
-        }
-        if (info.cardHolder.isNotBlank()) {
-            Text(stringResource(R.string.geek_deposit_holder, info.cardHolder), style = Geek.type.caption.copy(fontWeight = FontWeight.SemiBold), color = colors.onBankCard)
+            Row(
+                modifier = Modifier
+                    .heightIn(min = 44.dp)
+                    .clip(Geek.shapes.pill)
+                    .background(colors.softButton)
+                    .border(1.5.dp, colors.clearGlassBorder, Geek.shapes.pill)
+                    .clickable(role = Role.Button) { onCopy(info.cardNumber.filter { it.isDigit() }, R.string.geek_deposit_card_copied) }
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(GeekIcons.Copy, contentDescription = null, tint = colors.onGlass, modifier = Modifier.size(16.dp))
+                Text(stringResource(R.string.geek_deposit_copy_card), style = Geek.type.label.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold), color = colors.onGlass)
+            }
         }
     }
 }
@@ -427,8 +447,9 @@ private fun CopyButton(label: String, background: Color, tint: Color, onClick: (
     Box(
         modifier = Modifier
             .size(46.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .clip(Geek.shapes.pill)
             .background(background)
+            .border(1.5.dp, Geek.colors.clearGlassBorder, Geek.shapes.pill)
             .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
             .semantics { contentDescription = label },
         contentAlignment = Alignment.Center,
