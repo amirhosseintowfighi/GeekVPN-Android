@@ -263,6 +263,9 @@ fun SettingRow(
             .heightIn(min = 56.dp)
             .then(if (onClick != null) Modifier.clickable(role = role, onClick = onClick) else Modifier)
             .semantics(mergeDescendants = true) {
+                // An explicit label too: a row half under the tab bar on a small screen
+                // (API 24's 320x640) otherwise reaches uiautomator without its text.
+                contentDescription = listOfNotNull(title, hint).joinToString(", ")
                 if (stateDescription != null) this.stateDescription = stateDescription
             }
             .padding(vertical = 12.dp),
@@ -306,7 +309,10 @@ fun IndexRow(
             .fillMaxWidth()
             .heightIn(min = 48.dp)
             .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
-            .semantics(mergeDescendants = true) {}
+            .semantics(mergeDescendants = true) {
+                // Explicit, as in SettingRow: the row keeps its label when the tab bar covers it.
+                contentDescription = listOfNotNull(title, hint, value).joinToString(", ")
+            }
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
