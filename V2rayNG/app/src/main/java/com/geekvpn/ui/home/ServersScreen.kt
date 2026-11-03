@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
@@ -51,9 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.geekvpn.connection.ConnectionLogic
 import com.geekvpn.smartconnect.FailoverThreshold
+import com.geekvpn.ui.common.Eyebrow
 import com.geekvpn.ui.common.GlassIconButton
+import com.geekvpn.ui.common.Hairline
 import com.geekvpn.ui.components.CountryBadge
 import com.geekvpn.ui.components.GeekCheckbox
+import com.geekvpn.ui.components.GeekSegmented
 import com.geekvpn.ui.components.GeekSwitch
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
@@ -91,62 +95,66 @@ fun ServersScreen(
         if (byPing) ConnectionLogic.favoritesFirst(ConnectionLogic.byDelay(matching) { it.delayMs }) { it.favorite } else matching
     }
 
-    Column(Modifier.fillMaxSize().imePadding()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            GlassIconButton(GeekIcons.ArrowForward, stringResource(R.string.geek_servers_back_description), onBack)
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.geek_servers_title), style = Geek.type.pageTitle, color = colors.onBackground)
+    LazyColumn(
+        contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 30.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = Modifier.fillMaxSize().imePadding().statusBarsPadding().navigationBarsPadding(),
+    ) {
+        item(key = "top") {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                GlassIconButton(GeekIcons.ChevronBack, stringResource(R.string.geek_servers_back_description), onBack)
+                Eyebrow(
+                    pluralStringResource(R.plurals.geek_eyebrow_servers_count, state.servers.size, state.servers.size),
+                    Modifier.weight(1f),
+                )
+                if (state.testing) {
+                    Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = colors.onBackground, strokeWidth = 2.dp, modifier = Modifier.size(22.dp))
+                    }
+                } else {
+                    GlassIconButton(GeekIcons.Gauge, stringResource(R.string.geek_servers_test_description), onTest, enabled = state.servers.isNotEmpty())
+                }
+                GlassIconButton(GeekIcons.Refresh, stringResource(R.string.geek_servers_update_description), onUpdate, enabled = !updating)
+            }
+        }
+        item(key = "title") {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(stringResource(R.string.geek_servers_title), style = Geek.type.pageTitle.copy(fontSize = 36.sp, lineHeight = 44.sp), color = colors.onBackground)
                 Text(
                     pluralStringResource(R.plurals.geek_servers_count, state.servers.size, state.servers.size),
-                    style = Geek.type.caption,
+                    style = Geek.type.body,
                     color = colors.onBackgroundMuted,
                 )
             }
-            if (state.testing) {
-                Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = colors.onBackground, strokeWidth = 2.dp, modifier = Modifier.size(22.dp))
-                }
-            } else {
-                GlassIconButton(GeekIcons.Gauge, stringResource(R.string.geek_servers_test_description), onTest, enabled = state.servers.isNotEmpty())
-            }
-            GlassIconButton(GeekIcons.Refresh, stringResource(R.string.geek_servers_update_description), onUpdate, enabled = !updating)
         }
-
-        GlassSurface(
-            kind = GlassKind.Milk,
-            shape = Geek.shapes.sheet,
-            modifier = Modifier.fillMaxWidth().weight(1f),
-        ) {
-            LazyColumn(
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-            ) {
-                item(key = "search") { SearchField(query, { query = it }) }
-                item(key = "auto") { AutoCard(state.autoServer, state.failover, onAutoServerChange, onFailoverChange) }
-                if (onCleanIp != null) {
-                    item(key = "clean-ip") { CleanIpCard(onCleanIp) }
-                }
-                if (state.servers.size > 1) {
-                    item(key = "sort") { SortChips(byPing) { byPing = it } }
-                }
-                if (state.servers.isEmpty()) {
-                    item(key = "empty") { EmptyLine(stringResource(R.string.geek_servers_empty)) }
-                } else if (visible.isEmpty()) {
-                    item(key = "no-match") { EmptyLine(stringResource(R.string.geek_servers_no_match)) }
-                }
-                items(visible, key = { it.guid }) { server ->
-                    ServerItem(
-                        server = server,
-                        selected = server.guid == state.selected?.guid,
-                        onClick = { onSelect(server.guid) },
-                        onFavorite = { onFavorite(server.guid) },
-                    )
-                }
+        item(key = "search") { SearchField(query, { query = it }) }
+        if (state.servers.size > 1) {
+            item(key = "sort") { SortChips(byPing) { byPing = it } }
+        }
+        item(key = "auto") { AutoCard(state.autoServer, state.failover, onAutoServerChange, onFailoverChange) }
+        if (onCleanIp != null) {
+            item(key = "clean-ip") { CleanIpCard(onCleanIp) }
+        }
+        if (state.servers.isEmpty()) {
+            item(key = "empty") { EmptyLine(stringResource(R.string.geek_servers_empty)) }
+        } else if (visible.isEmpty()) {
+            item(key = "no-match") { EmptyLine(stringResource(R.string.geek_servers_no_match)) }
+        } else {
+            item(key = "list-top") { Hairline() }
+        }
+        items(visible, key = { it.guid }) { server ->
+            Column {
+                ServerItem(
+                    server = server,
+                    selected = server.guid == state.selected?.guid,
+                    onClick = { onSelect(server.guid) },
+                    onFavorite = { onFavorite(server.guid) },
+                )
+                Hairline()
             }
         }
     }
@@ -159,14 +167,12 @@ private fun SearchField(value: String, onChange: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(44.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .padding(0.dp),
+            .height(46.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        GlassSurface(kind = GlassKind.Milk, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxSize()) {
+        GlassSurface(kind = GlassKind.Clear, shape = Geek.shapes.pill, modifier = Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 14.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
@@ -180,7 +186,7 @@ private fun SearchField(value: String, onChange: (String) -> Unit) {
                         onValueChange = onChange,
                         singleLine = true,
                         textStyle = Geek.type.body.copy(color = colors.onGlass),
-                        cursorBrush = SolidColor(colors.action),
+                        cursorBrush = SolidColor(colors.onGlass),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         modifier = Modifier.fillMaxWidth().semantics { contentDescription = hint },
                     )
@@ -198,30 +204,31 @@ private fun AutoCard(
     onFailover: (FailoverThreshold) -> Unit,
 ) {
     val colors = Geek.colors
-    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.tileLarge, modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(role = Role.Switch) { onChange(!auto) }
-                    .padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Box(
-                    Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(GeekIcons.Bolt, contentDescription = null, tint = colors.logoBlue, modifier = Modifier.size(22.dp))
-                }
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.geek_servers_auto_title), style = Geek.type.row, color = colors.onGlass)
-                    Text(stringResource(R.string.geek_servers_auto_hint), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted)
-                }
-                GeekSwitch(checked = auto, onCheckedChange = null)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        // Servers.dc.html: automatic selection is a solid white card when on.
+        val fg = if (auto) colors.onAction else colors.onGlass
+        val muted = if (auto) colors.onAction.copy(alpha = 0.7f) else colors.onGlassMuted
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .then(
+                    if (auto) Modifier.background(colors.action)
+                    else Modifier.background(colors.softButton).border(1.5.dp, colors.clearGlassBorder, RoundedCornerShape(20.dp)),
+                )
+                .clickable(role = Role.Switch) { onChange(!auto) }
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(GeekIcons.Bolt, contentDescription = null, tint = fg, modifier = Modifier.size(20.dp))
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.geek_servers_auto_title), style = Geek.type.row.copy(fontWeight = FontWeight.ExtraBold), color = fg)
+                Text(stringResource(R.string.geek_servers_auto_hint), style = Geek.type.caption, color = muted)
             }
-            if (auto) FailoverChoice(failover, onFailover)
+            GeekSwitch(checked = auto, onCheckedChange = null)
         }
+        if (auto) FailoverChoice(failover, onFailover)
     }
 }
 
@@ -230,63 +237,40 @@ private fun AutoCard(
 private fun FailoverChoice(current: FailoverThreshold, onSelect: (FailoverThreshold) -> Unit) {
     val colors = Geek.colors
     Column(
-        modifier = Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, bottom = 14.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(stringResource(R.string.geek_failover_title), style = Geek.type.row.copy(fontSize = 13.sp), color = colors.onGlass)
-        Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            FailoverThreshold.entries.forEach { option ->
-                val selected = option == current
-                val shape = RoundedCornerShape(12.dp)
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(44.dp)
-                        .clip(shape)
-                        .background(if (selected) colors.action else colors.chip)
-                        .then(if (selected) Modifier else Modifier.border(1.dp, colors.track, shape))
-                        .selectable(selected = selected, role = Role.RadioButton) { onSelect(option) },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        stringResource(option.label),
-                        style = Geek.type.micro.copy(fontWeight = FontWeight.Bold),
-                        color = if (selected) colors.onAction else colors.onGlass,
-                        maxLines = 1,
-                    )
-                }
-            }
-        }
+        Text(stringResource(R.string.geek_failover_title), style = Geek.type.label.copy(fontSize = 13.sp), color = colors.onBackground)
+        GeekSegmented(
+            options = FailoverThreshold.entries,
+            selected = current,
+            label = { stringResource(it.label) },
+            onSelect = onSelect,
+            height = 44.dp,
+        )
         Text(
             stringResource(if (current == FailoverThreshold.Off) R.string.geek_failover_hint_off else R.string.geek_failover_hint),
-            style = Geek.type.caption.copy(fontSize = 12.sp),
-            color = colors.onGlassMuted,
+            style = Geek.type.caption,
+            color = colors.onBackgroundMuted,
         )
     }
 }
 
-/** Servers.html's second tile: the way into the clean-IP scanner, for a CDN-fronted direct config. */
+/** Servers.dc.html's line under the auto card: the way into the clean-IP scanner, for a CDN-fronted direct config. */
 @Composable
 private fun CleanIpCard(onOpen: () -> Unit) {
     val colors = Geek.colors
-    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.tileLarge, modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(role = Role.Button, onClick = onOpen)
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
-                Icon(GeekIcons.Sparkle, contentDescription = null, tint = colors.logoBlue, modifier = Modifier.size(22.dp))
-            }
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.geek_scan_title), style = Geek.type.row, color = colors.onGlass)
-                Text(stringResource(R.string.geek_scan_entry_hint), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.link)
-            }
-            Icon(GeekIcons.ChevronStart, contentDescription = null, tint = colors.onGlassMuted, modifier = Modifier.size(18.dp))
-        }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 44.dp)
+            .clickable(role = Role.Button, onClick = onOpen),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(stringResource(R.string.geek_scan_title), style = Geek.type.caption, color = colors.onBackgroundMuted, modifier = Modifier.weight(1f))
+        Text(stringResource(R.string.geek_scan_action), style = Geek.type.caption.copy(fontWeight = FontWeight.ExtraBold), color = colors.onBackground)
+        Icon(GeekIcons.ChevronRow, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(14.dp))
     }
 }
 
@@ -297,21 +281,20 @@ private fun ServerItem(server: ServerRow, selected: Boolean, onClick: () -> Unit
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(Geek.shapes.row)
             .clickable(role = Role.RadioButton, onClick = onClick)
             .semantics(mergeDescendants = true) {
                 this.selected = selected
                 if (selected) contentDescription = "${server.title}, $selectedLabel"
             }
-            .padding(horizontal = 6.dp, vertical = 8.dp),
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        CountryBadge(code = server.countryCode ?: "··", selected = selected)
+        CountryBadge(code = server.countryCode ?: "··", selected = selected, modifier = Modifier.width(30.dp))
         Text(
             server.title,
             style = Geek.type.row.copy(fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Bold),
-            color = colors.onGlass,
+            color = colors.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -325,23 +308,9 @@ private fun ServerItem(server: ServerRow, selected: Boolean, onClick: () -> Unit
 /** List order: the subscription's own, or fastest first by the last test. */
 @Composable
 private fun SortChips(byPing: Boolean, onChange: (Boolean) -> Unit) {
-    val colors = Geek.colors
-    Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf(false to R.string.geek_servers_sort_list, true to R.string.geek_servers_sort_ping).forEach { (value, label) ->
-            val selected = byPing == value
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = 44.dp)
-                    .clip(Geek.shapes.pill)
-                    .background(if (selected) colors.action else colors.soft)
-                    .selectable(selected = selected, role = Role.RadioButton) { onChange(value) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(stringResource(label), style = Geek.type.caption, color = if (selected) colors.onAction else colors.onGlass)
-            }
-        }
-    }
+    val list = stringResource(R.string.geek_servers_sort_list)
+    val ping = stringResource(R.string.geek_servers_sort_ping)
+    GeekSegmented(options = listOf(false, true), selected = byPing, label = { if (it) ping else list }, onSelect = onChange, height = 44.dp)
 }
 
 /** Its own touch target inside the row, so starring does not also select. */
@@ -352,7 +321,7 @@ private fun FavoriteButton(favorite: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(44.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(Geek.shapes.pill)
             .toggleable(value = favorite, role = Role.Checkbox, onValueChange = { onClick() })
             .semantics { contentDescription = label },
         contentAlignment = Alignment.Center,
@@ -371,7 +340,7 @@ private fun EmptyLine(text: String) {
     Text(
         text,
         style = Geek.type.body,
-        color = Geek.colors.onGlassMuted,
+        color = Geek.colors.onBackgroundMuted,
         modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
     )
 }

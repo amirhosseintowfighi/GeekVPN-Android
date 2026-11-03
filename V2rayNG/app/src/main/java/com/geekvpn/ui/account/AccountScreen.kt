@@ -1,6 +1,7 @@
 package com.geekvpn.ui.account
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,10 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -25,18 +28,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.geekvpn.auth.Session
 import com.geekvpn.connection.RouteMode
+import com.geekvpn.ui.common.PageTitle
 import com.geekvpn.ui.common.SectionLabel
 import com.geekvpn.ui.common.SettingRow
 import com.geekvpn.ui.common.SettingsCard
 import com.geekvpn.ui.common.SettingsDivider
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatNumber
+import com.geekvpn.ui.components.GeekPrimaryButton
 import com.geekvpn.ui.components.GeekSwitch
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
@@ -79,6 +86,15 @@ interface AccountActions {
     /** "دعوت از دوستان"; signed in only. */
     fun onReferral()
 
+    /** "وضعیت سرورها", the bot's status list; signed in only. */
+    fun onServerStatus() {}
+
+    /** "سؤالات متداول", the bot's FAQ; signed in only. */
+    fun onFaq() {}
+
+    /** "اعلان‌ها", the bot's notification switches; signed in only. */
+    fun onNotifications() {}
+
     /** "مصرف روزانه". */
     fun onUsage()
 }
@@ -95,7 +111,6 @@ fun AccountScreen(
     /** Where the self-update stands; null in builds that cannot update themselves. */
     update: UpdateState? = null,
     onAutoUpdate: (Boolean) -> Unit,
-    onTheme: (ThemeChoice) -> Unit,
     onAskLogout: (Boolean) -> Unit,
     onLogout: () -> Unit,
     /** "قفل برنامه". */
@@ -105,7 +120,8 @@ fun AccountScreen(
     val signedIn = state.session as? Session.SignedIn
     val hasBot = BuildConfig.BOT_USERNAME.isNotEmpty()
 
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        PageTitle(stringResource(R.string.geek_account_page_title), eyebrow = stringResource(R.string.geek_eyebrow_account))
         Identity(state.session)
 
         if (signedIn != null) {
@@ -120,7 +136,7 @@ fun AccountScreen(
             }
         }
 
-        SectionLabel(stringResource(R.string.geek_account_connection))
+        SectionLabel(stringResource(R.string.geek_account_connection), eyebrow = stringResource(R.string.geek_eyebrow_connection))
         SettingsCard {
             if (signedIn != null) {
                 SettingRow(
@@ -184,9 +200,17 @@ fun AccountScreen(
             )
         }
 
-        SectionLabel(stringResource(R.string.geek_account_appearance))
-        ThemeSelector(state.theme, onTheme)
+        SectionLabel(stringResource(R.string.geek_account_security), eyebrow = stringResource(R.string.geek_eyebrow_security))
         SettingsCard {
+            if (signedIn != null) {
+                SettingRow(
+                    icon = GeekIcons.Sparkle,
+                    title = stringResource(R.string.geek_notify_title),
+                    hint = stringResource(R.string.geek_notify_entry_hint),
+                    onClick = actions::onNotifications,
+                )
+                SettingsDivider()
+            }
             SettingRow(
                 icon = GeekIcons.Lock,
                 title = stringResource(R.string.geek_lock_setting),
@@ -196,7 +220,7 @@ fun AccountScreen(
             ) { GeekSwitch(checked = state.appLock, onCheckedChange = null) }
         }
 
-        SectionLabel(stringResource(R.string.geek_account_support))
+        SectionLabel(stringResource(R.string.geek_account_support), eyebrow = stringResource(R.string.geek_eyebrow_support))
         SettingsCard {
             if (hasBot) {
                 SettingRow(
@@ -208,6 +232,20 @@ fun AccountScreen(
                 SettingsDivider()
             }
             if (signedIn != null) {
+                SettingRow(
+                    icon = GeekIcons.Globe,
+                    title = stringResource(R.string.geek_status_title),
+                    hint = stringResource(R.string.geek_status_entry_hint),
+                    onClick = actions::onServerStatus,
+                )
+                SettingsDivider()
+                SettingRow(
+                    icon = GeekIcons.Headset,
+                    title = stringResource(R.string.geek_faq_title),
+                    hint = stringResource(R.string.geek_faq_entry_hint),
+                    onClick = actions::onFaq,
+                )
+                SettingsDivider()
                 SettingRow(
                     icon = GeekIcons.List,
                     title = stringResource(R.string.geek_tickets_title),
@@ -244,25 +282,20 @@ fun AccountScreen(
             )
         }
 
-        GlassSurface(
-            kind = GlassKind.Clear,
-            shape = Geek.shapes.button,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clickable(role = Role.Button) { if (signedIn == null) actions.onLogin() else onAskLogout(true) },
-        ) {
+        if (signedIn == null) {
+            GeekPrimaryButton(text = stringResource(R.string.geek_account_login), icon = GeekIcons.Telegram, onClick = actions::onLogin)
+        } else {
+            // Account.dc.html: sign-out is a plain red line at the end, not a button that competes.
             Row(
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+                    .clickable(role = Role.Button) { onAskLogout(true) },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(GeekIcons.Logout, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(18.dp))
-                Text(
-                    stringResource(if (signedIn != null) R.string.geek_account_logout else R.string.geek_account_login),
-                    style = Geek.type.button.copy(fontSize = 14.sp),
-                    color = colors.onBackground,
-                )
+                Icon(GeekIcons.Logout, contentDescription = null, tint = colors.danger, modifier = Modifier.size(18.dp))
+                Text(stringResource(R.string.geek_account_logout), style = Geek.type.button.copy(fontSize = 15.sp), color = colors.danger)
             }
         }
     }
@@ -290,60 +323,55 @@ fun AccountScreen(
 private fun Identity(session: Session) {
     val colors = Geek.colors
     val locale = appLocale()
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-        GlassSurface(kind = GlassKind.Milk, shape = RoundedCornerShape(20.dp), modifier = Modifier.size(64.dp)) {
-            Icon(GeekIcons.User, contentDescription = null, tint = colors.onGlass, modifier = Modifier.align(Alignment.Center).size(28.dp))
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Box(
+            Modifier.size(46.dp).clip(CircleShape).background(colors.softButton).border(1.dp, colors.checkboxBorder, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(GeekIcons.User, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(21.dp))
         }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.weight(1f)) {
             val name = when (session) {
                 is Session.SignedIn -> session.user.displayName?.takeIf { it.isNotBlank() }
                     ?: stringResource(R.string.geek_account_user_fallback, formatNumber(session.user.telegramId ?: 0, locale))
                 else -> stringResource(R.string.geek_account_guest)
             }
-            Text(name, style = Geek.type.pageTitle.copy(fontSize = 22.sp), color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(name, style = Geek.type.row.copy(fontSize = 16.sp, fontWeight = FontWeight.ExtraBold), color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (session is Session.SignedIn) {
-                GlassSurface(kind = GlassKind.Clear, shape = Geek.shapes.badge) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Icon(GeekIcons.Telegram, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(14.dp))
-                        Text(stringResource(R.string.geek_account_telegram_connected), style = Geek.type.micro, color = colors.onBackground)
-                    }
-                }
+                Text(stringResource(R.string.geek_account_telegram_connected), style = Geek.type.caption, color = colors.onBackgroundMuted)
             }
         }
     }
 }
 
+/** Account.dc.html's wallet: a glass card, the balance in heavy type, top-up in white. */
 @Composable
 private fun WalletCard(balance: Long?, actions: AccountActions) {
     val colors = Geek.colors
     val locale = appLocale()
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(Geek.shapes.card)
-            .background(colors.action)
-            .padding(16.dp),
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(GeekIcons.Wallet, contentDescription = null, tint = colors.onAction.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
-                Text(stringResource(R.string.geek_account_wallet), style = Geek.type.caption, color = colors.onAction.copy(alpha = 0.8f))
-            }
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(formatNumber(balance ?: 0, locale), style = Geek.type.pageTitle, color = colors.onAction)
-                Text(stringResource(R.string.geek_account_toman), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onAction, modifier = Modifier.padding(bottom = 6.dp))
+    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                stringResource(R.string.geek_eyebrow_wallet).uppercase(java.util.Locale.ROOT),
+                style = Geek.type.eyebrow.copy(fontSize = 9.sp),
+                color = colors.onGlassMuted,
+                modifier = Modifier.clearAndSetSemantics {},
+            )
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.semantics(mergeDescendants = true) {},
+            ) {
+                Text(formatNumber(balance ?: 0, locale), style = Geek.type.pageTitle.copy(fontSize = 32.sp, fontWeight = FontWeight.Black), color = colors.onGlass)
+                Text(stringResource(R.string.geek_account_toman), style = Geek.type.label.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold), color = colors.onGlassMuted, modifier = Modifier.padding(bottom = 6.dp))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 WalletButton(
                     text = stringResource(R.string.geek_account_topup),
-                    icon = GeekIcons.Plus,
+                    icon = null,
                     primary = true,
                     onClick = actions::onWallet,
-                    modifier = Modifier.weight(2f),
+                    modifier = Modifier.weight(1f),
                 )
                 WalletButton(
                     text = stringResource(R.string.geek_account_transactions),
@@ -362,58 +390,19 @@ private fun WalletButton(text: String, icon: ImageVector?, primary: Boolean, onC
     val colors = Geek.colors
     Row(
         modifier = modifier
-            .height(46.dp)
-            .clip(Geek.shapes.button)
-            // The card is colors.action; its inverse stays visible in both themes
-            // (logoBlue is the dark theme's action colour, so it vanished there).
-            .background(if (primary) colors.onAction else colors.onAction.copy(alpha = 0.12f))
+            .height(44.dp)
+            .clip(Geek.shapes.pill)
+            .then(
+                if (primary) Modifier.background(colors.action)
+                else Modifier.background(colors.softButton).border(1.5.dp, colors.clearGlassBorder, Geek.shapes.pill),
+            )
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
     ) {
-        val fg = if (primary) colors.action else colors.onAction
+        val fg = if (primary) colors.onAction else colors.onGlass
         if (icon != null) Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
-        Text(text, style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = fg, maxLines = 1)
+        Text(text, style = Geek.type.label, color = fg, maxLines = 1)
     }
 }
-
-@Composable
-private fun ThemeSelector(current: ThemeChoice, onSelect: (ThemeChoice) -> Unit) {
-    val colors = Geek.colors
-    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(8.dp).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            ThemeChoice.entries.forEach { choice ->
-                val selected = choice == current
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp)
-                        .clip(Geek.shapes.button)
-                        .background(if (selected) colors.action else colors.softButton)
-                        .selectable(selected = selected, role = Role.RadioButton) { onSelect(choice) },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                ) {
-                    val fg = if (selected) colors.onAction else colors.onGlass
-                    Icon(choice.icon, contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
-                    Text(stringResource(choice.label), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = fg)
-                }
-            }
-        }
-    }
-}
-
-private val ThemeChoice.icon: ImageVector
-    get() = when (this) {
-        ThemeChoice.Auto -> GeekIcons.ThemeAuto
-        ThemeChoice.Light -> GeekIcons.Sun
-        ThemeChoice.Dark -> GeekIcons.Moon
-    }
-
-private val ThemeChoice.label: Int
-    get() = when (this) {
-        ThemeChoice.Auto -> R.string.geek_theme_auto
-        ThemeChoice.Light -> R.string.geek_theme_light
-        ThemeChoice.Dark -> R.string.geek_theme_dark
-    }

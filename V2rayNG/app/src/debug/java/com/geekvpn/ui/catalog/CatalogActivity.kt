@@ -60,7 +60,7 @@ class CatalogActivity : BaseComponentActivity() {
     @Composable
     override fun ScreenContent() {
         var dark by rememberSaveable { mutableStateOf(intent.getBooleanExtra(EXTRA_DARK, false)) }
-        GeekTheme(darkTheme = dark) {
+        GeekTheme {
             CatalogScreen(dark = dark, onDarkChange = { dark = it })
         }
     }

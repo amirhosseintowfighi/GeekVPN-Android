@@ -80,10 +80,9 @@ class ScreenPreviewActivity : BaseComponentActivity() {
 
     @Composable
     override fun ScreenContent() {
-        val dark = intent.getBooleanExtra(CatalogActivity.EXTRA_DARK, false)
         // A fixed 4:32 left, so screenshots are comparable run to run.
         val expiresAt = remember { System.currentTimeMillis() + 272_000L }
-        GeekTheme(darkTheme = dark) {
+        GeekTheme {
             when (val screen = intent.getStringExtra(EXTRA_SCREEN).orEmpty()) {
                 SCREEN_SYNCING -> SyncingScreen()
                 SCREEN_CREATE -> WaitingScreen(LinkPurpose.CreateAccount, expiresAt, onReopen = {}, onCancel = {})
@@ -259,7 +258,6 @@ private fun TabPreview(screen: String) {
                     showCleanIp = true,
                     update = UpdateState.UpToDate,
                     onAutoUpdate = {},
-                    onTheme = {},
                     onAskLogout = {},
                     onLogout = none,
                 )

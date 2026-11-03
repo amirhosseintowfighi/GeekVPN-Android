@@ -7,11 +7,11 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -38,7 +38,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,46 +48,54 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.connection.RouteMode
 import com.geekvpn.connection.ServerNames
 import com.geekvpn.connection.TrafficMeter
 import com.geekvpn.smartconnect.SmartStage
+import com.geekvpn.ui.common.Eyebrow
+import com.geekvpn.ui.common.Hairline
+import com.geekvpn.ui.common.IndexRow
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatGib
 import com.geekvpn.ui.common.formatNumber
-import com.geekvpn.ui.components.CountryBadge
 import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GeekSwitch
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
-import com.geekvpn.ui.components.LatencyIndicator
-import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
-import com.geekvpn.ui.theme.SpaceGrotesk
 import com.v2ray.ang.R
 import kotlinx.coroutines.delay
 import java.util.Locale
 
-/** Home-Off.html and Home-On.html: the connect button and what surrounds it. */
+/**
+ * Home-Off.dc.html and Home-On.dc.html: the status line, the glasses button
+ * and the Swiss index of route, server and exit under it.
+ */
 @Composable
 fun HomeScreen(
     state: HomeUiState,
@@ -100,39 +107,63 @@ fun HomeScreen(
     onChooseService: () -> Unit,
 ) {
     val phase = state.phase
+    val on = phase == ConnectionPhase.On
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            ConnectButton(
-                phase = phase,
-                onClick = if (phase == ConnectionPhase.Off) onConnect else onDisconnect,
-            )
-            StatusText(state)
-        }
+        StatusText(state)
+        ConnectButton(
+            phase = phase,
+            onClick = if (phase == ConnectionPhase.Off) onConnect else onDisconnect,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        )
 
         if (state.selected == null) {
             NoServiceCard(onChooseService)
-        } else {
-            ServerCard(state, onOpenServers)
         }
 
-        AnimatedVisibility(visible = phase != ConnectionPhase.On, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                RouteTile(state.route, onOpenRoute, Modifier.weight(1f))
-                AutoServerTile(state.autoServer, onAutoServerChange, Modifier.weight(1f))
+        AnimatedVisibility(visible = on, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+            SpeedRow(state)
+        }
+
+        Column {
+            Hairline()
+            AnimatedVisibility(visible = !on, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+                Column {
+                    IndexRow(
+                        code = stringResource(R.string.geek_code_route),
+                        title = stringResource(R.string.geek_home_route),
+                        value = stringResource(state.route.label),
+                        onClick = onOpenRoute,
+                    )
+                    Hairline()
+                }
             }
+            SelectedServerRow(state, onOpenServers, onAutoServerChange)
+            Hairline()
+            ExitIpRow(state)
+            Hairline()
+            if (on) {
+                IndexRow(
+                    code = stringResource(R.string.geek_code_connections),
+                    title = stringResource(R.string.geek_home_connections),
+                    value = formatNumber(state.connections.toLong(), appLocale()),
+                )
+            } else {
+                val delay = state.selected?.delayMs ?: 0
+                IndexRow(
+                    code = stringResource(R.string.geek_code_ping),
+                    title = stringResource(R.string.geek_home_ping),
+                    value = if (delay > 0) "$delay ms" else "—",
+                    latinValue = true,
+                )
+            }
+            Hairline()
         }
-
-        StatsRow(state)
 
         val service = state.activeService
-        AnimatedVisibility(visible = phase == ConnectionPhase.On && service != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
+        AnimatedVisibility(visible = on && service != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
             service?.let { QuotaBar(it) }
         }
     }
@@ -141,7 +172,7 @@ fun HomeScreen(
 // -- the glasses button ---------------------------------------------------------
 
 @Composable
-private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
+private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = Geek.colors
     val on = phase == ConnectionPhase.On
     val busy = phase == ConnectionPhase.Testing || phase == ConnectionPhase.Connecting || phase == ConnectionPhase.Stopping
@@ -152,14 +183,14 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
             else -> R.string.geek_home_connect_description
         }
     )
-    // Turning on fills the ring from the bottom, both halves at once, until
-    // they meet at the top; then one soft ring pulses out. A press sinks the button a little.
+    // Turning on fills the inner disc white and lets the column of light rise
+    // under the button; then one soft ring pulses out. A press sinks the button a little.
     val fill = remember { Animatable(if (on) 1f else 0f) }
     val pulse = remember { Animatable(1f) }
     LaunchedEffect(on) {
         if (on) {
             if (fill.value < 1f) {
-                fill.animateTo(1f, tween(1_100, easing = FastOutSlowInEasing))
+                fill.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
                 pulse.snapTo(0f)
                 pulse.animateTo(1f, tween(900, easing = LinearOutSlowInEasing))
             }
@@ -181,65 +212,48 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
         animationSpec = infiniteRepeatable(tween(1_200, easing = LinearEasing)),
         label = "angle",
     )
-    Box(Modifier.size(236.dp), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.size(236.dp)) {
-            val stroke = 2.dp.toPx()
-            val radius = size.minDimension / 2 - 12.dp.toPx()
-            when {
-                on -> {
-                    drawCircle(colors.onBackground.copy(alpha = 0.22f), radius = radius, style = Stroke(stroke * 2))
-                    val half = 180f * fill.value
-                    if (fill.value >= 1f) {
-                        drawCircle(colors.onBackground, radius = radius, style = Stroke(stroke * 2))
-                    } else if (half > 0f) {
-                        // Two halves from the bottom (90°), one each way, meeting at the top.
-                        for (direction in listOf(1f, -1f)) {
-                            drawArc(
-                                color = colors.onBackground,
-                                startAngle = 90f,
-                                sweepAngle = half * direction,
-                                useCenter = false,
-                                topLeft = center - androidx.compose.ui.geometry.Offset(radius, radius),
-                                size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
-                                style = Stroke(stroke * 2, cap = StrokeCap.Round),
-                            )
-                        }
-                    }
-                    if (pulse.value < 1f) {
-                        drawCircle(
-                            color = colors.onBackground.copy(alpha = 0.5f * (1f - pulse.value)),
-                            radius = radius + 10.dp.toPx() * pulse.value,
-                            style = Stroke(stroke * 2),
-                        )
-                    }
+    Box(modifier.size(214.dp), contentAlignment = Alignment.Center) {
+        // Home-On.dc.html: a column of blue discs sinking from the button, fainter as they go.
+        Canvas(Modifier.matchParentSize()) {
+            val light = fill.value
+            if (light > 0f) {
+                val r = 105.dp.toPx()
+                for (i in 16 downTo 0) {
+                    val t = i / 16f
+                    drawCircle(
+                        color = colors.backdropGlow,
+                        radius = r,
+                        center = center + Offset(0f, (i * 23).dp.toPx() * light),
+                        alpha = (0.56f - 0.5f * t * (2f - t)) * light,
+                    )
                 }
-                busy -> drawArc(
+            }
+            val radius = 95.dp.toPx() + 8.dp.toPx()
+            val stroke = 2.dp.toPx()
+            if (busy) {
+                drawArc(
                     color = colors.onBackground,
                     startAngle = spin,
                     sweepAngle = 90f,
                     useCenter = false,
-                    topLeft = center - androidx.compose.ui.geometry.Offset(radius, radius),
-                    size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
-                    style = Stroke(stroke * 2, cap = StrokeCap.Round),
+                    topLeft = center - Offset(radius, radius),
+                    size = Size(radius * 2, radius * 2),
+                    style = Stroke(stroke * 1.5f, cap = StrokeCap.Round),
                 )
-                else -> drawCircle(
-                    color = colors.onBackground.copy(alpha = 0.45f),
-                    radius = radius,
-                    style = Stroke(
-                        stroke,
-                        cap = StrokeCap.Round,
-                        pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
-                            floatArrayOf(2.dp.toPx(), 9.dp.toPx())
-                        ),
-                    ),
+            }
+            if (pulse.value < 1f) {
+                drawCircle(
+                    color = colors.onBackground.copy(alpha = 0.5f * (1f - pulse.value)),
+                    radius = 95.dp.toPx() + 14.dp.toPx() * pulse.value,
+                    style = Stroke(stroke),
                 )
             }
         }
         GlassSurface(
-            kind = if (on) GlassKind.Milk else GlassKind.Clear,
+            kind = GlassKind.Milk,
             shape = CircleShape,
             modifier = Modifier
-                .size(192.dp)
+                .size(190.dp)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
@@ -253,13 +267,23 @@ private fun ConnectButton(phase: ConnectionPhase, onClick: () -> Unit) {
                 )
                 .semantics { contentDescription = description },
         ) {
-            Image(
-                painter = painterResource(R.drawable.ic_geek_logo),
-                contentDescription = null,
-                // White on clear glass; on milk glass the logo takes the action colour.
-                colorFilter = if (on) ColorFilter.tint(colors.action) else null,
-                modifier = Modifier.align(Alignment.Center).size(107.dp),
-            )
+            // The inner disc: faint glass when off, solid white once connected.
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(114.dp)
+                    .clip(CircleShape)
+                    .background(lerp(colors.onBackground.copy(alpha = 0.10f), colors.action, fill.value))
+                    .border(1.dp, colors.onBackground.copy(alpha = 0.3f * (1f - fill.value)), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_geek_logo),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(lerp(colors.onBackground.copy(alpha = 0.7f), colors.onAction, fill.value)),
+                    modifier = Modifier.size(width = 77.dp, height = 38.dp),
+                )
+            }
         }
     }
 }
@@ -278,49 +302,55 @@ private fun StatusText(state: HomeUiState) {
             (fadeIn(tween(GeekMotion.PAGE_MS)) + slideInVertically(tween(GeekMotion.PAGE_MS)) { it / 4 }) togetherWith
                 fadeOut(tween(GeekMotion.FADE_OUT_MS))
         },
-        contentAlignment = Alignment.Center,
         label = "status",
     ) { shownLook ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        Row(
+            modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+            verticalAlignment = Alignment.Bottom,
         ) {
-            when (shownLook) {
-                ConnectionPhase.On -> {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors.successBright))
-                        Text(stringResource(R.string.geek_home_on_title), style = Geek.type.row, color = colors.onBackground)
-                    }
-                    ConnectionTimer(state.connectedSince)
-                }
-                ConnectionPhase.Off -> {
-                    Text(
-                        stringResource(R.string.geek_home_off_title),
-                        style = Geek.type.pageTitle,
-                        color = colors.onBackground,
-                    )
-                    Text(
-                        stringResource(R.string.geek_home_off_hint),
-                        style = Geek.type.caption,
-                        color = colors.onBackgroundMuted,
-                    )
-                }
-                else -> {
-                    Text(
-                        busyText(state.phase, state.stage),
-                        style = Geek.type.sectionTitle,
-                        color = colors.onBackground,
-                    )
-                    if (state.phase != ConnectionPhase.Stopping) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                when (shownLook) {
+                    ConnectionPhase.On -> {
+                        Eyebrow(stringResource(R.string.geek_eyebrow_status_on))
                         Text(
-                            stringResource(R.string.geek_smart_cancel_hint),
-                            style = Geek.type.caption,
-                            color = colors.onBackgroundMuted,
+                            text = accented(stringResource(R.string.geek_home_on_title), stringResource(R.string.geek_home_on_accent)),
+                            style = Geek.type.pageTitle.copy(fontSize = 38.sp, lineHeight = 46.sp),
+                            color = colors.onBackground,
                         )
+                    }
+                    ConnectionPhase.Off -> {
+                        Eyebrow(stringResource(R.string.geek_eyebrow_status_off))
+                        Text(stringResource(R.string.geek_home_off_title), style = Geek.type.pageTitle.copy(fontSize = 40.sp, lineHeight = 48.sp), color = colors.onBackground)
+                        Text(stringResource(R.string.geek_home_off_hint), style = Geek.type.body, color = colors.onBackgroundMuted)
+                    }
+                    else -> {
+                        Eyebrow(stringResource(R.string.geek_eyebrow_status_busy))
+                        Text(busyText(state.phase, state.stage), style = Geek.type.pageTitle.copy(fontSize = 26.sp, lineHeight = 34.sp), color = colors.onBackground)
+                        if (state.phase != ConnectionPhase.Stopping) {
+                            Text(stringResource(R.string.geek_smart_cancel_hint), style = Geek.type.body, color = colors.onBackgroundMuted)
+                        }
                     }
                 }
             }
+            if (shownLook == ConnectionPhase.On) {
+                ConnectionTimer(state.connectedSince, Modifier.padding(bottom = 6.dp))
+            }
+        }
+    }
+}
+
+/** [text] with [accent] in the design's text blue, where it occurs ("متصل و «امن»"). */
+@Composable
+private fun accented(text: String, accent: String): AnnotatedString {
+    val blue = Geek.colors.logoBlue
+    return buildAnnotatedString {
+        val at = if (accent.isEmpty()) -1 else text.indexOf(accent)
+        if (at < 0) {
+            append(text)
+        } else {
+            append(text.substring(0, at))
+            withStyle(SpanStyle(color = blue)) { append(accent) }
+            append(text.substring(at + accent.length))
         }
     }
 }
@@ -339,7 +369,7 @@ private fun busyText(phase: ConnectionPhase, stage: SmartStage?): String = when 
 
 /** "00:12:48", Latin digits as in the design, ticking once a second. */
 @Composable
-private fun ConnectionTimer(since: Long) {
+private fun ConnectionTimer(since: Long, modifier: Modifier = Modifier) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(since) {
         while (true) {
@@ -350,245 +380,159 @@ private fun ConnectionTimer(since: Long) {
     val seconds = if (since > 0) ((now - since) / 1_000).coerceAtLeast(0) else 0
     Text(
         text = String.format(Locale.US, "%02d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60),
-        style = Geek.type.numberLarge.copy(fontSize = 34.sp, letterSpacing = 1.sp),
+        style = Geek.type.numberLarge,
         color = Geek.colors.onBackground,
+        modifier = modifier,
     )
 }
 
-// -- cards ------------------------------------------------------------------------
+// -- rows -------------------------------------------------------------------------
 
 @Composable
 private fun NoServiceCard(onChoose: () -> Unit) {
     val colors = Geek.colors
-    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.row, modifier = Modifier.fillMaxWidth()) {
+    GlassSurface(kind = GlassKind.Clear, shape = Geek.shapes.row, modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Box(
-                Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(colors.warningSoft),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(GeekIcons.Link, contentDescription = null, tint = colors.warning, modifier = Modifier.size(20.dp))
-            }
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(stringResource(R.string.geek_home_no_service_title), style = Geek.type.row.copy(fontWeight = FontWeight.ExtraBold), color = colors.onGlass)
-                Text(stringResource(R.string.geek_home_no_service_hint), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted)
+                Text(stringResource(R.string.geek_home_no_service_hint), style = Geek.type.caption, color = colors.onGlassMuted)
             }
             Box(
                 modifier = Modifier
-                    .height(38.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .height(44.dp)
+                    .clip(Geek.shapes.pill)
                     .background(colors.action)
                     .clickable(role = Role.Button, onClick = onChoose)
-                    .padding(horizontal = 14.dp),
+                    .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(stringResource(R.string.geek_home_choose), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onAction)
+                Text(stringResource(R.string.geek_home_choose), style = Geek.type.label.copy(fontSize = 13.sp), color = colors.onAction)
             }
         }
     }
 }
 
+/** The server in use: its country code, name, latency; the auto switch while disconnected. */
 @Composable
-private fun ServerCard(state: HomeUiState, onOpen: () -> Unit) {
-    val colors = Geek.colors
-    val server = state.selected ?: return
-    GlassSurface(
-        kind = GlassKind.Milk,
-        shape = Geek.shapes.row,
-        modifier = Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onOpen),
-    ) {
-        Row(
-            modifier = Modifier.padding(start = 10.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            CountryBadge(code = server.countryCode ?: "··", selected = true, modifier = Modifier.size(44.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(stringResource(R.string.geek_home_server), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted)
-                Text(server.title, style = Geek.type.row.copy(fontWeight = FontWeight.ExtraBold), color = colors.onGlass, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            LatencyIndicator(delayMs = server.delayMs)
-            Icon(GeekIcons.ChevronStart, contentDescription = null, tint = colors.onGlassMuted, modifier = Modifier.size(18.dp))
-        }
-    }
-}
-
-@Composable
-private fun RouteTile(route: RouteMode, onClick: () -> Unit, modifier: Modifier) {
-    GlassTile(icon = GeekIcons.Route, label = stringResource(R.string.geek_home_route), value = stringResource(route.label), modifier = modifier.clickable(role = Role.Button, onClick = onClick)) {
-        Icon(GeekIcons.ChevronStart, contentDescription = null, tint = Geek.colors.onBackground, modifier = Modifier.size(18.dp))
-    }
-}
-
-@Composable
-private fun AutoServerTile(auto: Boolean, onChange: (Boolean) -> Unit, modifier: Modifier) {
-    val description = stringResource(R.string.geek_home_auto_description)
-    GlassTile(
-        icon = GeekIcons.Bolt,
-        label = stringResource(R.string.geek_home_server),
-        value = stringResource(if (auto) R.string.geek_home_server_auto else R.string.geek_home_server_manual),
-        modifier = modifier
-            .clickable(role = Role.Switch, onClickLabel = description) { onChange(!auto) }
-            .semantics(mergeDescendants = true) { contentDescription = description },
-    ) {
-        GeekSwitch(checked = auto, onCheckedChange = null)
-    }
-}
-
-@Composable
-private fun GlassTile(
-    icon: ImageVector,
-    label: String,
-    value: String,
-    modifier: Modifier,
-    trailing: @Composable RowScope.() -> Unit,
-) {
-    val colors = Geek.colors
-    GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(18.dp), modifier = modifier.height(56.dp)) {
-        Row(
-            modifier = Modifier.fillMaxHeight().padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Icon(icon, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(20.dp))
-            Column(Modifier.weight(1f)) {
-                Text(label, style = Geek.type.micro.copy(fontWeight = FontWeight.Normal), color = colors.onBackgroundMuted)
-                Text(value, style = Geek.type.row.copy(fontSize = 14.sp), color = colors.onBackground, maxLines = 1)
-            }
-            trailing()
-        }
-    }
-}
-
-// -- stats ------------------------------------------------------------------------
-
-@Composable
-private fun StatsRow(state: HomeUiState) {
-    val colors = Geek.colors
+private fun SelectedServerRow(state: HomeUiState, onOpen: () -> Unit, onAutoServerChange: (Boolean) -> Unit) {
+    val server = state.selected
     val on = state.phase == ConnectionPhase.On
-    val locale = appLocale()
-    val content: @Composable RowScope.() -> Unit = {
-        if (on) {
-            val speed = state.speed ?: TrafficMeter.Speed(0, 0)
-            StatCell(GeekIcons.ArrowDown, stringResource(R.string.geek_home_download), Modifier.weight(1f)) { NumberWithUnit(TrafficMeter.format(speed.downBytesPerSecond)) }
-            StatDivider()
-            StatCell(GeekIcons.ArrowUp, stringResource(R.string.geek_home_upload), Modifier.weight(1f)) { NumberWithUnit(TrafficMeter.format(speed.upBytesPerSecond)) }
-            StatDivider()
-        }
-        StatCell(GeekIcons.Search, stringResource(R.string.geek_home_exit_ip), Modifier.weight(if (on) 1f else 1.4f)) {
-            val ip = state.exitIp
-            val country = ip?.countryCode
-            val text = when {
-                ip != null && on && country != null -> ServerNames.countryName(country, locale)
-                ip != null -> ip.ip
-                state.exitIpLoading -> stringResource(R.string.geek_home_exit_ip_checking)
-                else -> stringResource(R.string.geek_home_exit_ip_unknown)
-            }
-            Text(
-                text = text,
-                style = Geek.type.row.copy(fontWeight = FontWeight.ExtraBold, textDirection = TextDirection.Content),
-                color = colors.onBackground,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+    val title = server?.title ?: stringResource(R.string.geek_home_server)
+    val description = stringResource(R.string.geek_home_auto_description)
+    val autoSwitch: (@Composable RowScope.() -> Unit)? = if (on) {
+        null
+    } else {
+        {
+            GeekSwitch(
+                checked = state.autoServer,
+                onCheckedChange = onAutoServerChange,
+                modifier = Modifier.semantics { contentDescription = description },
             )
         }
-        StatDivider()
-        if (on) {
-            // Home-On.html: «اتصالات», the connections the core carries now.
-            StatCell(GeekIcons.Connections, stringResource(R.string.geek_home_connections), Modifier.weight(1f)) {
-                NumberWithUnit(formatNumber(state.connections.toLong(), locale) to "")
-            }
-        } else {
-            StatCell(GeekIcons.Gauge, stringResource(R.string.geek_home_ping), Modifier.weight(1f)) {
-                val delay = state.selected?.delayMs ?: 0
-                NumberWithUnit(if (delay > 0) delay.toString() to "ms" else "—" to "")
-            }
-        }
     }
-    val rowModifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal = 10.dp, vertical = 12.dp)
-    if (on) {
-        GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-            Row(rowModifier, content = content)
+    IndexRow(
+        code = server?.countryCode ?: stringResource(R.string.geek_code_server),
+        title = if (on || server != null) title else stringResource(R.string.geek_home_server),
+        hint = if (server != null) stringResource(R.string.geek_home_server) else null,
+        value = when {
+            on -> server?.delayMs?.takeIf { it > 0 }?.let { "$it ms" }
+            else -> stringResource(if (state.autoServer) R.string.geek_home_server_auto else R.string.geek_home_server_manual)
+        },
+        latinValue = on,
+        onClick = onOpen,
+        trailing = autoSwitch,
+    )
+}
+
+@Composable
+private fun ExitIpRow(state: HomeUiState) {
+    val locale = appLocale()
+    val on = state.phase == ConnectionPhase.On
+    val ip = state.exitIp
+    val country = ip?.countryCode
+    val text = when {
+        ip != null && on && country != null -> ServerNames.countryName(country, locale)
+        ip != null -> ip.ip
+        state.exitIpLoading -> stringResource(R.string.geek_home_exit_ip_checking)
+        else -> stringResource(R.string.geek_home_exit_ip_unknown)
+    }
+    IndexRow(code = stringResource(R.string.geek_code_ip), title = stringResource(R.string.geek_home_exit_ip), value = text, latinValue = ip != null && !(on && country != null))
+}
+
+/** Home-On.dc.html: down, up and ping between two hairlines, in Space Grotesk. */
+@Composable
+private fun SpeedRow(state: HomeUiState) {
+    val speed = state.speed ?: TrafficMeter.Speed(0, 0)
+    val delay = state.selected?.delayMs ?: 0
+    Column {
+        Hairline()
+        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            StatCell(stringResource(R.string.geek_eyebrow_down), stringResource(R.string.geek_home_download), TrafficMeter.format(speed.downBytesPerSecond), Modifier.weight(1f))
+            StatDivider()
+            StatCell(stringResource(R.string.geek_eyebrow_up), stringResource(R.string.geek_home_upload), TrafficMeter.format(speed.upBytesPerSecond), Modifier.weight(1f))
+            StatDivider()
+            StatCell(stringResource(R.string.geek_eyebrow_ping), stringResource(R.string.geek_home_ping), (if (delay > 0) delay.toString() else "—") to (if (delay > 0) "ms" else ""), Modifier.weight(1f))
         }
-    } else {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, colors.onBackground.copy(alpha = 0.22f), RoundedCornerShape(18.dp))
-                .then(rowModifier),
-            content = content,
-        )
+        Hairline()
     }
 }
 
 @Composable
-private fun StatCell(icon: ImageVector, label: String, modifier: Modifier, value: @Composable () -> Unit) {
+private fun StatCell(eyebrow: String, label: String, value: Pair<String, String>, modifier: Modifier) {
     val colors = Geek.colors
-    Column(modifier.padding(horizontal = 4.dp).semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            Icon(icon, contentDescription = null, tint = colors.onBackgroundMuted, modifier = Modifier.size(12.dp))
-            Text(label, style = Geek.type.micro.copy(fontWeight = FontWeight.Normal), color = colors.onBackgroundMuted, maxLines = 1)
-        }
-        value()
-    }
-}
-
-@Composable
-private fun NumberWithUnit(value: Pair<String, String>) {
-    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(value.first, style = Geek.type.numberMedium.copy(fontSize = 16.sp), color = Geek.colors.onBackground)
-        if (value.second.isNotEmpty()) {
-            Text(value.second, style = Geek.type.numberSmall.copy(fontSize = 11.sp), color = Geek.colors.onBackgroundMuted)
+    Column(
+        modifier
+            .padding(vertical = 10.dp)
+            .clearAndSetSemantics { contentDescription = "$label ${value.first} ${value.second}" },
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        Text(eyebrow.uppercase(Locale.ROOT), style = Geek.type.eyebrow.copy(fontSize = 9.sp, letterSpacing = 0.2.em), color = colors.onBackgroundMuted)
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(value.first, style = Geek.type.numberMedium, color = colors.onBackground, maxLines = 1)
+            if (value.second.isNotEmpty()) {
+                Text(value.second, style = Geek.type.numberSmall.copy(fontSize = 11.sp), color = colors.onBackgroundMuted, modifier = Modifier.padding(bottom = 3.dp))
+            }
         }
     }
 }
 
 @Composable
 private fun StatDivider() {
-    Box(Modifier.width(1.dp).fillMaxHeight().background(Geek.colors.onBackground.copy(alpha = 0.25f)))
+    Box(Modifier.width(1.dp).fillMaxHeight().background(Geek.colors.hairline))
 }
 
-/** "۱۲٫۴ از ۴۰ گیگ · ۲۸ روز مانده" over twenty segments of what is left. */
+/** "۱۲٫۴ از ۴۰ گیگ · ۲۸ روز مانده" over a thin bar of what is used. */
 @Composable
 private fun QuotaBar(service: com.geekvpn.connection.ServiceStatus) {
     val colors = Geek.colors
     val locale = appLocale()
-    Column(Modifier.padding(horizontal = 2.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth()) {
             Text(
                 text = service.quotaGib?.let { stringResource(R.string.geek_home_quota, formatGib(service.usedGib, locale), formatGib(it, locale)) }
                     ?: stringResource(R.string.geek_home_unlimited),
-                style = Geek.type.caption.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold),
+                style = Geek.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold),
                 color = colors.onBackground,
                 modifier = Modifier.weight(1f),
             )
             service.daysLeft?.let {
                 Text(
                     pluralStringResource(R.plurals.geek_days_left, it, it),
-                    style = Geek.type.caption.copy(fontSize = 12.sp),
+                    style = Geek.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold),
                     color = colors.onBackgroundMuted,
                 )
             }
         }
-        val lit = if (service.quotaGib == null) SEGMENTS else ((1f - service.remainingFraction) * SEGMENTS).toInt().coerceIn(0, SEGMENTS)
-        Row(Modifier.fillMaxWidth().height(10.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-            repeat(SEGMENTS) { index ->
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(if (index < lit) colors.onBackground else colors.onBackground.copy(alpha = 0.22f)),
-                )
-            }
+        val used = if (service.quotaGib == null) 0f else (1f - service.remainingFraction).coerceIn(0f, 1f)
+        Box(Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.track)) {
+            Box(Modifier.fillMaxHeight().fillMaxWidth(used).background(colors.onBackground))
         }
     }
 }
-
-private const val SEGMENTS = 20
 
 /** The label of each route mode, shared with the route sheet. */
 val RouteMode.label: Int

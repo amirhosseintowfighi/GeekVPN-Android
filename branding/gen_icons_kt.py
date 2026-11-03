@@ -16,6 +16,8 @@ import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCREENS = ROOT / "design/screens"
+# Icons the Dark Swiss canvas does not draw keep the previous design's version.
+LEGACY = ROOT / "design/legacy/screens"
 OUT = ROOT / "V2rayNG/app/src/main/java/com/geekvpn/ui/icons/GeekIcons.kt"
 
 # name -> the first words of text that follow the icon in design/ (for humans) and its SVG body.
@@ -36,7 +38,11 @@ ICONS: dict[str, str] = {
     "Headset": '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>',
     "Download": '<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
     "Logout": '<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4"/><path d="M6 12h10"/>',
-    "Home": '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/>',
+    "Home": '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',
+    "Layers": '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+    "ArrowAction": '<path d="M17 17 7 7"/><path d="M7 16V7h9"/>',
+    "ChevronBack": '<path d="m10 6 6 6-6 6"/>',
+    "ChevronRow": '<path d="m14 6-6 6 6 6"/>',
     "Shield": '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
     "Bag": '<path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
     "Bank": '<path d="M3 10 12 4l9 6"/><path d="M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/>',
@@ -62,6 +68,15 @@ ICONS: dict[str, str] = {
     "Close": '<path d="M6 6l12 12M18 6 6 18"/>',
     "Pencil": '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
     "Card": '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/>',
+}
+
+# Icons the app needs that no design artboard draws (the service QR button,
+# the favourite star). Same 24x24 stroke grammar; not checked against design/.
+APP_ONLY: dict[str, str] = {
+    "Qr": '<path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h2v2h-2z"/>'
+    '<path d="M18 14h2"/><path d="M14 20h6v-2"/><path d="M18 17v1"/>',
+    "Star": '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+    "StarFilled": '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="currentColor"/>',
 }
 
 # The design is drawn right-to-left, so directional icons (ChevronStart,
@@ -110,7 +125,7 @@ def parse(body: str) -> list[tuple[str, bool]]:
 
 def design_bodies() -> set[str]:
     bodies = set()
-    for f in glob.glob(str(SCREENS / "*.html")):
+    for f in glob.glob(str(SCREENS / "*.html")) + glob.glob(str(LEGACY / "*.html")):
         text = pathlib.Path(f).read_text()
         bodies.update(re.findall(r'viewBox="0 0 24 24"[^>]*>(.*?)</svg>', text, re.S))
     return bodies
@@ -137,7 +152,7 @@ def main() -> None:
         "/** The design's 24dp stroke icons. Tint them with Icon(tint = ...); the black here is a mask. */",
         "object GeekIcons {",
     ]
-    for name, body in ICONS.items():
+    for name, body in {**ICONS, **APP_ONLY}.items():
         lines.append(f"    val {name}: ImageVector by lazy {{")
         lines.append(f'        icon("{name}") {{')
         for data, filled in parse(body):

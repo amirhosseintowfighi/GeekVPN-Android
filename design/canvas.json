@@ -1,168 +1,335 @@
 {
-  "v": 3,
-  "attachments": {},
-  "boards": {
-    "Account.dc.html": {
-      "h": 1180,
-      "is_interactive": true,
-      "title": "حساب",
-      "w": 390,
-      "x": 940,
-      "y": 2364
-    },
-    "Deposit.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "واریز کارت به کارت",
-      "w": 390,
-      "x": 1880,
-      "y": 2364
-    },
-    "Desktop-Connections.dc.html": {
-      "h": 800,
-      "is_interactive": true,
-      "title": "دسکتاپ — اتصالات",
-      "w": 1280,
-      "x": 1360,
-      "y": 3948
-    },
-    "Desktop-Home.dc.html": {
-      "h": 800,
-      "is_interactive": true,
-      "title": "دسکتاپ — خانه",
-      "w": 1280,
-      "x": 0,
-      "y": 3948
-    },
-    "Foundations.dc.html": {
-      "h": 800,
-      "title": "فاندیشن‌ها",
-      "w": 1280,
-      "x": 0,
-      "y": 0
-    },
-    "Home-Off.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "خانه — قطع",
-      "w": 390,
-      "x": 470,
-      "y": 1180
-    },
-    "Home-On.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "خانه — متصل",
-      "w": 390,
-      "x": 940,
-      "y": 1180
-    },
-    "Main.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "ورود",
-      "w": 390,
-      "x": 0,
-      "y": 1180
-    },
-    "Route.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "مسیر ترافیک",
-      "w": 390,
-      "x": 1880,
-      "y": 1180
-    },
-    "Servers.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "سرورها",
-      "w": 390,
-      "x": 1410,
-      "y": 1180
-    },
-    "Services.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "سرویس‌های من",
-      "w": 390,
-      "x": 0,
-      "y": 2364
-    },
-    "Shop.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "فروشگاه",
-      "w": 390,
-      "x": 470,
-      "y": 2364
-    },
-    "Wallet.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "شارژ کیف پول",
-      "w": 390,
-      "x": 1410,
-      "y": 2364
-    }
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-01T10:00:00Z"
+ },
+ "title": "GeekVPN Client — Dark Swiss",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Foundations.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "فاندیشن‌ها"
   },
-  "createdOnFiles": {
-    "at": "2026-09-24T07:34:45Z",
-    "v": 1
+  "Main.dc.html": {
+   "x": 0,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "ورود"
   },
-  "designSystems": [],
-  "launch": {
-    "view": "canvas"
+  "Home-Off.dc.html": {
+   "x": 470,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "خانه — قطع"
   },
-  "notes": {
-    "t0": {
-      "kind": "title1",
-      "maxW": 1280,
-      "text": "GeekVPN — Foundations",
-      "w": 240,
-      "x": 0,
-      "y": -300
-    },
-    "t1": {
-      "kind": "title1",
-      "maxW": 2270,
-      "text": "موبایل — ورود و خانه",
-      "w": 240,
-      "x": 0,
-      "y": 880
-    },
-    "t2": {
-      "kind": "title1",
-      "maxW": 2270,
-      "text": "موبایل — سرویس، فروشگاه، حساب",
-      "w": 240,
-      "x": 0,
-      "y": 2064
-    },
-    "t3": {
-      "kind": "title1",
-      "maxW": 2640,
-      "text": "دسکتاپ — Windows · macOS · Linux",
-      "w": 240,
-      "x": 0,
-      "y": 3648
-    }
+  "Home-On.dc.html": {
+   "x": 940,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "خانه — متصل"
   },
-  "order": [
-    "Main.dc.html",
-    "Home-Off.dc.html",
-    "Home-On.dc.html",
-    "Servers.dc.html",
-    "Route.dc.html",
-    "Services.dc.html",
-    "Shop.dc.html",
-    "Account.dc.html",
-    "Wallet.dc.html",
-    "Deposit.dc.html",
-    "Desktop-Home.dc.html",
-    "Desktop-Connections.dc.html",
-    "Foundations.dc.html"
-  ],
-  "pages": [],
-  "title": "GeekVPN Client"
+  "Servers.dc.html": {
+   "x": 1410,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "سرورها"
+  },
+  "Route.dc.html": {
+   "x": 1880,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "مسیر ترافیک"
+  },
+  "Shop.dc.html": {
+   "x": 2350,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "فروشگاه"
+  },
+  "Services.dc.html": {
+   "x": 2820,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "سرویس‌های من"
+  },
+  "Account.dc.html": {
+   "x": 3290,
+   "y": 1220,
+   "w": 390,
+   "h": 1240,
+   "title": "حساب"
+  },
+  "Desktop-Home.dc.html": {
+   "x": 0,
+   "y": 2880,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — خانه"
+  },
+  "Wallet.dc.html": {
+   "x": 3760,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "شارژ کیف پول"
+  },
+  "Deposit.dc.html": {
+   "x": 4230,
+   "y": 1220,
+   "w": 390,
+   "h": 844,
+   "title": "واریز کارت به کارت"
+  },
+  "Desktop-Home-Dark.dc.html": {
+   "x": 1360,
+   "y": 2880,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — خانه (قطع)"
+  },
+  "Desktop-Home-Connecting.dc.html": {
+   "x": 2720,
+   "y": 2880,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — اتصال هوشمند"
+  },
+  "Desktop-Update.dc.html": {
+   "x": 4080,
+   "y": 2880,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — به‌روزرسانی"
+  },
+  "Desktop-Login.dc.html": {
+   "x": 0,
+   "y": 3800,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — ورود"
+  },
+  "Desktop-Login-Wait.dc.html": {
+   "x": 1360,
+   "y": 3800,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — منتظر تأیید تلگرام"
+  },
+  "Desktop-Servers.dc.html": {
+   "x": 2720,
+   "y": 3800,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — سرورها"
+  },
+  "Desktop-Services.dc.html": {
+   "x": 4080,
+   "y": 3800,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — سرویس‌ها"
+  },
+  "Desktop-Shop.dc.html": {
+   "x": 0,
+   "y": 4720,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — فروشگاه"
+  },
+  "Desktop-Account.dc.html": {
+   "x": 1360,
+   "y": 4720,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — حساب"
+  },
+  "Desktop-Settings.dc.html": {
+   "x": 2720,
+   "y": 4720,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — تنظیمات"
+  },
+  "Desktop-Split.dc.html": {
+   "x": 4080,
+   "y": 4720,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — تونل تفکیکی"
+  },
+  "Desktop-Tools.dc.html": {
+   "x": 0,
+   "y": 5640,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — ابزارها"
+  },
+  "Desktop-Usage.dc.html": {
+   "x": 1360,
+   "y": 5640,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — مصرف روزانه"
+  },
+  "Desktop-Support.dc.html": {
+   "x": 2720,
+   "y": 5640,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — پشتیبانی"
+  },
+  "Desktop-Report.dc.html": {
+   "x": 4080,
+   "y": 5640,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — گزارش مشکل"
+  },
+  "Desktop-Referral.dc.html": {
+   "x": 0,
+   "y": 6560,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — دعوت از دوستان"
+  },
+  "Desktop-Connections.dc.html": {
+   "x": 1360,
+   "y": 6560,
+   "w": 1280,
+   "h": 800,
+   "title": "دسکتاپ — اتصالات"
+  },
+  "Desktop-Tray.dc.html": {
+   "x": 2720,
+   "y": 6560,
+   "w": 360,
+   "h": 560,
+   "title": "دسکتاپ — پنل کوچک tray"
+  },
+  "Desktop-TrayIcons.dc.html": {
+   "x": 3160,
+   "y": 6560,
+   "w": 360,
+   "h": 250,
+   "title": "دسکتاپ — آیکن‌های tray"
+  },
+  "Logo-Sheet.dc.html": {
+   "x": 0,
+   "y": 7780,
+   "w": 1280,
+   "h": 800,
+   "title": "لوگو — راهنما"
+  },
+  "Logo-Telegram.dc.html": {
+   "x": 1360,
+   "y": 7780,
+   "w": 1080,
+   "h": 1080,
+   "title": "لوگو — آواتار تلگرام"
+  },
+  "Logo-AppIcon.dc.html": {
+   "x": 2520,
+   "y": 7780,
+   "w": 1024,
+   "h": 1024,
+   "title": "لوگو — آیکن اپ"
+  },
+  "Logo-Lockup.dc.html": {
+   "x": 3624,
+   "y": 7780,
+   "w": 1600,
+   "h": 600,
+   "title": "لوگو — نشان و نوشتار"
+  },
+  "Logo-Compare.dc.html": {
+   "x": 0,
+   "y": 8980,
+   "w": 1600,
+   "h": 900,
+   "title": "لوگو — مقایسه‌ی گزینه‌ها"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Foundations.dc.html",
+  "Home-Off.dc.html",
+  "Home-On.dc.html",
+  "Servers.dc.html",
+  "Route.dc.html",
+  "Shop.dc.html",
+  "Services.dc.html",
+  "Account.dc.html",
+  "Desktop-Home.dc.html",
+  "Wallet.dc.html",
+  "Deposit.dc.html",
+  "Desktop-Home-Dark.dc.html",
+  "Desktop-Home-Connecting.dc.html",
+  "Desktop-Update.dc.html",
+  "Desktop-Login.dc.html",
+  "Desktop-Login-Wait.dc.html",
+  "Desktop-Servers.dc.html",
+  "Desktop-Services.dc.html",
+  "Desktop-Shop.dc.html",
+  "Desktop-Account.dc.html",
+  "Desktop-Settings.dc.html",
+  "Desktop-Split.dc.html",
+  "Desktop-Tools.dc.html",
+  "Desktop-Usage.dc.html",
+  "Desktop-Support.dc.html",
+  "Desktop-Report.dc.html",
+  "Desktop-Referral.dc.html",
+  "Desktop-Connections.dc.html",
+  "Desktop-Tray.dc.html",
+  "Desktop-TrayIcons.dc.html",
+  "Logo-Sheet.dc.html",
+  "Logo-Telegram.dc.html",
+  "Logo-AppIcon.dc.html",
+  "Logo-Lockup.dc.html",
+  "Logo-Compare.dc.html"
+ ],
+ "notes": {
+  "t0": {
+   "x": 0,
+   "y": -300,
+   "text": "Foundations",
+   "kind": "title1",
+   "maxW": 1280
+  },
+  "t1": {
+   "x": 0,
+   "y": 920,
+   "text": "موبایل",
+   "kind": "title1",
+   "maxW": 4620
+  },
+  "t2": {
+   "x": 0,
+   "y": 2580,
+   "text": "دسکتاپ",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "t3": {
+   "x": 0,
+   "y": 7480,
+   "text": "لوگو",
+   "kind": "title1",
+   "maxW": 5300
+  }
+ },
+ "designSystems": []
 }

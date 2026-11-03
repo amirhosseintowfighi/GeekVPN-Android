@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +40,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.geekvpn.connection.RouteMode
+import com.geekvpn.ui.common.Eyebrow
+import com.geekvpn.ui.common.Hairline
+import com.geekvpn.ui.common.IndexRow
+import com.geekvpn.ui.common.PageTitle
 import com.geekvpn.ui.components.GeekPrimaryButton
+import com.geekvpn.ui.components.GeekSegmented
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.icons.GeekIcons
@@ -68,16 +75,17 @@ fun BoxScope.RouteSheet(
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onDismiss),
     )
     GlassSurface(
-        kind = GlassKind.Milk,
-        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+        kind = GlassKind.Sheet,
+        shape = Geek.shapes.sheet,
         modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
-                .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+                .padding(start = 22.dp, end = 22.dp, top = 12.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Box(
                 Modifier
@@ -85,98 +93,60 @@ fun BoxScope.RouteSheet(
                     .width(40.dp)
                     .height(5.dp)
                     .clip(RoundedCornerShape(3.dp))
-                    .background(colors.track),
+                    .background(colors.checkboxBorder),
             )
+            PageTitle(
+                stringResource(R.string.geek_route_title),
+                subtitle = stringResource(R.string.geek_route_subtitle),
+                eyebrow = stringResource(R.string.geek_eyebrow_route),
+            )
+            GeekSegmented(
+                options = RouteMode.entries,
+                selected = choice,
+                label = { stringResource(it.label) },
+                onSelect = { choice = it },
+                height = 50.dp,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (choice == RouteMode.Smart) Eyebrow(stringResource(R.string.geek_eyebrow_recommended))
+                Text(stringResource(choice.label), style = Geek.type.sectionTitle.copy(fontSize = 22.sp), color = colors.onGlass)
+                Text(stringResource(choice.description), style = Geek.type.body, color = colors.onGlass.copy(alpha = 0.85f))
+            }
+            // Where each part of the traffic goes in the chosen mode.
             Column {
-                Text(stringResource(R.string.geek_route_title), style = Geek.type.sectionTitle, color = colors.onGlass)
-                Text(stringResource(R.string.geek_route_subtitle), style = Geek.type.caption, color = colors.onGlassMuted)
-            }
-            Row(Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                RouteMode.entries.forEach { mode ->
-                    ModeTile(
-                        icon = mode.icon,
-                        label = stringResource(mode.label),
-                        selected = mode == choice,
-                        onClick = { choice = mode },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(Geek.shapes.tileLarge)
-                    .background(colors.soft)
-                    .padding(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Icon(choice.icon, contentDescription = null, tint = colors.logoBlue, modifier = Modifier.size(18.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(choice.label), style = Geek.type.row.copy(fontSize = 14.sp), color = colors.onGlass)
-                        if (choice == RouteMode.Smart) {
-                            Text(
-                                stringResource(R.string.geek_route_recommended),
-                                style = Geek.type.micro,
-                                color = colors.success,
-                            )
-                        }
+                Hairline()
+                val direct = stringResource(R.string.geek_route_via_direct)
+                val vpn = stringResource(R.string.geek_route_via_vpn)
+                when (choice) {
+                    RouteMode.Smart -> {
+                        IndexRow(stringResource(R.string.geek_code_iran), stringResource(R.string.geek_route_part_iran), direct)
+                        Hairline()
+                        IndexRow(stringResource(R.string.geek_code_world), stringResource(R.string.geek_route_part_rest), vpn)
                     }
-                    Text(stringResource(choice.description), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted)
+                    RouteMode.Global -> IndexRow(stringResource(R.string.geek_code_world), stringResource(R.string.geek_route_part_all), vpn)
+                    RouteMode.Direct -> IndexRow(stringResource(R.string.geek_code_world), stringResource(R.string.geek_route_part_all), direct)
                 }
+                Hairline()
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(Geek.shapes.tileLarge)
-                    .clickable(role = Role.Button, onClick = onPerApp)
-                    .padding(horizontal = 4.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(colors.soft), contentAlignment = Alignment.Center) {
-                    Icon(GeekIcons.List, contentDescription = null, tint = colors.onGlass, modifier = Modifier.size(20.dp))
-                }
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.geek_route_per_app), style = Geek.type.row.copy(fontSize = 14.sp), color = colors.onGlass)
-                    Text(stringResource(R.string.geek_route_per_app_hint), style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onGlassMuted)
-                }
-                Icon(GeekIcons.ChevronStart, contentDescription = null, tint = colors.onGlassMuted, modifier = Modifier.size(18.dp))
+            Column {
+                Hairline()
+                IndexRow(
+                    code = stringResource(R.string.geek_code_apps),
+                    title = stringResource(R.string.geek_route_per_app),
+                    hint = stringResource(R.string.geek_route_per_app_hint),
+                    value = null,
+                    onClick = onPerApp,
+                )
+                Hairline()
             }
             GeekPrimaryButton(
                 text = stringResource(R.string.geek_route_save),
-                icon = GeekIcons.Check,
+                icon = GeekIcons.ArrowAction,
                 onClick = { onSave(choice) },
             )
         }
     }
 }
-
-@Composable
-private fun ModeTile(icon: ImageVector, label: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier) {
-    val colors = Geek.colors
-    Column(
-        modifier = modifier
-            .height(104.dp)
-            .clip(Geek.shapes.tileLarge)
-            .background(if (selected) colors.action else colors.softButton)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-    ) {
-        val tint = if (selected) colors.onAction else colors.onGlass
-        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
-        Text(label, style = Geek.type.row.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold), color = tint)
-    }
-}
-
-private val RouteMode.icon: ImageVector
-    get() = when (this) {
-        RouteMode.Smart -> GeekIcons.Sparkle
-        RouteMode.Global -> GeekIcons.Globe
-        RouteMode.Direct -> GeekIcons.Block
-    }
 
 private val RouteMode.description: Int
     get() = when (this) {

@@ -11,14 +11,14 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.v2ray.ang.R
 
-/** Persian text. Static weights, bundled in res/font by branding/gen_fonts.py. */
-val Vazirmatn = FontFamily(
-    Font(R.font.vazirmatn_light, FontWeight.Light),
-    Font(R.font.vazirmatn_regular, FontWeight.Normal),
-    Font(R.font.vazirmatn_medium, FontWeight.Medium),
-    Font(R.font.vazirmatn_semibold, FontWeight.SemiBold),
-    Font(R.font.vazirmatn_bold, FontWeight.Bold),
-    Font(R.font.vazirmatn_extrabold, FontWeight.ExtraBold),
+/** Persian text: Yekan Bakh (FaNum), the design's face. SemiBold has no file of its own and resolves to Bold. */
+val GeekText = FontFamily(
+    Font(R.font.yekan_bakh_light, FontWeight.Light),
+    Font(R.font.yekan_bakh_regular, FontWeight.Normal),
+    Font(R.font.yekan_bakh_medium, FontWeight.Medium),
+    Font(R.font.yekan_bakh_bold, FontWeight.Bold),
+    Font(R.font.yekan_bakh_extrabold, FontWeight.ExtraBold),
+    Font(R.font.yekan_bakh_black, FontWeight.Black),
 )
 
 /** Latin, latency, speeds and timers. */
@@ -28,10 +28,10 @@ val SpaceGrotesk = FontFamily(
     Font(R.font.space_grotesk_bold, FontWeight.Bold),
 )
 
-/** The type scale of Foundations.html ("تایپوگرافی"). Sizes are the design's px as sp. */
+/** The type scale of Foundations.dc.html (Dark Swiss). Sizes are the design's px as sp. */
 @Immutable
 data class GeekTypography(
-    /** Page title, 26–30. */
+    /** Page title, 34–36 heavy. */
     val pageTitle: TextStyle,
     /** Section title, 20. */
     val sectionTitle: TextStyle,
@@ -52,30 +52,42 @@ data class GeekTypography(
     val numberMedium: TextStyle,
     /** Latency next to signal bars, country codes (12). */
     val numberSmall: TextStyle,
+    /**
+     * The Latin micro label above titles and blocks ("STATUS · OFF"), Space Grotesk 10
+     * tracked .22em. Callers upper-case the text, as the design's text-transform does.
+     */
+    val eyebrow: TextStyle,
+    /** The hero line of a screen (Main.dc.html's "اینترنت آزاد، …"), 40–44 heavy. */
+    val display: TextStyle,
 )
 
 internal val DefaultGeekTypography = GeekTypography(
-    pageTitle = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp),
-    sectionTitle = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp),
-    label = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp),
-    row = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Bold, fontSize = 15.sp),
-    button = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Bold, fontSize = 15.sp),
-    body = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Normal, fontSize = 14.sp),
-    caption = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Normal, fontSize = 13.sp),
-    micro = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Bold, fontSize = 11.sp),
+    pageTitle = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 34.sp, lineHeight = 41.sp),
+    sectionTitle = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp),
+    label = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp),
+    row = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.Bold, fontSize = 15.sp),
+    button = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp),
+    body = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 22.sp),
+    caption = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.Normal, fontSize = 12.sp),
+    micro = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.Bold, fontSize = 11.sp),
     // Numbers, timers and Latin read left to right even inside RTL text (the design's dir="ltr").
     numberLarge = TextStyle(
-        fontFamily = SpaceGrotesk, fontWeight = FontWeight.Bold, fontSize = 32.sp, letterSpacing = (-0.02).em,
+        fontFamily = SpaceGrotesk, fontWeight = FontWeight.Medium, fontSize = 26.sp,
         textDirection = TextDirection.Ltr,
     ),
     numberMedium = TextStyle(
-        fontFamily = SpaceGrotesk, fontWeight = FontWeight.Bold, fontSize = 20.sp, letterSpacing = (-0.025).em,
+        fontFamily = SpaceGrotesk, fontWeight = FontWeight.Medium, fontSize = 20.sp,
         textDirection = TextDirection.Ltr,
     ),
     numberSmall = TextStyle(
-        fontFamily = SpaceGrotesk, fontWeight = FontWeight.SemiBold, fontSize = 12.sp,
+        fontFamily = SpaceGrotesk, fontWeight = FontWeight.Medium, fontSize = 13.sp,
         textDirection = TextDirection.Ltr,
     ),
+    eyebrow = TextStyle(
+        fontFamily = SpaceGrotesk, fontWeight = FontWeight.Medium, fontSize = 10.sp, letterSpacing = 0.22.em,
+        textDirection = TextDirection.Ltr,
+    ),
+    display = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp, lineHeight = 48.sp),
 )
 
 val LocalGeekTypography = staticCompositionLocalOf { DefaultGeekTypography }

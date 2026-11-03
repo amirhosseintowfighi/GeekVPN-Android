@@ -116,6 +116,15 @@
             android:name="com.geekvpn.ui.referral.ReferralActivity"
             android:exported="false" />
         <activity
+            android:name="com.geekvpn.ui.info.ServerStatusActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.geekvpn.ui.info.FaqActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.geekvpn.ui.info.NotificationsActivity"
+            android:exported="false" />
+        <activity
             android:name="com.geekvpn.ui.usage.UsageActivity"
             android:exported="false" />
         <activity

@@ -131,7 +131,7 @@ fun LinkEditScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            GlassIconButton(GeekIcons.ArrowForward, stringResource(R.string.geek_servers_back_description), onBack)
+            GlassIconButton(GeekIcons.ChevronBack, stringResource(R.string.geek_servers_back_description), onBack)
             Text(
                 stringResource(if (state.isNew) R.string.geek_links_add_title else R.string.geek_links_edit_title),
                 style = Geek.type.pageTitle.copy(fontSize = 22.sp),

@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,13 +20,15 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.geekvpn.ui.theme.Geek
 
 /**
- * The navy call-to-action ("ورود با تلگرام"): label at the start, the icon in a
- * white chip at the end. 58dp tall.
+ * The white call-to-action of Dark Swiss ("ورود با تلگرام"): a 56dp pill, its
+ * label and icon centred in navy, with a deep shadow under it.
  */
 @Composable
 fun GeekPrimaryButton(
@@ -42,36 +43,29 @@ fun GeekPrimaryButton(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(58.dp)
-            .shadow(10.dp, shape, ambientColor = colors.actionShadow, spotColor = colors.actionShadow)
+            .height(56.dp)
+            .shadow(14.dp, shape, ambientColor = colors.actionShadow, spotColor = colors.actionShadow)
             .clip(shape)
             .background(colors.action)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .alpha(if (enabled) 1f else 0.5f)
-            .padding(start = 22.dp, end = 7.dp),
+            .padding(horizontal = 22.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = text,
-            style = Geek.type.button,
+            style = Geek.type.button.copy(fontSize = 17.sp),
             color = colors.onAction,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f, fill = false),
         )
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(shape)
-                .background(colors.onAction),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(icon, contentDescription = null, tint = colors.action, modifier = Modifier.size(20.dp))
-        }
+        Icon(icon, contentDescription = null, tint = colors.onAction, modifier = Modifier.size(20.dp))
     }
 }
 
-/** The pale secondary button ("ساخت حساب"), 52dp, for use on milk glass. */
+/** The glass pill ("ساخت حساب", "نام کاربری"), 52dp, white text. */
 @Composable
 fun GeekSecondaryButton(
     text: String,
@@ -89,11 +83,11 @@ fun GeekSecondaryButton(
         enabled = enabled,
         background = colors.softButton,
         content = colors.onGlass,
-        border = null,
+        border = colors.clearGlassBorder,
     )
 }
 
-/** The red outline button ("قطع اتصال"), 52dp. */
+/** The glass pill in the danger colour ("قطع اتصال", "خروج از حساب"), 52dp. */
 @Composable
 fun GeekDangerButton(
     text: String,
@@ -109,9 +103,9 @@ fun GeekDangerButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        background = colors.dangerSoft,
+        background = colors.softButton,
         content = colors.danger,
-        border = colors.dangerBorder,
+        border = colors.clearGlassBorder,
     )
 }
 
@@ -132,7 +126,7 @@ private fun FlatButton(
             .height(52.dp)
             .clip(shape)
             .background(background)
-            .then(if (border != null) Modifier.border(1.dp, border, shape) else Modifier)
+            .then(if (border != null) Modifier.border(1.5.dp, border, shape) else Modifier)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .alpha(if (enabled) 1f else 0.5f)
             .padding(horizontal = 12.dp),
@@ -144,7 +138,7 @@ private fun FlatButton(
         }
         Text(
             text = text,
-            style = Geek.type.button.copy(fontSize = Geek.type.body.fontSize),
+            style = Geek.type.button.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold),
             color = content,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

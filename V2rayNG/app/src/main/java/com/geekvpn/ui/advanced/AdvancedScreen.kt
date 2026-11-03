@@ -84,7 +84,7 @@ fun BoxScope.AdvancedScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            GlassIconButton(GeekIcons.ArrowForward, stringResource(R.string.geek_servers_back_description), onBack)
+            GlassIconButton(GeekIcons.ChevronBack, stringResource(R.string.geek_servers_back_description), onBack)
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.geek_account_advanced), style = Geek.type.pageTitle.copy(fontSize = 22.sp), color = colors.onBackground)
                 Text(stringResource(R.string.geek_advanced_subtitle), style = Geek.type.caption, color = colors.onBackgroundMuted, maxLines = 2)

@@ -131,9 +131,34 @@ object GeekIcons {
 
     val Home: ImageVector by lazy {
         icon("Home") {
-            stroke("M3 10.5 12 3l9 7.5")
-            stroke("M5 9.5V20h14V9.5")
-            stroke("M10 20v-6h4v6")
+            stroke("M3 11 12 4l9 7")
+            stroke("M5 10v10h14V10")
+        }
+    }
+
+    val Layers: ImageVector by lazy {
+        icon("Layers") {
+            stroke("m12 3 9 5-9 5-9-5z")
+            stroke("m3 13 9 5 9-5")
+        }
+    }
+
+    val ArrowAction: ImageVector by lazy {
+        icon("ArrowAction") {
+            stroke("M17 17 7 7")
+            stroke("M7 16V7h9")
+        }
+    }
+
+    val ChevronBack: ImageVector by lazy {
+        icon("ChevronBack") {
+            stroke("m10 6 6 6-6 6")
+        }
+    }
+
+    val ChevronRow: ImageVector by lazy {
+        icon("ChevronRow") {
+            stroke("m14 6-6 6 6 6")
         }
     }
 
@@ -190,30 +215,6 @@ object GeekIcons {
     val Check: ImageVector by lazy {
         icon("Check") {
             stroke("m5 12 5 5 9-10")
-        }
-    }
-
-    val Qr: ImageVector by lazy {
-        icon("Qr") {
-            stroke("M4 4h6v6H4z")
-            stroke("M14 4h6v6h-6z")
-            stroke("M4 14h6v6H4z")
-            stroke("M14 14h2v2h-2z")
-            stroke("M18 14h2")
-            stroke("M14 20h6v-2")
-            stroke("M18 17v1")
-        }
-    }
-
-    val Star: ImageVector by lazy {
-        icon("Star") {
-            stroke("M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z")
-        }
-    }
-
-    val StarFilled: ImageVector by lazy {
-        icon("StarFilled") {
-            fill("M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z")
         }
     }
 
@@ -333,6 +334,30 @@ object GeekIcons {
         icon("Card") {
             stroke("M6 5h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3z")
             stroke("M3 10h18M7 15h4")
+        }
+    }
+
+    val Qr: ImageVector by lazy {
+        icon("Qr") {
+            stroke("M4 4h6v6H4z")
+            stroke("M14 4h6v6h-6z")
+            stroke("M4 14h6v6H4z")
+            stroke("M14 14h2v2h-2z")
+            stroke("M18 14h2")
+            stroke("M14 20h6v-2")
+            stroke("M18 17v1")
+        }
+    }
+
+    val Star: ImageVector by lazy {
+        icon("Star") {
+            stroke("M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z")
+        }
+    }
+
+    val StarFilled: ImageVector by lazy {
+        icon("StarFilled") {
+            fill("M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z")
         }
     }
 
