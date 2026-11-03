@@ -91,6 +91,9 @@ interface ServicesActions {
 
     /** "تمدید خودکار از کیف پول" on one service. */
     fun onAutoRenew(subscriptionId: String, enabled: Boolean)
+
+    /** «لینک جدید»: replace this service's link; the old one stops working. */
+    fun onRotate(subscriptionId: String) {}
 }
 
 /** Services.dc.html: the account's services as glass cards, then the manual links on hairlines. */
@@ -259,6 +262,10 @@ private fun ServiceCard(
                                 actions.onShare(url)
                             },
                             onDismiss = { showQr = false },
+                            onRotate = {
+                                showQr = false
+                                actions.onRotate(service.subscriptionId)
+                            },
                         )
                     }
                 }

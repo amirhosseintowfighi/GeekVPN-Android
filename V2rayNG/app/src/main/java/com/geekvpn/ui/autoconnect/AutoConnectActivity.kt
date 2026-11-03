@@ -197,7 +197,7 @@ fun AutoConnectScreen(state: AutoConnectUiState, actions: AutoConnectActions) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            GlassIconButton(GeekIcons.ArrowForward, stringResource(R.string.geek_servers_back_description), actions::onBack)
+            GlassIconButton(GeekIcons.ChevronBack, stringResource(R.string.geek_servers_back_description), actions::onBack)
             Text(stringResource(R.string.geek_auto_title), style = Geek.type.pageTitle.copy(fontSize = 22.sp), color = colors.onBackground)
         }
         Column(

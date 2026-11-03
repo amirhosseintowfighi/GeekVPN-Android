@@ -86,6 +86,15 @@ interface AccountActions {
     /** "دعوت از دوستان"; signed in only. */
     fun onReferral()
 
+    /** "وضعیت سرورها", the bot's status list; signed in only. */
+    fun onServerStatus() {}
+
+    /** "سؤالات متداول", the bot's FAQ; signed in only. */
+    fun onFaq() {}
+
+    /** "اعلان‌ها", the bot's notification switches; signed in only. */
+    fun onNotifications() {}
+
     /** "مصرف روزانه". */
     fun onUsage()
 }
@@ -193,6 +202,15 @@ fun AccountScreen(
 
         SectionLabel(stringResource(R.string.geek_account_security), eyebrow = stringResource(R.string.geek_eyebrow_security))
         SettingsCard {
+            if (signedIn != null) {
+                SettingRow(
+                    icon = GeekIcons.Sparkle,
+                    title = stringResource(R.string.geek_notify_title),
+                    hint = stringResource(R.string.geek_notify_entry_hint),
+                    onClick = actions::onNotifications,
+                )
+                SettingsDivider()
+            }
             SettingRow(
                 icon = GeekIcons.Lock,
                 title = stringResource(R.string.geek_lock_setting),
@@ -214,6 +232,20 @@ fun AccountScreen(
                 SettingsDivider()
             }
             if (signedIn != null) {
+                SettingRow(
+                    icon = GeekIcons.Globe,
+                    title = stringResource(R.string.geek_status_title),
+                    hint = stringResource(R.string.geek_status_entry_hint),
+                    onClick = actions::onServerStatus,
+                )
+                SettingsDivider()
+                SettingRow(
+                    icon = GeekIcons.Headset,
+                    title = stringResource(R.string.geek_faq_title),
+                    hint = stringResource(R.string.geek_faq_entry_hint),
+                    onClick = actions::onFaq,
+                )
+                SettingsDivider()
                 SettingRow(
                     icon = GeekIcons.List,
                     title = stringResource(R.string.geek_tickets_title),

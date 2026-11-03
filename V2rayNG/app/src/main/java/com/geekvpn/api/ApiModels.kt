@@ -378,3 +378,38 @@ data class ReferralSummary(
     /** Share of each later purchase, in basis points. */
     val recurringBps: Int?,
 )
+
+/** One row of `GET /api/miniapp/servers`; [health] is healthy | degraded | down | maintenance. */
+data class ServerStatus(
+    val nameFa: String?,
+    val health: String?,
+    val locationFa: String?,
+    val loadPercent: Int?,
+    val flag: String?,
+)
+
+/** `GET /api/miniapp/faq`: the bot's questions, grouped. */
+data class FaqSection(val key: String?, val titleFa: String?, val entries: List<FaqEntry>?)
+
+data class FaqEntry(val key: String?, val questionFa: String?, val answerFa: String?)
+
+/**
+ * `GET/POST /api/miniapp/preferences`. The server's default for each switch is
+ * on, so a missing one reads as on ([isOn]).
+ */
+data class NotificationPreferences(
+    val expiry: Boolean? = true,
+    val traffic: Boolean? = true,
+    val promos: Boolean? = true,
+    val news: Boolean? = true,
+    val quietHours: Boolean? = true,
+) {
+    /** Every switch as a definite value, the shape the POST sends back. */
+    fun normalized() = NotificationPreferences(
+        expiry = expiry != false,
+        traffic = traffic != false,
+        promos = promos != false,
+        news = news != false,
+        quietHours = quietHours != false,
+    )
+}

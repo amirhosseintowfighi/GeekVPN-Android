@@ -64,6 +64,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -340,14 +341,17 @@ private fun StatusText(state: HomeUiState) {
 
 /** [text] with [accent] in the design's text blue, where it occurs ("متصل و «امن»"). */
 @Composable
-private fun accented(text: String, accent: String) = buildAnnotatedString {
-    val at = if (accent.isEmpty()) -1 else text.indexOf(accent)
-    if (at < 0) {
-        append(text)
-    } else {
-        append(text.substring(0, at))
-        withStyle(SpanStyle(color = Geek.colors.logoBlue)) { append(accent) }
-        append(text.substring(at + accent.length))
+private fun accented(text: String, accent: String): AnnotatedString {
+    val blue = Geek.colors.logoBlue
+    return buildAnnotatedString {
+        val at = if (accent.isEmpty()) -1 else text.indexOf(accent)
+        if (at < 0) {
+            append(text)
+        } else {
+            append(text.substring(0, at))
+            withStyle(SpanStyle(color = blue)) { append(accent) }
+            append(text.substring(at + accent.length))
+        }
     }
 }
 

@@ -67,6 +67,9 @@ import com.geekvpn.ui.components.GeekBottomNav
 import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GeekTab
 import com.geekvpn.ui.components.geekPage
+import com.geekvpn.ui.info.FaqActivity
+import com.geekvpn.ui.info.NotificationsActivity
+import com.geekvpn.ui.info.ServerStatusActivity
 import com.geekvpn.ui.links.LinkEditActivity
 import com.geekvpn.ui.login.LaunchActivity
 import com.geekvpn.ui.perapp.PerAppActivity
@@ -602,6 +605,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onConnect() = requestConnect()
         override fun onDisconnect() = home.disconnect()
         override fun onRefresh() = home.refreshAccount()
+        override fun onRotate(subscriptionId: String) = home.rotateLink(subscriptionId)
         override fun onCopy(url: String) {
             getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(getString(R.string.geek_brand), url))
             showMessage(R.string.geek_services_copied)
@@ -640,6 +644,9 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onSpeedTest() = startActivity(Intent(this@HomeActivity, SpeedTestActivity::class.java))
         override fun onReferral() = startActivity(Intent(this@HomeActivity, ReferralActivity::class.java))
         override fun onUsage() = startActivity(Intent(this@HomeActivity, UsageActivity::class.java))
+        override fun onServerStatus() = startActivity(Intent(this@HomeActivity, ServerStatusActivity::class.java))
+        override fun onFaq() = startActivity(Intent(this@HomeActivity, FaqActivity::class.java))
+        override fun onNotifications() = startActivity(Intent(this@HomeActivity, NotificationsActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 

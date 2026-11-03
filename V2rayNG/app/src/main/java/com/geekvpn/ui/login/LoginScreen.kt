@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -121,10 +122,15 @@ fun LoginScreen(
 
 /** "اینترنت آزاد، / سریع و امن / با یک لمس." with the last line in the text blue. */
 @Composable
-private fun heroText() = buildAnnotatedString {
-    append(stringResource(R.string.geek_login_hero))
-    append("\n")
-    withStyle(SpanStyle(color = Geek.colors.logoBlue)) { append(stringResource(R.string.geek_login_hero_accent)) }
+private fun heroText(): AnnotatedString {
+    val hero = stringResource(R.string.geek_login_hero)
+    val accent = stringResource(R.string.geek_login_hero_accent)
+    val blue = Geek.colors.logoBlue
+    return buildAnnotatedString {
+        append(hero)
+        append("\n")
+        withStyle(SpanStyle(color = blue)) { append(accent) }
+    }
 }
 
 /**

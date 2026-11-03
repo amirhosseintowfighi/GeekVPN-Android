@@ -70,6 +70,15 @@ ICONS: dict[str, str] = {
     "Card": '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/>',
 }
 
+# Icons the app needs that no design artboard draws (the service QR button,
+# the favourite star). Same 24x24 stroke grammar; not checked against design/.
+APP_ONLY: dict[str, str] = {
+    "Qr": '<path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h2v2h-2z"/>'
+    '<path d="M18 14h2"/><path d="M14 20h6v-2"/><path d="M18 17v1"/>',
+    "Star": '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+    "StarFilled": '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="currentColor"/>',
+}
+
 # The design is drawn right-to-left, so directional icons (ChevronStart,
 # ArrowForward) already point the RTL way. Compose's autoMirror would flip them
 # in RTL, the wrong way round, so a screen that uses one must flip it itself
@@ -143,7 +152,7 @@ def main() -> None:
         "/** The design's 24dp stroke icons. Tint them with Icon(tint = ...); the black here is a mask. */",
         "object GeekIcons {",
     ]
-    for name, body in ICONS.items():
+    for name, body in {**ICONS, **APP_ONLY}.items():
         lines.append(f"    val {name}: ImageVector by lazy {{")
         lines.append(f'        icon("{name}") {{')
         for data, filled in parse(body):

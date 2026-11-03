@@ -48,7 +48,7 @@ import com.v2ray.ang.R
 /** The four tabs of the bottom navigation, in their right-to-left order. */
 enum class GeekTab(@StringRes val label: Int, val icon: ImageVector) {
     Home(R.string.geek_tab_home, GeekIcons.Home),
-    Services(R.string.geek_tab_services, GeekIcons.Shield),
+    Services(R.string.geek_tab_services, GeekIcons.Layers),
     Shop(R.string.geek_tab_shop, GeekIcons.Bag),
     Account(R.string.geek_tab_account, GeekIcons.User),
 }

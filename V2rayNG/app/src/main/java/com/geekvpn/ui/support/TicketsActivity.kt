@@ -167,7 +167,7 @@ fun TicketsScreen(state: TicketsUiState, actions: TicketsActions) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            GlassIconButton(GeekIcons.ArrowForward, stringResource(R.string.geek_servers_back_description), actions::onBack)
+            GlassIconButton(GeekIcons.ChevronBack, stringResource(R.string.geek_servers_back_description), actions::onBack)
             Text(
                 title,
                 style = Geek.type.pageTitle.copy(fontSize = 22.sp),
