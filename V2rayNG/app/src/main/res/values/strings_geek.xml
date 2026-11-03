@@ -596,4 +596,22 @@
     <string name="geek_eyebrow_volume">Volume · GB</string>
     <string name="geek_shop_months_chip">%1$s mo</string>
     <string name="geek_shop_days_chip">%1$s days</string>
+    <string name="geek_eyebrow_services">My services</string>
+    <string name="geek_eyebrow_time_left">Time left</string>
+    <string name="geek_eyebrow_data_left">Data left</string>
+    <string name="geek_eyebrow_down">Down</string>
+    <string name="geek_eyebrow_up">Up</string>
+    <string name="geek_eyebrow_ping">Ping</string>
+    <string name="geek_code_route">RT</string>
+    <string name="geek_code_server">SV</string>
+    <string name="geek_code_ip">IP</string>
+    <string name="geek_code_connections">CN</string>
+    <string name="geek_code_ping">PG</string>
+    <string name="geek_account_page_title">Account</string>
+    <string name="geek_account_security">Security</string>
+    <string name="geek_eyebrow_account">Account</string>
+    <string name="geek_eyebrow_connection">Connection</string>
+    <string name="geek_eyebrow_security">Security</string>
+    <string name="geek_eyebrow_support">Support</string>
+    <string name="geek_eyebrow_wallet">Wallet</string>
 </resources>

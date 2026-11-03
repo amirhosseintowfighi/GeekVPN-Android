@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
@@ -193,14 +194,31 @@ fun PageTitle(text: String, modifier: Modifier = Modifier, subtitle: String? = n
     }
 }
 
-/** A label above a group of rows ("تنظیمات اتصال"). */
+/**
+ * A label above a group of rows ("تنظیمات اتصال"). With [eyebrow] it is drawn
+ * as the design's Latin micro label ("CONNECTION") and [text] is what TalkBack
+ * reads, as a heading.
+ */
 @Composable
-fun SectionLabel(text: String, modifier: Modifier = Modifier) {
+fun SectionLabel(text: String, modifier: Modifier = Modifier, eyebrow: String? = null) {
+    if (eyebrow != null) {
+        Text(
+            text = eyebrow.uppercase(Locale.ROOT),
+            style = Geek.type.eyebrow.copy(letterSpacing = 0.24.em),
+            color = Geek.colors.onBackgroundMuted,
+            maxLines = 1,
+            modifier = modifier.padding(top = 6.dp).clearAndSetSemantics {
+                contentDescription = text
+                heading()
+            },
+        )
+        return
+    }
     Text(
         text = text,
         style = Geek.type.label.copy(fontSize = 13.sp),
         color = Geek.colors.onBackgroundMuted,
-        modifier = modifier.padding(top = 6.dp),
+        modifier = modifier.padding(top = 6.dp).semantics { heading() },
     )
 }
 

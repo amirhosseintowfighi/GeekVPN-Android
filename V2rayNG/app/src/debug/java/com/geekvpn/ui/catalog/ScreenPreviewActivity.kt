@@ -258,7 +258,6 @@ private fun TabPreview(screen: String) {
                     showCleanIp = true,
                     update = UpdateState.UpToDate,
                     onAutoUpdate = {},
-                    onTheme = {},
                     onAskLogout = {},
                     onLogout = none,
                 )

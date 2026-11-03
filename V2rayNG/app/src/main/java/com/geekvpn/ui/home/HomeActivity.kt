@@ -465,7 +465,6 @@ class HomeActivity : HelperBaseComponentActivity() {
                                             showCleanIp = openScanner != null,
                                             update = if (AppUpdater.enabled) update else null,
                                             onAutoUpdate = account::setAutoUpdate,
-                                            onTheme = account::setTheme,
                                             onAskLogout = account::askLogout,
                                             onLogout = account::logout,
                                             onAppLock = { on -> if (!account.setAppLock(on)) showMessage(R.string.geek_lock_unavailable) },

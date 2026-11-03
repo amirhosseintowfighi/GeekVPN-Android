@@ -8,15 +8,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -43,17 +47,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.geekvpn.account.AutoRenewState
 import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.ui.common.GlassIconButton
+import com.geekvpn.ui.common.Hairline
 import com.geekvpn.ui.common.PageTitle
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatGib
 import com.geekvpn.ui.common.formatNumber
 import com.geekvpn.ui.components.GeekDangerButton
 import com.geekvpn.ui.components.GeekSecondaryButton
+import com.geekvpn.ui.components.GeekSegmented
 import com.geekvpn.ui.components.GeekSwitch
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
@@ -86,7 +93,7 @@ interface ServicesActions {
     fun onAutoRenew(subscriptionId: String, enabled: Boolean)
 }
 
-/** Services.html: the account's services as cards, then the manual links. */
+/** Services.dc.html: the account's services as glass cards, then the manual links on hairlines. */
 @Composable
 fun ServicesScreen(
     state: HomeUiState,
@@ -99,20 +106,24 @@ fun ServicesScreen(
     val active = state.services.filter { it.active }
     val shown = if (showAll) state.services else active
 
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            PageTitle(stringResource(R.string.geek_services_title), Modifier.weight(1f))
-            AddLinkButton(actions)
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            PageTitle(stringResource(R.string.geek_services_title), Modifier.weight(1f), eyebrow = stringResource(R.string.geek_eyebrow_services))
             if (isSignedIn) {
-                GlassIconButton(GeekIcons.Plus, stringResource(R.string.geek_services_buy_description), actions::onBuy, kind = GlassKind.Milk)
+                GlassIconButton(GeekIcons.Plus, stringResource(R.string.geek_services_buy_description), actions::onBuy)
             }
         }
 
         if (isSignedIn) {
-            Row(Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(stringResource(R.string.geek_services_filter_active, formatNumber(active.size.toLong(), appLocale())), !showAll) { showAll = false }
-                FilterChip(stringResource(R.string.geek_services_filter_all, formatNumber(state.services.size.toLong(), appLocale())), showAll) { showAll = true }
-            }
+            val activeLabel = stringResource(R.string.geek_services_filter_active, formatNumber(active.size.toLong(), appLocale()))
+            val allLabel = stringResource(R.string.geek_services_filter_all, formatNumber(state.services.size.toLong(), appLocale()))
+            GeekSegmented(
+                options = listOf(false, true),
+                selected = showAll,
+                label = { all -> if (all) allLabel else activeLabel },
+                onSelect = { showAll = it },
+                height = 44.dp,
+            )
             if (shown.isEmpty()) {
                 Text(stringResource(R.string.geek_services_empty), style = Geek.type.body, color = colors.onBackgroundMuted)
             }
@@ -128,37 +139,29 @@ fun ServicesScreen(
             }
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.geek_services_manual), style = Geek.type.label, color = colors.onBackground, modifier = Modifier.weight(1f))
-        }
-        state.manualGroups.forEach { group ->
-            ManualRow(
-                group = group,
-                selected = state.groupId == group.guid,
-                onClick = { actions.onUseManual(group.guid) },
-                // Configs imported one by one live in v2rayNG's default group, which has no link to edit.
-                onEdit = if (group.name != null) ({ actions.onEditManual(group.guid) }) else null,
+        Column {
+            Row(Modifier.padding(top = 6.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.geek_services_manual), style = Geek.type.sectionTitle.copy(fontSize = 17.sp), color = colors.onBackground, modifier = Modifier.weight(1f))
+                AddLinkButton(actions)
+            }
+            Hairline()
+            state.manualGroups.forEach { group ->
+                ManualRow(
+                    group = group,
+                    selected = state.groupId == group.guid,
+                    onClick = { actions.onUseManual(group.guid) },
+                    // Configs imported one by one live in v2rayNG's default group, which has no link to edit.
+                    onEdit = if (group.name != null) ({ actions.onEditManual(group.guid) }) else null,
+                )
+                Hairline()
+            }
+            Text(
+                stringResource(R.string.geek_services_manual_hint),
+                style = Geek.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Medium),
+                color = colors.onBackgroundMuted,
+                modifier = Modifier.padding(top = 12.dp),
             )
         }
-        // Always last: the way to add another link.
-        ManualHint(actions)
-    }
-}
-
-@Composable
-private fun FilterChip(text: String, selected: Boolean, onClick: () -> Unit) {
-    val colors = Geek.colors
-    GlassSurface(
-        kind = if (selected) GlassKind.Milk else GlassKind.Clear,
-        shape = Geek.shapes.pill,
-        modifier = Modifier.selectable(selected = selected, role = Role.Tab, onClick = onClick),
-    ) {
-        Text(
-            text,
-            style = Geek.type.caption.copy(fontWeight = FontWeight.Bold),
-            color = if (selected) colors.onGlass else colors.onBackground,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
-        )
     }
 }
 
@@ -175,56 +178,49 @@ private fun ServiceCard(
     val locale = appLocale()
     val connected = isActive && phase == ConnectionPhase.On
     GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
-        Column {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Box(
-                        Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(colors.logoBlue),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Image(painterResource(R.drawable.ic_geek_logo), contentDescription = null, modifier = Modifier.size(32.dp))
-                    }
-                    Column(Modifier.weight(1f)) {
-                        Text(service.title, style = Geek.type.row.copy(fontWeight = FontWeight.ExtraBold), color = colors.onGlass, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(
-                            "#" + service.subscriptionId.replace("-", "").take(8),
-                            style = Geek.type.numberSmall.copy(fontWeight = FontWeight.Normal, textDirection = TextDirection.Ltr),
-                            color = colors.onGlassMuted,
-                        )
-                    }
-                    StateChip(service, connected)
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
-                    Meter(
-                        label = stringResource(R.string.geek_services_time_left),
-                        value = service.daysLeft?.let { formatNumber(it.toLong(), locale) } ?: stringResource(R.string.geek_services_unlimited),
-                        unit = if (service.daysLeft != null) stringResource(R.string.geek_services_days_unit) else null,
-                        // Thirty days is a full bar: plans are sold by the month.
-                        fraction = service.daysLeft?.let { (it / 30f).coerceIn(0f, 1f) } ?: 1f,
-                        barColor = colors.warning,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Meter(
-                        label = stringResource(R.string.geek_services_data_left),
-                        value = service.remainingGib?.let { formatGib(it, locale) } ?: stringResource(R.string.geek_services_unlimited),
-                        unit = if (service.remainingGib != null) stringResource(R.string.geek_services_gb_unit) else null,
-                        fraction = service.remainingFraction,
-                        barColor = colors.action,
-                        modifier = Modifier.weight(1f),
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(service.title, style = Geek.type.sectionTitle.copy(fontSize = 18.sp), color = colors.onGlass, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        "#" + service.subscriptionId.replace("-", "").take(8),
+                        style = Geek.type.eyebrow.copy(letterSpacing = 0.12.em),
+                        color = colors.onGlassMuted,
                     )
                 }
-                if (autoRenew != null && autoRenew.available) {
-                    AutoRenewRow(autoRenew) { actions.onAutoRenew(service.subscriptionId, it) }
-                }
+                StateChip(service, connected)
             }
-            TicketDivider()
+            Hairline()
+            Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Meter(
+                    eyebrow = stringResource(R.string.geek_eyebrow_time_left),
+                    label = stringResource(R.string.geek_services_time_left),
+                    value = service.daysLeft?.let { formatNumber(it.toLong(), locale) } ?: stringResource(R.string.geek_services_unlimited),
+                    unit = if (service.daysLeft != null) stringResource(R.string.geek_services_days_unit) else null,
+                    modifier = Modifier.weight(1f),
+                )
+                Box(Modifier.width(1.dp).fillMaxHeight().background(colors.hairline))
+                Meter(
+                    eyebrow = stringResource(R.string.geek_eyebrow_data_left),
+                    label = stringResource(R.string.geek_services_data_left),
+                    value = service.remainingGib?.let { formatGib(it, locale) } ?: stringResource(R.string.geek_services_unlimited),
+                    unit = if (service.remainingGib != null) stringResource(R.string.geek_services_gb_unit) else null,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            // What is left of the traffic, as the design's one thin bar.
+            Box(Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.track)) {
+                Box(Modifier.fillMaxWidth(service.remainingFraction).fillMaxHeight().background(colors.onGlass))
+            }
+            if (autoRenew != null && autoRenew.available) {
+                AutoRenewRow(autoRenew) { actions.onAutoRenew(service.subscriptionId, it) }
+            }
             Row(
-                modifier = Modifier.padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 when {
-                    connected -> GeekDangerButton(
+                    connected -> GeekSecondaryButton(
                         text = stringResource(R.string.geek_services_disconnect),
                         icon = GeekIcons.Unlink,
                         onClick = actions::onDisconnect,
@@ -303,64 +299,55 @@ private fun AutoRenewRow(state: AutoRenewState, onChange: (Boolean) -> Unit) {
     }
 }
 
+/** «متصل» solid white; any other state a quiet outlined pill, red when the service ran out. */
 @Composable
 private fun StateChip(service: ServiceStatus, connected: Boolean) {
     val colors = Geek.colors
-    val (text, fg, bg) = when {
-        connected -> Triple(R.string.geek_services_state_connected, colors.success, colors.successSoft)
-        service.active -> Triple(R.string.geek_services_state_active, colors.success, colors.successSoft)
-        service.remainingGib == 0.0 -> Triple(R.string.geek_services_state_exhausted, colors.danger, colors.dangerSoft)
-        service.daysLeft == 0 -> Triple(R.string.geek_services_state_expired, colors.danger, colors.dangerSoft)
-        else -> Triple(R.string.geek_services_state_suspended, colors.warning, colors.warningSoft)
+    val (text, fg) = when {
+        connected -> R.string.geek_services_state_connected to colors.onAction
+        service.active -> R.string.geek_services_state_active to colors.onGlass
+        service.remainingGib == 0.0 -> R.string.geek_services_state_exhausted to colors.danger
+        service.daysLeft == 0 -> R.string.geek_services_state_expired to colors.danger
+        else -> R.string.geek_services_state_suspended to colors.warning
     }
-    Row(
-        modifier = Modifier.clip(Geek.shapes.badge).background(bg).padding(horizontal = 10.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    Box(
+        modifier = Modifier
+            .height(28.dp)
+            .clip(Geek.shapes.pill)
+            .then(
+                if (connected) Modifier.background(colors.action)
+                else Modifier.background(colors.softButton).border(1.dp, colors.checkboxBorder, Geek.shapes.pill),
+            )
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        Box(Modifier.size(7.dp).clip(RoundedCornerShape(2.dp)).background(fg))
-        Text(stringResource(text), style = Geek.type.micro, color = fg)
+        Text(stringResource(text), style = Geek.type.micro.copy(fontSize = 12.sp, fontWeight = FontWeight.ExtraBold), color = fg)
     }
 }
 
+/** "TIME LEFT / ۲۸ روز": the Latin eyebrow over a heavy number and its unit. */
 @Composable
-private fun Meter(label: String, value: String, unit: String?, fraction: Float, barColor: androidx.compose.ui.graphics.Color, modifier: Modifier) {
+private fun Meter(eyebrow: String, label: String, value: String, unit: String?, modifier: Modifier) {
     val colors = Geek.colors
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(label, style = Geek.type.micro.copy(fontWeight = FontWeight.Normal), color = colors.onGlassMuted)
+    Column(modifier.semantics(mergeDescendants = true) { contentDescription = listOfNotNull(label, value, unit).joinToString(" ") }, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(eyebrow.uppercase(java.util.Locale.ROOT), style = Geek.type.eyebrow.copy(fontSize = 9.sp), color = colors.onGlassMuted)
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(value, style = Geek.type.pageTitle.copy(fontSize = 28.sp), color = colors.onGlass)
-            if (unit != null) Text(unit, style = Geek.type.caption, color = colors.onGlassMuted, modifier = Modifier.padding(bottom = 4.dp))
-        }
-        Box(Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(3.dp)).background(colors.track)) {
-            Box(Modifier.fillMaxWidth(fraction).height(5.dp).clip(RoundedCornerShape(3.dp)).background(barColor))
+            Text(value, style = Geek.type.sectionTitle.copy(fontSize = 22.sp), color = colors.onGlass)
+            if (unit != null) Text(unit, style = Geek.type.caption.copy(fontSize = 13.sp), color = colors.onGlassMuted, modifier = Modifier.padding(bottom = 3.dp))
         }
     }
 }
 
-/** The dashed tear line of the ticket-shaped card. */
-@Composable
-private fun TicketDivider() {
-    val line = Geek.colors.checkboxBorder
-    Canvas(Modifier.fillMaxWidth().height(1.dp)) {
-        drawLine(
-            color = line,
-            start = Offset(0f, 0f),
-            end = Offset(size.width, 0f),
-            strokeWidth = 1.dp.toPx(),
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 5.dp.toPx())),
-        )
-    }
-}
-
+/** A round glass button with one icon (renew, refresh, QR). */
 @Composable
 private fun SquareButton(icon: ImageVector, description: String, enabled: Boolean = true, onClick: () -> Unit) {
     val colors = Geek.colors
     Box(
         modifier = Modifier
             .size(48.dp)
-            .clip(Geek.shapes.button)
+            .clip(Geek.shapes.pill)
             .background(colors.softButton)
+            .border(1.5.dp, colors.clearGlassBorder, Geek.shapes.pill)
             .clickable(enabled = enabled, role = Role.Button, onClickLabel = description, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -368,12 +355,26 @@ private fun SquareButton(icon: ImageVector, description: String, enabled: Boolea
     }
 }
 
-/** The link button in the header and the manual-links card share one menu. */
+/** «افزودن +» beside «لینک‌های دستی»: a glass pill opening the add menu. */
 @Composable
 private fun AddLinkButton(actions: ServicesActions) {
+    val colors = Geek.colors
     var open by rememberSaveable { mutableStateOf(false) }
     Box {
-        GlassIconButton(GeekIcons.Link, stringResource(R.string.geek_services_link_description), { open = true })
+        GlassSurface(
+            kind = GlassKind.Clear,
+            shape = Geek.shapes.pill,
+            modifier = Modifier.clickable(role = Role.Button, onClickLabel = stringResource(R.string.geek_services_link_description)) { open = true },
+        ) {
+            Row(
+                modifier = Modifier.heightIn(min = 44.dp).padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(stringResource(R.string.geek_services_add), style = Geek.type.label.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold), color = colors.onBackground)
+                Icon(GeekIcons.Plus, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(16.dp))
+            }
+        }
         AddMenu(open, { open = false }, actions)
     }
 }
@@ -400,72 +401,50 @@ private fun AddMenu(open: Boolean, onDismiss: () -> Unit, actions: ServicesActio
     }
 }
 
-/** The whole card is the "add a link" button: it reads like one, so it is one. */
-@Composable
-private fun ManualHint(actions: ServicesActions) {
-    val colors = Geek.colors
-    var open by rememberSaveable { mutableStateOf(false) }
-    Box {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(Geek.shapes.row)
-                .border(1.dp, colors.onBackground.copy(alpha = 0.34f), Geek.shapes.row)
-                .clickable(role = Role.Button, onClickLabel = stringResource(R.string.geek_services_add)) { open = true }
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(38.dp)) {
-                Icon(GeekIcons.Link, contentDescription = null, tint = colors.onBackground, modifier = Modifier.align(Alignment.Center).size(20.dp))
-            }
-            Text(stringResource(R.string.geek_services_manual_hint), style = Geek.type.body, color = colors.onBackground, modifier = Modifier.weight(1f))
-            Icon(GeekIcons.Plus, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(20.dp))
-        }
-        AddMenu(open, { open = false }, actions)
-    }
-}
-
+/** One manual link on the hairline list: the selected one in white, with an edit button when it has a link. */
 @Composable
 private fun ManualRow(group: ManualGroup, selected: Boolean, onClick: () -> Unit, onEdit: (() -> Unit)?) {
     val colors = Geek.colors
-    GlassSurface(
-        kind = if (selected) GlassKind.Milk else GlassKind.Clear,
-        shape = Geek.shapes.row,
-        modifier = Modifier.fillMaxWidth().selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            val fg = if (selected) colors.onGlass else colors.onBackground
-            Icon(GeekIcons.Link, contentDescription = null, tint = fg, modifier = Modifier.size(20.dp))
+        Box(
+            Modifier
+                .size(10.dp)
+                .clip(CircleShape)
+                .then(if (selected) Modifier.background(colors.onBackground) else Modifier.border(1.5.dp, colors.checkboxBorder, CircleShape)),
+        )
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
                 group.name ?: stringResource(R.string.geek_services_manual_single),
-                style = Geek.type.row,
-                color = fg,
+                style = Geek.type.row.copy(fontSize = 16.sp),
+                color = colors.onBackground,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
             )
             Text(
                 pluralStringResource(R.plurals.geek_manual_servers, group.servers, group.servers),
                 style = Geek.type.caption,
-                color = if (selected) colors.onGlassMuted else colors.onBackgroundMuted,
+                color = colors.onBackgroundMuted,
             )
-            if (onEdit != null) {
-                val label = stringResource(R.string.geek_links_edit_title)
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable(role = Role.Button, onClickLabel = label, onClick = onEdit)
-                        .semantics { contentDescription = label },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(GeekIcons.Pencil, contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
-                }
+        }
+        if (onEdit != null) {
+            val label = stringResource(R.string.geek_links_edit_title)
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(Geek.shapes.pill)
+                    .clickable(role = Role.Button, onClickLabel = label, onClick = onEdit)
+                    .semantics { contentDescription = label },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(GeekIcons.Pencil, contentDescription = null, tint = colors.onBackgroundMuted, modifier = Modifier.size(18.dp))
             }
         }
     }

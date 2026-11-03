@@ -131,7 +131,7 @@ fun HomeScreen(
             AnimatedVisibility(visible = !on, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
                 Column {
                     IndexRow(
-                        code = "RT",
+                        code = stringResource(R.string.geek_code_route),
                         title = stringResource(R.string.geek_home_route),
                         value = stringResource(state.route.label),
                         onClick = onOpenRoute,
@@ -145,14 +145,14 @@ fun HomeScreen(
             Hairline()
             if (on) {
                 IndexRow(
-                    code = "CN",
+                    code = stringResource(R.string.geek_code_connections),
                     title = stringResource(R.string.geek_home_connections),
                     value = formatNumber(state.connections.toLong(), appLocale()),
                 )
             } else {
                 val delay = state.selected?.delayMs ?: 0
                 IndexRow(
-                    code = "PG",
+                    code = stringResource(R.string.geek_code_ping),
                     title = stringResource(R.string.geek_home_ping),
                     value = if (delay > 0) "$delay ms" else "—",
                     latinValue = true,
@@ -431,7 +431,7 @@ private fun SelectedServerRow(state: HomeUiState, onOpen: () -> Unit, onAutoServ
         }
     }
     IndexRow(
-        code = server?.countryCode ?: "SV",
+        code = server?.countryCode ?: stringResource(R.string.geek_code_server),
         title = if (on || server != null) title else stringResource(R.string.geek_home_server),
         hint = if (server != null) stringResource(R.string.geek_home_server) else null,
         value = when {
@@ -456,7 +456,7 @@ private fun ExitIpRow(state: HomeUiState) {
         state.exitIpLoading -> stringResource(R.string.geek_home_exit_ip_checking)
         else -> stringResource(R.string.geek_home_exit_ip_unknown)
     }
-    IndexRow(code = "IP", title = stringResource(R.string.geek_home_exit_ip), value = text, latinValue = ip != null && !(on && country != null))
+    IndexRow(code = stringResource(R.string.geek_code_ip), title = stringResource(R.string.geek_home_exit_ip), value = text, latinValue = ip != null && !(on && country != null))
 }
 
 /** Home-On.dc.html: down, up and ping between two hairlines, in Space Grotesk. */
@@ -467,11 +467,11 @@ private fun SpeedRow(state: HomeUiState) {
     Column {
         Hairline()
         Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            StatCell("Down", stringResource(R.string.geek_home_download), TrafficMeter.format(speed.downBytesPerSecond), Modifier.weight(1f))
+            StatCell(stringResource(R.string.geek_eyebrow_down), stringResource(R.string.geek_home_download), TrafficMeter.format(speed.downBytesPerSecond), Modifier.weight(1f))
             StatDivider()
-            StatCell("Up", stringResource(R.string.geek_home_upload), TrafficMeter.format(speed.upBytesPerSecond), Modifier.weight(1f))
+            StatCell(stringResource(R.string.geek_eyebrow_up), stringResource(R.string.geek_home_upload), TrafficMeter.format(speed.upBytesPerSecond), Modifier.weight(1f))
             StatDivider()
-            StatCell("Ping", stringResource(R.string.geek_home_ping), (if (delay > 0) delay.toString() else "—") to (if (delay > 0) "ms" else ""), Modifier.weight(1f))
+            StatCell(stringResource(R.string.geek_eyebrow_ping), stringResource(R.string.geek_home_ping), (if (delay > 0) delay.toString() else "—") to (if (delay > 0) "ms" else ""), Modifier.weight(1f))
         }
         Hairline()
     }
