@@ -1,4 +1,4 @@
 source=main
-sha=dc99dfa9e19397eff4d52876642c70c59ac9b13a
-run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/36612867258
+sha=e07b175d95c74675d0a99230585353105f331863
+run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/41614418746
 smoke=success
