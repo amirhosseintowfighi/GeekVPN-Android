@@ -1,0 +1,4 @@
+out/api24/home-guest.xml: View '' at [22,568][298,616] has no text or content description
+out/api24/preview-account-dark.xml: View '' at [20,563][300,629] has no text or content description
+out/api24/preview-account.xml: View '' at [20,563][300,629] has no text or content description
+out/api24/preview-home-empty.xml: View '' at [20,576][300,624] has no text or content description
