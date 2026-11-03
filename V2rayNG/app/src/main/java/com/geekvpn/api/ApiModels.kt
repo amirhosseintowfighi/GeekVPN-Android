@@ -87,6 +87,8 @@ data class SubscriptionCard(
     val remoteUsername: String?,
     /** direct | tunnel | elite; null for a service adopted from a link. */
     val tier: String?,
+    /** The bot's category ("اروپا"); null from a server older than the field. */
+    val categoryNameFa: String? = null,
 )
 
 /** `/api/miniapp/wallet`. Amounts are whole tomans. */
@@ -139,6 +141,8 @@ data class PlanRequest(
     val couponCode: String? = null,
     /** Set when the purchase extends a service the customer already has. */
     val renewsSubscriptionId: String? = null,
+    /** A monthly volume the customer typed; [planId] is then the term's anchor. */
+    val customGib: Int? = null,
 )
 
 data class GatewayPlanRequest(
@@ -146,6 +150,7 @@ data class GatewayPlanRequest(
     val gatewayKey: String,
     val couponCode: String? = null,
     val renewsSubscriptionId: String? = null,
+    val customGib: Int? = null,
 )
 
 /** `/quote`: the price this customer pays today. */
@@ -159,7 +164,7 @@ data class Quote(
     val couponCode: String?,
 )
 
-data class CouponRequest(val planId: String, val code: String)
+data class CouponRequest(val planId: String, val code: String, val customGib: Int? = null)
 
 /** `/coupon/preview`. A refusal is data: [isValid] false with the reason in [messageFa]. */
 data class CouponPreview(

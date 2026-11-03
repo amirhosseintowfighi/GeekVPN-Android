@@ -21,7 +21,7 @@ import com.geekvpn.auth.Session
 import com.geekvpn.shop.PaymentKeys
 import com.geekvpn.shop.ShopApi
 import com.geekvpn.shop.ShopCatalog
-import com.geekvpn.shop.Tier
+import com.geekvpn.shop.ServiceKind
 import com.geekvpn.shop.TopupLimits
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
@@ -77,12 +77,19 @@ data class ShopUiState(
     val signedIn: Boolean = false,
     val loading: Boolean = false,
     val loadFailed: Boolean = false,
-    val tiers: List<Tier> = emptyList(),
-    val tier: Tier? = null,
+    /** The "service type" switch: the bot's categories, by name. */
+    val kinds: List<ServiceKind> = emptyList(),
+    val kind: ServiceKind? = null,
     val durations: List<Int> = emptyList(),
     val duration: Int? = null,
     val volumes: List<StorePlan> = emptyList(),
     val plan: StorePlan? = null,
+    /** Smallest monthly volume that may be typed for this term; null when none can. */
+    val customFloor: Int? = null,
+    /** «دلخواه» is chosen: [plan] is then only the term's anchor. */
+    val customMode: Boolean = false,
+    /** The typed monthly volume, when it is one the server will price. */
+    val customGib: Int? = null,
     val quote: Quote? = null,
     val coupon: CouponState? = null,
     val renewing: RenewTarget? = null,
@@ -96,13 +103,15 @@ data class ShopUiState(
     val uploading: Boolean = false,
 ) {
     /** What the customer pays now: the quote once it is in, the listed price before. */
-    val total: Long? get() = quote?.total ?: plan?.price
+    val total: Long? get() = if (customMode) quote?.total else quote?.total ?: plan?.price
 
     /** The struck-through price, when the total is below it. */
     val wasPrice: Long?
         get() {
             val total = total ?: return null
-            val was = listOfNotNull(quote?.basePrice, plan?.compareAtPrice, quote?.compareAtPrice).maxOrNull()
+            // The anchor's own strike-through says nothing about a typed volume.
+            val listed = if (customMode) null else plan?.compareAtPrice
+            val was = listOfNotNull(quote?.basePrice, listed, quote?.compareAtPrice).maxOrNull()
             return was?.takeIf { it > total }
         }
 }
@@ -211,32 +220,52 @@ class ShopViewModel : ViewModel {
         }
     }
 
-    fun selectTier(tier: Tier) {
+    fun selectKind(kind: ServiceKind) {
         val front = storefront ?: return
-        if (tier == state.value.tier) return
-        val plans = ShopCatalog.plansOf(ShopCatalog.productFor(front, tier))
-        showPlan(tier, plans, ShopCatalog.defaultPlan(plans))
+        if (kind == state.value.kind) return
+        val plans = ShopCatalog.plansFor(front, kind)
+        showPlan(kind, plans, ShopCatalog.defaultPlan(plans))
     }
 
     fun selectDuration(days: Int) {
         val front = storefront ?: return
-        val tier = state.value.tier ?: return
-        val plans = ShopCatalog.plansOf(ShopCatalog.productFor(front, tier))
-        showPlan(tier, plans, ShopCatalog.withDuration(plans, state.value.plan, days))
+        val kind = state.value.kind ?: return
+        val plans = ShopCatalog.plansFor(front, kind)
+        showPlan(kind, plans, ShopCatalog.withDuration(plans, state.value.plan, days))
     }
 
     fun selectPlan(planId: String) {
         val plan = state.value.volumes.firstOrNull { it.planId == planId } ?: return
-        state.update { it.copy(plan = plan) }
+        state.update { it.copy(plan = plan, customMode = false, customGib = null) }
         requote()
     }
 
-    /** "تمدید" on a service: the next purchase extends it, in its own tier. */
-    fun renew(subscriptionId: String, title: String, tier: String?) {
+    /** «دلخواه»: any monthly volume, starting at the term's smallest. */
+    fun selectCustom() {
+        val current = state.value
+        val floor = current.customFloor ?: return
+        val anchor = ShopCatalog.customAnchor(current.volumes) ?: return
+        if (current.customMode) return
+        state.update { it.copy(plan = anchor, customMode = true, customGib = floor, coupon = null) }
+        requote()
+    }
+
+    /** What was typed; null or out of range leaves nothing to price. */
+    fun setCustomGib(value: Int?) {
+        val floor = state.value.customFloor ?: return
+        val valid = value?.takeIf { it in floor..ShopCatalog.MAX_CUSTOM_GIB }
+        if (valid == state.value.customGib) return
+        state.update { it.copy(customGib = valid, coupon = null) }
+        requote()
+    }
+
+    /** The volume sent with a purchase: only in custom mode, never a stale one. */
+    private fun customGib(): Int? = state.value.takeIf { it.customMode }?.customGib
+
+    /** "تمدید" on a service: the next purchase extends it, in its own category. */
+    fun renew(subscriptionId: String, title: String, tier: String?, categoryName: String? = null) {
         state.update { it.copy(renewing = RenewTarget(subscriptionId, title)) }
-        Tier.of(tier)?.let { wanted ->
-            if (wanted in state.value.tiers) selectTier(wanted)
-        }
+        storefront?.let { front -> ShopCatalog.kindFor(front, categoryName, tier) }?.let(::selectKind)
         requote()
     }
 
@@ -259,7 +288,7 @@ class ShopViewModel : ViewModel {
         if (trimmed.isEmpty()) return
         viewModelScope.launch {
             val preview = try {
-                env.api.previewCoupon(CouponRequest(plan, trimmed))
+                env.api.previewCoupon(CouponRequest(plan, trimmed, customGib()))
             } catch (e: ApiException) {
                 report("Shop: coupon preview failed", e)
                 return@launch
@@ -280,7 +309,7 @@ class ShopViewModel : ViewModel {
     fun pay() {
         val current = state.value
         val total = current.total ?: return
-        if (current.plan == null || current.busy) return
+        if (current.plan == null || current.busy || (current.customMode && current.customGib == null)) return
         state.update { it.copy(sheet = ShopSheet.Checkout(CheckoutPurpose.Purchase, total)) }
     }
 
@@ -327,16 +356,17 @@ class ShopViewModel : ViewModel {
         val planId = current.plan?.planId ?: return
         val coupon = current.coupon?.takeIf { it.valid }?.code
         val renews = current.renewing?.subscriptionId
+        val custom = customGib()
         when (method) {
             PaymentKeys.WALLET -> {
-                env.api.checkoutWallet(PlanRequest(planId, coupon, renews))
+                env.api.checkoutWallet(PlanRequest(planId, coupon, renews, custom))
                 state.update { it.copy(sheet = null, coupon = null, renewing = null) }
                 refreshBalance()
                 eventChannel.send(ShopEvent.Message(if (renews != null) R.string.geek_shop_renewed else R.string.geek_shop_bought))
                 eventChannel.send(ShopEvent.Purchased)
             }
-            PaymentKeys.CARD -> openPayment(env.api.checkoutCard(PlanRequest(planId, coupon, renews)))
-            else -> openPayment(env.api.checkoutGateway(GatewayPlanRequest(planId, method, coupon, renews)))
+            PaymentKeys.CARD -> openPayment(env.api.checkoutCard(PlanRequest(planId, coupon, renews, custom)))
+            else -> openPayment(env.api.checkoutGateway(GatewayPlanRequest(planId, method, coupon, renews, custom)))
         }
     }
 
@@ -493,27 +523,33 @@ class ShopViewModel : ViewModel {
     }
 
     private fun applyStorefront(front: Storefront) {
-        val tiers = ShopCatalog.tiers(front)
-        val tier = state.value.tier?.takeIf { it in tiers } ?: ShopCatalog.defaultTier(front)
-        state.update { it.copy(tiers = tiers) }
-        if (tier == null) {
-            state.update { it.copy(tier = null, durations = emptyList(), duration = null, volumes = emptyList(), plan = null, quote = null) }
+        val kinds = ShopCatalog.kinds(front)
+        val kind = state.value.kind?.takeIf { it in kinds } ?: ShopCatalog.defaultKind(front)
+        state.update { it.copy(kinds = kinds) }
+        if (kind == null) {
+            state.update { it.copy(kind = null, durations = emptyList(), duration = null, volumes = emptyList(), plan = null, quote = null) }
             return
         }
-        val plans = ShopCatalog.plansOf(ShopCatalog.productFor(front, tier))
+        val plans = ShopCatalog.plansFor(front, kind)
         val keep = state.value.plan?.planId?.let { id -> plans.firstOrNull { it.planId == id } }
-        showPlan(tier, plans, keep ?: ShopCatalog.defaultPlan(plans))
+        showPlan(kind, plans, keep ?: ShopCatalog.defaultPlan(plans))
     }
 
-    private fun showPlan(tier: Tier, plans: List<StorePlan>, plan: StorePlan?) {
+    private fun showPlan(kind: ServiceKind, plans: List<StorePlan>, plan: StorePlan?) {
         val duration = plan?.durationDays
+        val volumes = duration?.let { days -> ShopCatalog.volumes(plans, days) }.orEmpty()
         state.update {
             it.copy(
-                tier = tier,
+                kind = kind,
                 durations = ShopCatalog.durations(plans),
                 duration = duration,
-                volumes = duration?.let { days -> ShopCatalog.volumes(plans, days) }.orEmpty(),
+                volumes = volumes,
                 plan = plan,
+                // Another term or kind is another set of plans to price from;
+                // the customer picks a volume again.
+                customFloor = ShopCatalog.customFloor(volumes),
+                customMode = false,
+                customGib = null,
                 // A coupon was checked against the old plan; it may not apply to this one.
                 coupon = if (plan?.planId == it.plan?.planId) it.coupon else null,
                 quote = null,
@@ -528,10 +564,15 @@ class ShopViewModel : ViewModel {
         val current = state.value
         val planId = current.plan?.planId ?: return
         val coupon = current.coupon?.takeIf { it.valid }?.code
+        val custom = customGib()
+        if (current.customMode && custom == null) {
+            state.update { it.copy(quote = null) }
+            return
+        }
         quoteJob = viewModelScope.launch {
             state.update { it.copy(quote = null) }
-            val quote = attempt("quote") { env.api.quote(PlanRequest(planId, coupon, current.renewing?.subscriptionId)) }
-            if (state.value.plan?.planId == planId) state.update { it.copy(quote = quote) }
+            val quote = attempt("quote") { env.api.quote(PlanRequest(planId, coupon, current.renewing?.subscriptionId, custom)) }
+            if (state.value.plan?.planId == planId && customGib() == custom) state.update { it.copy(quote = quote) }
         }
     }
 

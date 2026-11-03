@@ -37,7 +37,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
@@ -45,7 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.geekvpn.api.StorePlan
 import com.geekvpn.api.TrialOffer
 import com.geekvpn.shop.ShopCatalog
-import com.geekvpn.shop.Tier
+import com.geekvpn.shop.ServiceKind
 import com.geekvpn.ui.common.PageTitle
 import com.geekvpn.ui.common.WalletChip
 import com.geekvpn.ui.common.appLocale
@@ -63,9 +65,11 @@ interface ShopActions {
     fun onWallet()
     fun onLogin()
     fun onRetry()
-    fun onTier(tier: Tier)
+    fun onKind(kind: ServiceKind)
     fun onDuration(days: Int)
     fun onPlan(planId: String)
+    fun onCustom()
+    fun onCustomGib(value: Int?)
     fun onApplyCoupon(code: String)
     fun onClearCoupon()
     fun onCancelRenew()
@@ -83,10 +87,10 @@ fun ShopScreen(state: ShopUiState, actions: ShopActions) {
         }
         when {
             !state.signedIn -> GuestCard(actions::onLogin)
-            state.tiers.isEmpty() && state.loading -> NoticeCard(stringResource(R.string.geek_shop_loading), null, null)
-            state.tiers.isEmpty() && state.loadFailed ->
+            state.kinds.isEmpty() && state.loading -> NoticeCard(stringResource(R.string.geek_shop_loading), null, null)
+            state.kinds.isEmpty() && state.loadFailed ->
                 NoticeCard(stringResource(R.string.geek_shop_err_load), stringResource(R.string.geek_shop_retry), actions::onRetry)
-            state.tiers.isEmpty() -> NoticeCard(stringResource(R.string.geek_shop_empty), stringResource(R.string.geek_shop_retry), actions::onRetry)
+            state.kinds.isEmpty() -> NoticeCard(stringResource(R.string.geek_shop_empty), stringResource(R.string.geek_shop_retry), actions::onRetry)
             else -> {
                 state.trial?.takeIf { it.available == true }?.let { TrialCard(it, state.busy, actions::onTrial) }
                 state.renewing?.let { RenewBanner(it.title, actions::onCancelRenew) }
@@ -192,8 +196,8 @@ private fun PlanCard(state: ShopUiState, actions: ShopActions) {
     val locale = appLocale()
     GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (state.tiers.size > 1) {
-                TierSwitch(state.tiers, state.tier, actions::onTier)
+            if (state.kinds.size > 1) {
+                KindSwitch(state.kinds, state.kind, actions::onKind)
             }
             Text(stringResource(R.string.geek_shop_duration), style = Geek.type.label, color = colors.onGlass)
             ChoiceRows(state.durations, columns = 4) { days, modifier ->
@@ -211,15 +215,16 @@ private fun PlanCard(state: ShopUiState, actions: ShopActions) {
                 }
             }
             ChoiceRows(state.volumes, columns = 4) { plan, modifier ->
-                VolumeChip(plan, selected = plan.planId == state.plan?.planId, locale = locale, onClick = { plan.planId?.let(actions::onPlan) }, modifier = modifier)
+                VolumeChip(plan, selected = !state.customMode && plan.planId == state.plan?.planId, locale = locale, onClick = { plan.planId?.let(actions::onPlan) }, modifier = modifier)
             }
+            state.customFloor?.let { floor -> CustomVolume(state, floor, actions) }
             CouponRow(state.coupon, actions)
         }
     }
 }
 
 @Composable
-private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> Unit) {
+private fun KindSwitch(kinds: List<ServiceKind>, selected: ServiceKind?, onSelect: (ServiceKind) -> Unit) {
     val colors = Geek.colors
     Row(
         modifier = Modifier
@@ -230,8 +235,8 @@ private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> U
             .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        tiers.forEach { tier ->
-            val isSelected = tier == selected
+        kinds.forEach { kind ->
+            val isSelected = kind == selected
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -240,11 +245,14 @@ private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> U
                     .background(if (isSelected) colors.chip else colors.soft)
                     // In the dark theme chip and soft are close shades; the edge tells them apart.
                     .then(if (isSelected) Modifier.border(1.dp, colors.link, RoundedCornerShape(12.dp)) else Modifier)
-                    .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tier) }),
+                    .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(kind) }),
                 contentAlignment = Alignment.Center,
             ) {
+                // The category's own name, as the bot's shop shows it.
                 Text(
-                    stringResource(tier.label),
+                    kind.name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = Geek.type.caption.copy(fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium),
                     color = if (isSelected) colors.onGlass else colors.onGlassMuted,
                 )
@@ -252,13 +260,6 @@ private fun TierSwitch(tiers: List<Tier>, selected: Tier?, onSelect: (Tier) -> U
         }
     }
 }
-
-val Tier.label: Int
-    get() = when (this) {
-        Tier.Direct -> R.string.geek_tier_direct
-        Tier.Tunnel -> R.string.geek_tier_tunnel
-        Tier.Elite -> R.string.geek_tier_elite
-    }
 
 /** [items] in rows of [columns] equal cells; a short last row keeps the cell width. */
 @Composable
@@ -316,6 +317,67 @@ private fun VolumeChip(plan: StorePlan, selected: Boolean, locale: Locale, onCli
             if (quota == null) stringResource(R.string.geek_services_unlimited) else formatNumber(quota.toLong(), locale),
             style = if (quota == null) Geek.type.caption.copy(fontWeight = FontWeight.Bold) else Geek.type.numberSmall.copy(fontSize = 15.sp),
             color = colors.onGlass,
+        )
+    }
+}
+
+/** «دلخواه»: a chip, and once chosen a field for the monthly volume. */
+@Composable
+private fun CustomVolume(state: ShopUiState, floor: Int, actions: ShopActions) {
+    val colors = Geek.colors
+    val locale = appLocale()
+    val shape = RoundedCornerShape(13.dp)
+    val selected = state.customMode
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(46.dp)
+                .clip(shape)
+                .background(if (selected) colors.soft else colors.chip)
+                .border(if (selected) 2.dp else 1.dp, if (selected) colors.link else colors.track, shape)
+                .selectable(selected = selected, role = Role.RadioButton, onClick = actions::onCustom),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(stringResource(R.string.geek_shop_custom), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onGlass)
+        }
+        if (!selected) return@Column
+        var text by rememberSaveable(state.duration, state.kind?.id) { mutableStateOf(floor.toString()) }
+        Text(stringResource(R.string.geek_shop_custom_ask), style = Geek.type.label, color = colors.onGlass)
+        Box(
+            modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(14.dp)).background(colors.softButton).padding(horizontal = 14.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            BasicTextField(
+                value = text,
+                onValueChange = { typed ->
+                    // Persian digits too: the keyboard may be in either.
+                    text = typed.map { c -> if (c in '۰'..'۹') '0' + (c - '۰') else c }.filter(Char::isDigit).joinToString("").take(5)
+                    actions.onCustomGib(text.toIntOrNull())
+                },
+                singleLine = true,
+                textStyle = Geek.type.body.copy(color = colors.onGlass, textDirection = TextDirection.Ltr, textAlign = TextAlign.Start),
+                cursorBrush = SolidColor(colors.link),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        val gib = state.customGib
+        val days = state.duration ?: 30
+        val months = days / 30
+        Text(
+            when {
+                gib == null -> stringResource(R.string.geek_shop_custom_floor, formatNumber(floor.toLong(), locale))
+                months >= 2 -> stringResource(
+                    R.string.geek_shop_custom_total,
+                    formatNumber(gib.toLong(), locale),
+                    formatNumber(months.toLong(), locale),
+                    formatNumber(ShopCatalog.termGib(gib, days).toLong(), locale),
+                )
+                else -> stringResource(R.string.geek_shop_custom_priced)
+            },
+            style = Geek.type.caption,
+            color = if (gib == null) colors.danger else colors.onGlassMuted,
         )
     }
 }
@@ -417,7 +479,14 @@ private fun PayBar(state: ShopUiState, onPay: () -> Unit) {
                 )
             }
             if (plan != null) {
-                Text(planSummary(plan, locale), style = Geek.type.micro, color = colors.payButton)
+                val shown = if (state.customMode) {
+                    plan.copy(quotaGib = state.customGib?.let { ShopCatalog.termGib(it, plan.durationDays ?: 30) })
+                } else {
+                    plan
+                }
+                if (!state.customMode || state.customGib != null) {
+                    Text(planSummary(shown, locale), style = Geek.type.micro, color = colors.payButton)
+                }
             }
         }
         PayButton(enabled = plan != null && state.total != null && !state.busy, onClick = onPay)
