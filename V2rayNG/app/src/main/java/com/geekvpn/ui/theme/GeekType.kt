@@ -11,14 +11,18 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.v2ray.ang.R
 
-/** Persian text. Static weights, bundled in res/font by branding/gen_fonts.py. */
-val Vazirmatn = FontFamily(
-    Font(R.font.vazirmatn_light, FontWeight.Light),
-    Font(R.font.vazirmatn_regular, FontWeight.Normal),
-    Font(R.font.vazirmatn_medium, FontWeight.Medium),
-    Font(R.font.vazirmatn_semibold, FontWeight.SemiBold),
-    Font(R.font.vazirmatn_bold, FontWeight.Bold),
-    Font(R.font.vazirmatn_extrabold, FontWeight.ExtraBold),
+/**
+ * Persian text: Yekan Bakh where the build has it, Vazirmatn otherwise (the
+ * geekTextFonts task of app/build.gradle.kts fills res/font/geek_text_*).
+ * SemiBold has no file of its own and resolves to Bold.
+ */
+val GeekText = FontFamily(
+    Font(R.font.geek_text_light, FontWeight.Light),
+    Font(R.font.geek_text_regular, FontWeight.Normal),
+    Font(R.font.geek_text_medium, FontWeight.Medium),
+    Font(R.font.geek_text_bold, FontWeight.Bold),
+    Font(R.font.geek_text_extrabold, FontWeight.ExtraBold),
+    Font(R.font.geek_text_black, FontWeight.Black),
 )
 
 /** Latin, latency, speeds and timers. */
@@ -62,14 +66,14 @@ data class GeekTypography(
 )
 
 internal val DefaultGeekTypography = GeekTypography(
-    pageTitle = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.ExtraBold, fontSize = 34.sp, lineHeight = 41.sp),
-    sectionTitle = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp),
-    label = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp),
-    row = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Bold, fontSize = 15.sp),
-    button = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp),
-    body = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 22.sp),
-    caption = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Normal, fontSize = 12.sp),
-    micro = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.Bold, fontSize = 11.sp),
+    pageTitle = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 34.sp, lineHeight = 41.sp),
+    sectionTitle = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp),
+    label = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp),
+    row = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.Bold, fontSize = 15.sp),
+    button = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp),
+    body = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 22.sp),
+    caption = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.Normal, fontSize = 12.sp),
+    micro = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.Bold, fontSize = 11.sp),
     // Numbers, timers and Latin read left to right even inside RTL text (the design's dir="ltr").
     numberLarge = TextStyle(
         fontFamily = SpaceGrotesk, fontWeight = FontWeight.Medium, fontSize = 26.sp,
@@ -87,7 +91,7 @@ internal val DefaultGeekTypography = GeekTypography(
         fontFamily = SpaceGrotesk, fontWeight = FontWeight.Medium, fontSize = 10.sp, letterSpacing = 0.22.em,
         textDirection = TextDirection.Ltr,
     ),
-    display = TextStyle(fontFamily = Vazirmatn, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp, lineHeight = 48.sp),
+    display = TextStyle(fontFamily = GeekText, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp, lineHeight = 48.sp),
 )
 
 val LocalGeekTypography = staticCompositionLocalOf { DefaultGeekTypography }

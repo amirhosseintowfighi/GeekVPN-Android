@@ -85,21 +85,21 @@ fun GeekTheme(content: @Composable () -> Unit) {
     )
     val material = Typography().let { base ->
         Typography(
-            displayLarge = base.displayLarge.copy(fontFamily = Vazirmatn),
-            displayMedium = base.displayMedium.copy(fontFamily = Vazirmatn),
-            displaySmall = base.displaySmall.copy(fontFamily = Vazirmatn),
-            headlineLarge = base.headlineLarge.copy(fontFamily = Vazirmatn),
-            headlineMedium = base.headlineMedium.copy(fontFamily = Vazirmatn),
-            headlineSmall = base.headlineSmall.copy(fontFamily = Vazirmatn),
-            titleLarge = base.titleLarge.copy(fontFamily = Vazirmatn),
-            titleMedium = base.titleMedium.copy(fontFamily = Vazirmatn),
-            titleSmall = base.titleSmall.copy(fontFamily = Vazirmatn),
-            bodyLarge = base.bodyLarge.copy(fontFamily = Vazirmatn),
-            bodyMedium = base.bodyMedium.copy(fontFamily = Vazirmatn),
-            bodySmall = base.bodySmall.copy(fontFamily = Vazirmatn),
-            labelLarge = base.labelLarge.copy(fontFamily = Vazirmatn),
-            labelMedium = base.labelMedium.copy(fontFamily = Vazirmatn),
-            labelSmall = base.labelSmall.copy(fontFamily = Vazirmatn),
+            displayLarge = base.displayLarge.copy(fontFamily = GeekText),
+            displayMedium = base.displayMedium.copy(fontFamily = GeekText),
+            displaySmall = base.displaySmall.copy(fontFamily = GeekText),
+            headlineLarge = base.headlineLarge.copy(fontFamily = GeekText),
+            headlineMedium = base.headlineMedium.copy(fontFamily = GeekText),
+            headlineSmall = base.headlineSmall.copy(fontFamily = GeekText),
+            titleLarge = base.titleLarge.copy(fontFamily = GeekText),
+            titleMedium = base.titleMedium.copy(fontFamily = GeekText),
+            titleSmall = base.titleSmall.copy(fontFamily = GeekText),
+            bodyLarge = base.bodyLarge.copy(fontFamily = GeekText),
+            bodyMedium = base.bodyMedium.copy(fontFamily = GeekText),
+            bodySmall = base.bodySmall.copy(fontFamily = GeekText),
+            labelLarge = base.labelLarge.copy(fontFamily = GeekText),
+            labelMedium = base.labelMedium.copy(fontFamily = GeekText),
+            labelSmall = base.labelSmall.copy(fontFamily = GeekText),
         )
     }
 

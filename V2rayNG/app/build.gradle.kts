@@ -232,10 +232,58 @@ android {
 
 }
 
+// GeekVPN: the text face, as res/font/geek_text_<weight>. Yekan Bakh is licensed
+// and its files stay out of the repo: CI decrypts branding/fonts/yekan-bakh.tar.gpg
+// into GEEK_FONT_DIR (docs/geekvpn.md). Without it the same names hold Vazirmatn,
+// so every build compiles and looks complete.
+abstract class GeekTextFontsTask : DefaultTask() {
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val sources: ConfigurableFileCollection
+
+    /** Resource name -> source file name. */
+    @get:Input
+    abstract val names: MapProperty<String, String>
+
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
+
+    @TaskAction
+    fun copy() {
+        val out = outputDirectory.get().asFile.resolve("font")
+        out.deleteRecursively()
+        out.mkdirs()
+        val files = sources.files.associateBy { it.name }
+        names.get().forEach { (target, source) ->
+            val file = files[source] ?: throw GradleException("geekTextFonts: $source is missing")
+            file.copyTo(out.resolve("$target.ttf"), overwrite = true)
+        }
+    }
+}
+
+val geekFontWeights = listOf("light", "regular", "medium", "bold", "extrabold", "black")
+val geekFontDir = geekProperty("GEEK_FONT_DIR", "")
+val geekTextFonts = tasks.register<GeekTextFontsTask>("geekTextFonts") {
+    if (geekFontDir.isNotBlank()) {
+        val yekan = geekFontWeights.map { file("$geekFontDir/yekan_bakh_$it.ttf") }
+        val missing = yekan.filterNot { it.exists() }
+        if (missing.isNotEmpty()) throw GradleException("GEEK_FONT_DIR lacks ${missing.map { it.name }}")
+        sources.from(yekan)
+        names.set(geekFontWeights.associate { "geek_text_$it" to "yekan_bakh_$it.ttf" })
+    } else {
+        // Vazirmatn has no 900; its 800 stands in.
+        sources.from(fileTree("src/main/res/font") { include("vazirmatn_*.ttf") })
+        names.set(geekFontWeights.associate { "geek_text_$it" to "vazirmatn_${if (it == "black") "extrabold" else it}.ttf" })
+    }
+}
+
 // GeekVPN is not published to F-Droid; the upstream flavor stays declared so
 // upstream merges apply, but its variants are not built.
 androidComponents {
     beforeVariants(selector().withFlavor("distribution" to "fdroid")) { it.enable = false }
+    onVariants { variant ->
+        variant.sources.res?.addGeneratedSourceDirectory(geekTextFonts, GeekTextFontsTask::outputDirectory)
+    }
 }
 
 dependencies {
