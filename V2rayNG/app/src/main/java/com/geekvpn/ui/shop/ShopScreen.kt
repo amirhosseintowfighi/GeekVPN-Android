@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -39,21 +40,24 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.geekvpn.api.StorePlan
 import com.geekvpn.api.TrialOffer
-import com.geekvpn.shop.ShopCatalog
 import com.geekvpn.shop.ServiceKind
+import com.geekvpn.shop.ShopCatalog
+import com.geekvpn.ui.common.Eyebrow
+import com.geekvpn.ui.common.Hairline
 import com.geekvpn.ui.common.PageTitle
-import com.geekvpn.ui.common.WalletChip
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatNumber
+import com.geekvpn.ui.components.ChoicePill
 import com.geekvpn.ui.components.GeekPrimaryButton
 import com.geekvpn.ui.components.GeekSecondaryButton
+import com.geekvpn.ui.components.GeekSegmented
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.icons.GeekIcons
@@ -77,14 +81,11 @@ interface ShopActions {
     fun onTrial()
 }
 
-/** Shop.html: the free trial, then tier, length and volume, and the pay bar. */
+/** Shop.dc.html: the free trial, then service type, length and volume, and the price with «پرداخت». */
 @Composable
 fun ShopScreen(state: ShopUiState, actions: ShopActions) {
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            PageTitle(stringResource(R.string.geek_shop_title), Modifier.weight(1f))
-            if (state.signedIn) WalletChip(state.balance, actions::onWallet)
-        }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        PageTitle(stringResource(R.string.geek_shop_title), eyebrow = stringResource(R.string.geek_eyebrow_shop))
         when {
             !state.signedIn -> GuestCard(actions::onLogin)
             state.kinds.isEmpty() && state.loading -> NoticeCard(stringResource(R.string.geek_shop_loading), null, null)
@@ -94,7 +95,7 @@ fun ShopScreen(state: ShopUiState, actions: ShopActions) {
             else -> {
                 state.trial?.takeIf { it.available == true }?.let { TrialCard(it, state.busy, actions::onTrial) }
                 state.renewing?.let { RenewBanner(it.title, actions::onCancelRenew) }
-                PlanCard(state, actions)
+                PlanChoices(state, actions)
                 PayBar(state, actions::onPay)
             }
         }
@@ -127,14 +128,19 @@ private fun NoticeCard(text: String, action: String?, onAction: (() -> Unit)?) {
 private fun TrialCard(offer: TrialOffer, busy: Boolean, onClaim: () -> Unit) {
     val colors = Geek.colors
     val locale = appLocale()
-    GlassSurface(kind = GlassKind.Clear, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+    GlassSurface(kind = GlassKind.Clear, shape = Geek.shapes.row, modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Icon(GeekIcons.Gift, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(22.dp))
-            Column(Modifier.weight(1f)) {
+            Box(
+                Modifier.size(40.dp).clip(CircleShape).background(colors.softButton).border(1.dp, colors.checkboxBorder, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(GeekIcons.Gift, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(19.dp))
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(stringResource(R.string.geek_trial_title), style = Geek.type.row.copy(fontWeight = FontWeight.ExtraBold), color = colors.onBackground)
                 Text(
                     stringResource(
@@ -149,14 +155,14 @@ private fun TrialCard(offer: TrialOffer, busy: Boolean, onClaim: () -> Unit) {
             Box(
                 modifier = Modifier
                     .heightIn(min = 44.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(colors.onBackground)
+                    .clip(Geek.shapes.pill)
+                    .background(colors.action)
                     .clickable(enabled = !busy, role = Role.Button, onClick = onClaim)
                     .alpha(if (busy) 0.5f else 1f)
                     .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(stringResource(R.string.geek_trial_claim), style = Geek.type.caption.copy(fontWeight = FontWeight.ExtraBold), color = colors.action)
+                Text(stringResource(R.string.geek_trial_claim), style = Geek.type.label.copy(fontSize = 13.sp), color = colors.onAction)
             }
         }
     }
@@ -168,16 +174,17 @@ private fun RenewBanner(title: String, onCancel: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(colors.successSoft)
-            .padding(start = 14.dp, end = 4.dp),
+            .clip(Geek.shapes.pill)
+            .background(colors.softButton)
+            .border(1.5.dp, colors.clearGlassBorder, Geek.shapes.pill)
+            .padding(start = 16.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(GeekIcons.Refresh, contentDescription = null, tint = colors.success, modifier = Modifier.size(18.dp))
+        Icon(GeekIcons.Refresh, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(18.dp))
         Text(
             stringResource(R.string.geek_shop_renewing, title),
             style = Geek.type.caption.copy(fontWeight = FontWeight.Bold),
-            color = colors.success,
+            color = colors.onBackground,
             modifier = Modifier.weight(1f).padding(horizontal = 10.dp, vertical = 12.dp),
         )
         val label = stringResource(R.string.geek_shop_renew_cancel)
@@ -185,79 +192,46 @@ private fun RenewBanner(title: String, onCancel: () -> Unit) {
             Modifier.size(44.dp).clickable(role = Role.Button, onClickLabel = label, onClick = onCancel),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(GeekIcons.Close, contentDescription = label, tint = colors.success, modifier = Modifier.size(18.dp))
+            Icon(GeekIcons.Close, contentDescription = label, tint = colors.onBackground, modifier = Modifier.size(18.dp))
         }
     }
 }
 
 @Composable
-private fun PlanCard(state: ShopUiState, actions: ShopActions) {
+private fun PlanChoices(state: ShopUiState, actions: ShopActions) {
     val colors = Geek.colors
     val locale = appLocale()
-    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.card, modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (state.kinds.size > 1) {
-                KindSwitch(state.kinds, state.kind, actions::onKind)
-            }
-            Text(stringResource(R.string.geek_shop_duration), style = Geek.type.label, color = colors.onGlass)
-            ChoiceRows(state.durations, columns = 4) { days, modifier ->
-                DurationChip(days, selected = days == state.duration, locale = locale, onClick = { actions.onDuration(days) }, modifier = modifier)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.geek_shop_volume), style = Geek.type.label, color = colors.onGlass, modifier = Modifier.weight(1f))
-                ShopCatalog.discountPercent(state.plan)?.let { percent ->
-                    Text(
-                        stringResource(R.string.geek_shop_discount, formatNumber(percent.toLong(), locale)),
-                        style = Geek.type.micro.copy(fontWeight = FontWeight.ExtraBold),
-                        color = colors.success,
-                        modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(colors.successSoft).padding(horizontal = 8.dp, vertical = 4.dp),
-                    )
-                }
-            }
-            ChoiceRows(state.volumes, columns = 4) { plan, modifier ->
-                VolumeChip(plan, selected = !state.customMode && plan.planId == state.plan?.planId, locale = locale, onClick = { plan.planId?.let(actions::onPlan) }, modifier = modifier)
-            }
-            state.customFloor?.let { floor -> CustomVolume(state, floor, actions) }
-            CouponRow(state.coupon, actions)
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        if (state.kinds.size > 1) {
+            // The category's own name, as the bot's shop shows it.
+            GeekSegmented(options = state.kinds, selected = state.kind, label = { it.name }, onSelect = actions::onKind, height = 44.dp)
         }
-    }
-}
-
-@Composable
-private fun KindSwitch(kinds: List<ServiceKind>, selected: ServiceKind?, onSelect: (ServiceKind) -> Unit) {
-    val colors = Geek.colors
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(15.dp))
-            .background(colors.soft)
-            .padding(4.dp)
-            .selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        kinds.forEach { kind ->
-            val isSelected = kind == selected
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = 44.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) colors.chip else colors.soft)
-                    // In the dark theme chip and soft are close shades; the edge tells them apart.
-                    .then(if (isSelected) Modifier.border(1.dp, colors.link, RoundedCornerShape(12.dp)) else Modifier)
-                    .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(kind) }),
-                contentAlignment = Alignment.Center,
-            ) {
-                // The category's own name, as the bot's shop shows it.
+        Eyebrow(stringResource(R.string.geek_eyebrow_duration))
+        ChoiceRows(state.durations, columns = 4) { days, modifier ->
+            DurationChip(days, selected = days == state.duration, locale = locale, onClick = { actions.onDuration(days) }, modifier = modifier)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Eyebrow(stringResource(R.string.geek_eyebrow_volume), Modifier.weight(1f))
+            ShopCatalog.discountPercent(state.plan)?.let { percent ->
                 Text(
-                    kind.name,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = Geek.type.caption.copy(fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium),
-                    color = if (isSelected) colors.onGlass else colors.onGlassMuted,
+                    stringResource(R.string.geek_shop_discount, formatNumber(percent.toLong(), locale)),
+                    style = Geek.type.micro.copy(fontWeight = FontWeight.ExtraBold),
+                    color = colors.logoBlue,
                 )
             }
         }
+        val custom = state.customFloor != null
+        ChoiceRows(if (custom) state.volumes.map<StorePlan, StorePlan?> { it } + null else state.volumes, columns = 4) { plan, modifier ->
+            if (plan == null) {
+                ChoicePill(selected = state.customMode, onClick = actions::onCustom, dashed = true, modifier = modifier) { color ->
+                    Text(stringResource(R.string.geek_shop_custom), style = Geek.type.label, color = color)
+                }
+            } else {
+                VolumeChip(plan, selected = !state.customMode && plan.planId == state.plan?.planId, locale = locale, onClick = { plan.planId?.let(actions::onPlan) }, modifier = modifier)
+            }
+        }
+        state.customFloor?.let { floor -> CustomVolume(state, floor, actions) }
+        CouponRow(state.coupon, actions)
     }
 }
 
@@ -274,78 +248,49 @@ private fun <T> ChoiceRows(items: List<T>, columns: Int, cell: @Composable (T, M
     }
 }
 
+/** "۱ ماهه", "۴۵ روزه". */
 @Composable
 private fun DurationChip(days: Int, selected: Boolean, locale: Locale, onClick: () -> Unit, modifier: Modifier) {
-    val colors = Geek.colors
     val label = ShopCatalog.durationLabel(days)
-    val unit = if (label.months) {
-        stringResource(R.string.geek_shop_months_unit)
-    } else {
-        stringResource(R.string.geek_shop_days_unit)
-    }
-    Column(
-        modifier = modifier
-            .height(62.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(if (selected) colors.action else colors.chip)
-            .then(if (selected) Modifier else Modifier.border(1.dp, colors.track, RoundedCornerShape(16.dp)))
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        val content = if (selected) colors.onAction else colors.onGlass
-        Text(formatNumber(label.count.toLong(), locale), style = Geek.type.row.copy(fontSize = 18.sp, fontWeight = FontWeight.ExtraBold), color = content)
-        Text(unit, style = Geek.type.micro, color = content.copy(alpha = 0.75f))
+    val text = stringResource(
+        if (label.months) R.string.geek_shop_months_chip else R.string.geek_shop_days_chip,
+        formatNumber(label.count.toLong(), locale),
+    )
+    ChoicePill(selected = selected, onClick = onClick, modifier = modifier) { color ->
+        Text(text, style = Geek.type.body.copy(fontSize = 15.sp), color = color, maxLines = 1)
     }
 }
 
 @Composable
 private fun VolumeChip(plan: StorePlan, selected: Boolean, locale: Locale, onClick: () -> Unit, modifier: Modifier) {
-    val colors = Geek.colors
-    val shape = RoundedCornerShape(13.dp)
-    Box(
-        modifier = modifier
-            .height(46.dp)
-            .clip(shape)
-            .background(if (selected) colors.soft else colors.chip)
-            .border(if (selected) 2.dp else 1.dp, if (selected) colors.link else colors.track, shape)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
+    ChoicePill(selected = selected, onClick = onClick, modifier = modifier) { color ->
         val quota = plan.quotaGib
         Text(
             if (quota == null) stringResource(R.string.geek_services_unlimited) else formatNumber(quota.toLong(), locale),
-            style = if (quota == null) Geek.type.caption.copy(fontWeight = FontWeight.Bold) else Geek.type.numberSmall.copy(fontSize = 15.sp),
-            color = colors.onGlass,
+            style = if (quota == null) Geek.type.label else Geek.type.numberMedium.copy(fontSize = 16.sp),
+            color = color,
+            maxLines = 1,
         )
     }
 }
 
-/** «دلخواه»: a chip, and once chosen a field for the monthly volume. */
+/** Once «دلخواه» is chosen: a field for the monthly volume. */
 @Composable
 private fun CustomVolume(state: ShopUiState, floor: Int, actions: ShopActions) {
     val colors = Geek.colors
     val locale = appLocale()
-    val shape = RoundedCornerShape(13.dp)
-    val selected = state.customMode
+    if (!state.customMode) return
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        var text by rememberSaveable(state.duration, state.kind?.id) { mutableStateOf(floor.toString()) }
+        Text(stringResource(R.string.geek_shop_custom_ask), style = Geek.type.caption, color = colors.onGlassMuted)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(46.dp)
-                .clip(shape)
-                .background(if (selected) colors.soft else colors.chip)
-                .border(if (selected) 2.dp else 1.dp, if (selected) colors.link else colors.track, shape)
-                .selectable(selected = selected, role = Role.RadioButton, onClick = actions::onCustom),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(stringResource(R.string.geek_shop_custom), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.onGlass)
-        }
-        if (!selected) return@Column
-        var text by rememberSaveable(state.duration, state.kind?.id) { mutableStateOf(floor.toString()) }
-        Text(stringResource(R.string.geek_shop_custom_ask), style = Geek.type.label, color = colors.onGlass)
-        Box(
-            modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(14.dp)).background(colors.softButton).padding(horizontal = 14.dp),
+                .height(52.dp)
+                .clip(Geek.shapes.pill)
+                .background(colors.soft)
+                .border(1.dp, colors.checkboxBorder, Geek.shapes.pill)
+                .padding(horizontal = 18.dp),
             contentAlignment = Alignment.CenterStart,
         ) {
             BasicTextField(
@@ -389,19 +334,19 @@ private fun CouponRow(coupon: CouponState?, actions: ShopActions) {
     var code by rememberSaveable { mutableStateOf("") }
     when {
         coupon != null && coupon.valid -> Row(
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp)).background(colors.successSoft).padding(start = 12.dp),
+            modifier = Modifier.fillMaxWidth().clip(Geek.shapes.pill).background(colors.softButton).border(1.5.dp, colors.clearGlassBorder, Geek.shapes.pill).padding(start = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(GeekIcons.Tag, contentDescription = null, tint = colors.success, modifier = Modifier.size(16.dp))
+            Icon(GeekIcons.Tag, contentDescription = null, tint = colors.logoBlue, modifier = Modifier.size(16.dp))
             Text(
                 coupon.message ?: coupon.code,
                 style = Geek.type.caption.copy(fontWeight = FontWeight.Bold),
-                color = colors.success,
+                color = colors.onBackground,
                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
             )
             val label = stringResource(R.string.geek_shop_coupon_remove)
             Box(Modifier.size(44.dp).clickable(role = Role.Button, onClickLabel = label, onClick = actions::onClearCoupon), contentAlignment = Alignment.Center) {
-                Icon(GeekIcons.Close, contentDescription = label, tint = colors.success, modifier = Modifier.size(16.dp))
+                Icon(GeekIcons.Close, contentDescription = label, tint = colors.onBackground, modifier = Modifier.size(16.dp))
             }
         }
         open -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -418,10 +363,12 @@ private fun CouponRow(coupon: CouponState?, actions: ShopActions) {
                 .heightIn(min = 44.dp)
                 .clickable(role = Role.Button) { open = true },
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Icon(GeekIcons.Tag, contentDescription = null, tint = colors.link, modifier = Modifier.size(16.dp))
-            Text(stringResource(R.string.geek_shop_coupon_ask), style = Geek.type.caption.copy(fontWeight = FontWeight.Bold), color = colors.link)
+            Text(
+                stringResource(R.string.geek_shop_coupon_ask),
+                style = Geek.type.caption.copy(fontSize = 13.sp, textDecoration = TextDecoration.Underline),
+                color = colors.onBackgroundMuted,
+            )
         }
     }
 }
@@ -430,7 +377,12 @@ private fun CouponRow(coupon: CouponState?, actions: ShopActions) {
 private fun CodeField(value: String, onChange: (String) -> Unit, onDone: () -> Unit, modifier: Modifier) {
     val colors = Geek.colors
     Box(
-        modifier = modifier.height(52.dp).clip(RoundedCornerShape(14.dp)).background(colors.softButton).padding(horizontal = 14.dp),
+        modifier = modifier
+            .height(52.dp)
+            .clip(Geek.shapes.pill)
+            .background(colors.soft)
+            .border(1.dp, colors.checkboxBorder, Geek.shapes.pill)
+            .padding(horizontal = 18.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
         if (value.isEmpty()) {
@@ -449,66 +401,48 @@ private fun CodeField(value: String, onChange: (String) -> Unit, onDone: () -> U
     }
 }
 
+/** Shop.dc.html's foot: a hairline, the plan and its price (the old price struck through), and «پرداخت». */
 @Composable
 private fun PayBar(state: ShopUiState, onPay: () -> Unit) {
     val colors = Geek.colors
     val locale = appLocale()
     val plan = state.plan
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(Geek.shapes.card)
-            .background(colors.payBar)
-            .padding(start = 16.dp, end = 14.dp, top = 14.dp, bottom = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Hairline()
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                if (plan != null) {
+                    val shown = if (state.customMode) {
+                        plan.copy(quotaGib = state.customGib?.let { ShopCatalog.termGib(it, plan.durationDays ?: 30) })
+                    } else {
+                        plan
+                    }
+                    if (!state.customMode || state.customGib != null) {
+                        Text(planSummary(shown, locale), style = Geek.type.caption, color = colors.onBackgroundMuted)
+                    }
+                }
+                state.total?.let {
+                    Text(
+                        stringResource(R.string.geek_home_balance, formatNumber(it, locale)),
+                        style = Geek.type.sectionTitle.copy(fontSize = 22.sp, fontWeight = FontWeight.Black),
+                        color = colors.onBackground,
+                    )
+                }
+            }
             state.wasPrice?.let {
                 Text(
                     stringResource(R.string.geek_home_balance, formatNumber(it, locale)),
-                    style = Geek.type.micro.copy(textDecoration = TextDecoration.LineThrough),
-                    color = colors.onPayBar.copy(alpha = 0.7f),
+                    style = Geek.type.caption.copy(fontSize = 13.sp, textDecoration = TextDecoration.LineThrough),
+                    color = colors.onBackgroundMuted,
                 )
-            }
-            state.total?.let {
-                Text(
-                    stringResource(R.string.geek_home_balance, formatNumber(it, locale)),
-                    style = Geek.type.row.copy(fontSize = 18.sp, fontWeight = FontWeight.ExtraBold),
-                    color = colors.onPayBar,
-                )
-            }
-            if (plan != null) {
-                val shown = if (state.customMode) {
-                    plan.copy(quotaGib = state.customGib?.let { ShopCatalog.termGib(it, plan.durationDays ?: 30) })
-                } else {
-                    plan
-                }
-                if (!state.customMode || state.customGib != null) {
-                    Text(planSummary(shown, locale), style = Geek.type.micro, color = colors.payButton)
-                }
             }
         }
-        PayButton(enabled = plan != null && state.total != null && !state.busy, onClick = onPay)
-    }
-}
-
-@Composable
-private fun PayButton(enabled: Boolean, onClick: () -> Unit) {
-    val colors = Geek.colors
-    Row(
-        modifier = Modifier
-            .height(50.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .background(colors.payButton)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.5f)
-            .padding(horizontal = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Icon(GeekIcons.Lock, contentDescription = null, tint = colors.onPayButton, modifier = Modifier.size(18.dp))
-        Text(stringResource(R.string.geek_shop_pay), style = Geek.type.button, color = colors.onPayButton)
+        GeekPrimaryButton(
+            text = stringResource(R.string.geek_shop_pay),
+            icon = GeekIcons.ArrowAction,
+            onClick = onPay,
+            enabled = plan != null && state.total != null && !state.busy,
+        )
     }
 }
 

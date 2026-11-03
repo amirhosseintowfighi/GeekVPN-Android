@@ -47,6 +47,7 @@ import com.geekvpn.account.AutoRenewViewModel
 import com.geekvpn.account.RefreshOutcome
 import com.geekvpn.account.UsageNotifier
 import com.geekvpn.autoconnect.AutoConnect
+import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.lock.AppLock
 import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
@@ -60,6 +61,7 @@ import com.geekvpn.ui.account.AccountViewModel
 import com.geekvpn.ui.advanced.AdvancedActivity
 import com.geekvpn.ui.autoconnect.AutoConnectActivity
 import com.geekvpn.ui.common.GeekHeader
+import com.geekvpn.ui.components.BackdropLayout
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
 import com.geekvpn.ui.components.GeekMotion
@@ -334,7 +336,15 @@ class HomeActivity : HelperBaseComponentActivity() {
             val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
             // The Route sheet opens over the tabs; only Servers and Scanner replace them.
             val page = if (overlay == Overlay.Route) Overlay.None else overlay
-            GeekBackdrop {
+            // Each artboard of the design has its own light.
+            val light = when {
+                page == Overlay.Servers || page == Overlay.Scanner -> BackdropLayout.Horizon
+                tab == GeekTab.Home && state.phase == ConnectionPhase.On -> BackdropLayout.Ribbon
+                tab == GeekTab.Services -> BackdropLayout.Blob
+                tab == GeekTab.Account -> BackdropLayout.Bars
+                else -> BackdropLayout.Moon
+            }
+            GeekBackdrop(layout = light) {
                 AnimatedContent(
                     targetState = page,
                     transitionSpec = { geekPage(forward = targetState.ordinal > initialState.ordinal, rtl = rtl) },
@@ -383,14 +393,15 @@ class HomeActivity : HelperBaseComponentActivity() {
                                         .statusBarsPadding()
                                         .navigationBarsPadding()
                                         // Room for the tab bar's dock above the system navigation bar.
-                                        .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp),
+                                        .padding(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 120.dp),
                                     verticalArrangement = Arrangement.spacedBy(18.dp),
                                 ) {
+                                    // Every tab opens with the mark; Home and the shop carry the wallet.
+                                    GeekHeader(
+                                        balance = state.balance,
+                                        onWallet = if (signedIn && (shownTab == GeekTab.Home || shownTab == GeekTab.Shop)) shop::openWallet else null,
+                                    )
                                     if (shownTab == GeekTab.Home) {
-                                        GeekHeader(
-                                            balance = state.balance,
-                                            onWallet = if (signedIn) shop::openWallet else null,
-                                        )
                                         AnimatedVisibility(bannerOffer != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
                                             bannerOffer?.let { offer ->
                                                 UpdateBanner(

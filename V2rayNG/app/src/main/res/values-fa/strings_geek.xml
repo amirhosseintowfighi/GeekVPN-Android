@@ -583,4 +583,13 @@
     <string name="geek_sync_reason_server">خطای سرور (کد %1$d).</string>
     <string name="geek_sync_reason_bad_response">جوابی که رسید از سرور GeekVPN نبود (شبکه یا پروکسی جلوی آن را گرفته).</string>
     <string name="geek_sync_reason_other">سرور درخواست را نپذیرفت (کد %1$d).</string>
+    <string name="geek_eyebrow_status_off">Status · Off</string>
+    <string name="geek_eyebrow_status_on">Status · Secure</string>
+    <string name="geek_eyebrow_status_busy">Status · Connecting</string>
+    <string name="geek_home_on_accent">امن</string>
+    <string name="geek_eyebrow_shop">Shop</string>
+    <string name="geek_eyebrow_duration">Duration</string>
+    <string name="geek_eyebrow_volume">Volume · GB</string>
+    <string name="geek_shop_months_chip">%1$s ماهه</string>
+    <string name="geek_shop_days_chip">%1$s روزه</string>
 </resources>

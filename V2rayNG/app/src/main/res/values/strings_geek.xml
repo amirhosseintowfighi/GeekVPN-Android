@@ -587,4 +587,13 @@
     <string name="geek_sync_reason_server">Server error (code %1$d).</string>
     <string name="geek_sync_reason_bad_response">The answer did not come from the GeekVPN server (the network or a proxy stood in the way).</string>
     <string name="geek_sync_reason_other">The server refused the request (code %1$d).</string>
+    <string name="geek_eyebrow_status_off">Status · Off</string>
+    <string name="geek_eyebrow_status_on">Status · Secure</string>
+    <string name="geek_eyebrow_status_busy">Status · Connecting</string>
+    <string name="geek_home_on_accent">secure</string>
+    <string name="geek_eyebrow_shop">Shop</string>
+    <string name="geek_eyebrow_duration">Duration</string>
+    <string name="geek_eyebrow_volume">Volume · GB</string>
+    <string name="geek_shop_months_chip">%1$s mo</string>
+    <string name="geek_shop_days_chip">%1$s days</string>
 </resources>
