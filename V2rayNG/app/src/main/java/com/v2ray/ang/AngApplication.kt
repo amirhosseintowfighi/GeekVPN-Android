@@ -47,5 +47,8 @@ class AngApplication : Application() {
 
         // Initialize theme state from MMKV
         ThemeManager.refresh()
+
+        // GeekVPN: no v2rayNG screen is ever shown; GeekVPN's own opens instead.
+        com.geekvpn.guard.V2rayScreens.install(this)
     }
 }

@@ -184,15 +184,20 @@ if [[ "$probe" != *Error* ]]; then
     done
 fi
 
-# By component: the main screen is behind the login gate.
+# By component: v2rayNG's own main screen (what its connection notification
+# opens) must never show; GeekVPN's entry (login or Home) takes its place.
 adb shell am start -W -n "$PKG/com.v2ray.ang.ui.main.MainActivity" >/dev/null
 shot main 10
 alive "launch"
+if grep -q "متصل نیست" "$OUT/main.xml"; then
+    echo "::error::v2rayNG's main screen was shown"
+    LOGIN_FAILED=1
+fi
 
 # A fresh install must start in Persian (AppLocaleManager's default).
 adb shell cmd locale get-app-locales "$PKG" > "$OUT/app-locales.txt" 2>&1 || true
-if ! grep -q "متصل نیست" "$OUT/main.xml"; then
-    echo "::error::fresh install did not start in Persian; app locales: $(cat "$OUT/app-locales.txt")"
+if ! grep -q -e "قطع است" -e "ورود با تلگرام" "$OUT/main.xml"; then
+    echo "::error::GeekVPN did not open in Persian in place of v2rayNG's screen; app locales: $(cat "$OUT/app-locales.txt")"
     LOCALE_FAILED=1
 fi
 
