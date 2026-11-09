@@ -186,7 +186,9 @@ fi
 
 # By component: v2rayNG's own main screen (what its connection notification
 # opens) must never show; GeekVPN's entry (login or Home) takes its place.
-adb shell am start -W -n "$PKG/com.v2ray.ang.ui.main.MainActivity" >/dev/null
+# No -W: V2rayScreens finishes this activity before its first frame, and
+# `am start -W` can then wait for a launch that never completes (API 24).
+timeout 60 adb shell am start -n "$PKG/com.v2ray.ang.ui.main.MainActivity" >/dev/null || true
 shot main 10
 alive "launch"
 if grep -q "متصل نیست" "$OUT/main.xml"; then
