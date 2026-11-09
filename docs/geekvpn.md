@@ -36,6 +36,7 @@ git submodule update --init --recursive
 | `core/CoreConfigContextBuilder.kt` | یک خط: پروفایل قبل از ساخت کانفیگ از `IpOverrides.apply` رد می‌شود (اسکنر) |
 | `service/RealPingWorkerService.kt` | یک خط: پیش‌تست TCP هم به IP تمیز (override) می‌رود، نه آدرس خود کانفیگ |
 | `core/CoreServiceManager.kt` | `FailoverMonitor` بعد از شروع هسته ساخته و قبل از توقفش متوقف می‌شود (`startFailoverMonitor`) |
+| `AngApplication.kt` | یک خط: `V2rayScreens.install` (هیچ صفحه‌ی v2rayNG نشان داده نمی‌شود) |
 | `service/QSTileService.kt`، `receiver/WidgetProvider.kt`، `ui/shortcut/ScStartActivity.kt`، `ScSwitchActivity.kt` | یک خط: با «سرور: خودکار» شروع از بیرون اپ به `QuickConnect` می‌رود |
 
 بعد از merge، اگر `AndroidLibXrayLite` جلو رفته باشد، CI خودش AAR را دوباره می‌سازد
@@ -385,6 +386,12 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   «درباره» (`ui.about.AboutActivity`، با نسخه‌ی هسته و cfscan و attribution
   پروژه‌های متن‌باز). ردیف «پروفایل‌ها» حذف شد؛ لینک‌های دستی در تب «سرویس‌ها» هستند
   و هر کدام دکمه‌ی ویرایش دارد. هیچ مسیری از UI به صفحه‌های خود v2rayNG نمی‌رسد.
+- مسیرهایی هم که از بیرون UI به v2rayNG می‌رسند بسته‌اند: `com.geekvpn.guard.V2rayScreens` (از
+  `AngApplication.onCreate`) هر activity زیر `com.v2ray.ang.ui.` را قبل از اولین فریم می‌بندد و
+  `LaunchActivity` را باز می‌کند؛ مثلاً زدن نوتیفیکیشن اتصال، نگه داشتن کاشی Quick Settings،
+  لینک `v2rayng://` بعد از import، و صفحه‌ی تنظیم Tasker. فقط trampolineهای بی‌UI
+  (`ScStart`، `ScStop`، `ScSwitch`، `UrlSchemeActivity`) اجرا می‌شوند. smoke test خود
+  `MainActivity` را باز می‌کند و اگر صفحه‌ی v2rayNG دیده شود قرمز می‌شود.
 - «برنامه‌های ایرانی مستقیم» در تونل تفکیکی، حالت bypass را روشن می‌کند و دقیقاً
   برنامه‌های ایرانی نصب‌شده را انتخاب می‌کند (`perapp.IranianApps`: پیشوند `ir.`،
   `com.tosan.`، `cab.snapp.` و یک فهرست کوتاه). این برنامه‌ها VPN را نمی‌بینند، پس
