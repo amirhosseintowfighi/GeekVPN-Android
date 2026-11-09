@@ -1,1 +1,0 @@
-Locales for com.geekvpn.app for user 0 are [fa]
