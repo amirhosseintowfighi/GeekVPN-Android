@@ -47,6 +47,7 @@ import com.geekvpn.account.AutoRenewViewModel
 import com.geekvpn.account.RefreshOutcome
 import com.geekvpn.account.UsageNotifier
 import com.geekvpn.autoconnect.AutoConnect
+import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.lock.AppLock
 import com.geekvpn.push.Push
 import com.geekvpn.auth.Session
@@ -60,11 +61,15 @@ import com.geekvpn.ui.account.AccountViewModel
 import com.geekvpn.ui.advanced.AdvancedActivity
 import com.geekvpn.ui.autoconnect.AutoConnectActivity
 import com.geekvpn.ui.common.GeekHeader
+import com.geekvpn.ui.components.BackdropLayout
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekBottomNav
 import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GeekTab
 import com.geekvpn.ui.components.geekPage
+import com.geekvpn.ui.info.FaqActivity
+import com.geekvpn.ui.info.NotificationsActivity
+import com.geekvpn.ui.info.ServerStatusActivity
 import com.geekvpn.ui.links.LinkEditActivity
 import com.geekvpn.ui.login.LaunchActivity
 import com.geekvpn.ui.perapp.PerAppActivity
@@ -334,7 +339,15 @@ class HomeActivity : HelperBaseComponentActivity() {
             val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
             // The Route sheet opens over the tabs; only Servers and Scanner replace them.
             val page = if (overlay == Overlay.Route) Overlay.None else overlay
-            GeekBackdrop {
+            // Each artboard of the design has its own light.
+            val light = when {
+                page == Overlay.Servers || page == Overlay.Scanner -> BackdropLayout.Horizon
+                tab == GeekTab.Home && state.phase == ConnectionPhase.On -> BackdropLayout.Ribbon
+                tab == GeekTab.Services -> BackdropLayout.Blob
+                tab == GeekTab.Account -> BackdropLayout.Bars
+                else -> BackdropLayout.Moon
+            }
+            GeekBackdrop(layout = light) {
                 AnimatedContent(
                     targetState = page,
                     transitionSpec = { geekPage(forward = targetState.ordinal > initialState.ordinal, rtl = rtl) },
@@ -383,14 +396,15 @@ class HomeActivity : HelperBaseComponentActivity() {
                                         .statusBarsPadding()
                                         .navigationBarsPadding()
                                         // Room for the tab bar's dock above the system navigation bar.
-                                        .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp),
+                                        .padding(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 120.dp),
                                     verticalArrangement = Arrangement.spacedBy(18.dp),
                                 ) {
+                                    // Every tab opens with the mark; Home and the shop carry the wallet.
+                                    GeekHeader(
+                                        balance = state.balance,
+                                        onWallet = if (signedIn && (shownTab == GeekTab.Home || shownTab == GeekTab.Shop)) shop::openWallet else null,
+                                    )
                                     if (shownTab == GeekTab.Home) {
-                                        GeekHeader(
-                                            balance = state.balance,
-                                            onWallet = if (signedIn) shop::openWallet else null,
-                                        )
                                         AnimatedVisibility(bannerOffer != null, enter = GeekMotion.Reveal, exit = GeekMotion.Conceal) {
                                             bannerOffer?.let { offer ->
                                                 UpdateBanner(
@@ -454,7 +468,6 @@ class HomeActivity : HelperBaseComponentActivity() {
                                             showCleanIp = openScanner != null,
                                             update = if (AppUpdater.enabled) update else null,
                                             onAutoUpdate = account::setAutoUpdate,
-                                            onTheme = account::setTheme,
                                             onAskLogout = account::askLogout,
                                             onLogout = account::logout,
                                             onAppLock = { on -> if (!account.setAppLock(on)) showMessage(R.string.geek_lock_unavailable) },
@@ -592,6 +605,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onConnect() = requestConnect()
         override fun onDisconnect() = home.disconnect()
         override fun onRefresh() = home.refreshAccount()
+        override fun onRotate(subscriptionId: String) = home.rotateLink(subscriptionId)
         override fun onCopy(url: String) {
             getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(getString(R.string.geek_brand), url))
             showMessage(R.string.geek_services_copied)
@@ -630,6 +644,9 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onSpeedTest() = startActivity(Intent(this@HomeActivity, SpeedTestActivity::class.java))
         override fun onReferral() = startActivity(Intent(this@HomeActivity, ReferralActivity::class.java))
         override fun onUsage() = startActivity(Intent(this@HomeActivity, UsageActivity::class.java))
+        override fun onServerStatus() = startActivity(Intent(this@HomeActivity, ServerStatusActivity::class.java))
+        override fun onFaq() = startActivity(Intent(this@HomeActivity, FaqActivity::class.java))
+        override fun onNotifications() = startActivity(Intent(this@HomeActivity, NotificationsActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 

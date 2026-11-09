@@ -44,8 +44,7 @@ import com.geekvpn.ui.theme.Geek
 import com.v2ray.ang.R
 
 /**
- * A milk-glass sheet from the bottom over a navy scrim (Wallet.html,
- * Deposit.html): handle, title and subtitle, a close button when
+ * A glass sheet from the bottom over a dark scrim: handle, title and subtitle, a close button when
  * [closeLabel] is given, then [content], scrolling when it is taller than
  * most of the screen. Tapping the scrim calls [onDismiss]. The scrim fades
  * in and the sheet slides up when it appears.
@@ -76,8 +75,8 @@ fun BoxScope.GeekSheet(
     BoxWithConstraints(Modifier.align(Alignment.BottomCenter).fillMaxWidth().imePadding()) {
         val limit = maxHeight * 0.92f
         GlassSurface(
-            kind = GlassKind.Milk,
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+            kind = GlassKind.Sheet,
+            shape = Geek.shapes.sheet,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
@@ -111,13 +110,13 @@ fun BoxScope.GeekSheet(
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
-                                .clip(RoundedCornerShape(15.dp))
+                                .clip(Geek.shapes.pill)
                                 .background(colors.soft)
                                 .clickable(role = Role.Button, onClickLabel = closeLabel, onClick = onDismiss)
                                 .semantics { contentDescription = closeLabel },
                             contentAlignment = Alignment.Center,
                         ) {
-                            Icon(GeekIcons.Close, contentDescription = null, tint = colors.link, modifier = Modifier.size(20.dp))
+                            Icon(GeekIcons.Close, contentDescription = null, tint = colors.onGlass, modifier = Modifier.size(20.dp))
                         }
                     }
                 }

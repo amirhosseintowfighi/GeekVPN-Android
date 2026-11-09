@@ -454,6 +454,27 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * «لینک جدید» on a service: the panel issues fresh credentials and the old
+     * link stops working (a leaked link). The account is then synced, so this
+     * phone moves to the new link at once.
+     */
+    fun rotateLink(subscriptionId: String) {
+        if (state.value.updating) return
+        viewModelScope.launch {
+            try {
+                GeekGraph.api.rotateLink(subscriptionId)
+            } catch (e: java.io.IOException) {
+                val status = (e as? ApiException)?.status
+                LogUtil.w(AppConfig.TAG, "Home: link rotation failed (status=$status)", e)
+                eventChannel.send(HomeEvent.Message(if (status == 409) R.string.geek_rotate_unavailable else R.string.geek_rotate_failed))
+                return@launch
+            }
+            eventChannel.send(HomeEvent.Message(R.string.geek_rotate_done))
+            refreshAccount(announce = false)
+        }
+    }
+
     /** Services' "import from clipboard": a config, a batch of them, or a subscription link. */
     fun importConfigs(text: String) {
         if (text.isBlank() || state.value.updating) {

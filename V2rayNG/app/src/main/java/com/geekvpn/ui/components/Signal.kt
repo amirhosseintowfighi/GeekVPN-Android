@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.geekvpn.ui.theme.Geek
@@ -79,8 +80,8 @@ fun SignalBars(signal: Signal, modifier: Modifier = Modifier) {
 }
 
 /**
- * "121ms" followed by its bars, read out as one phrase. Latin digits for ms,
- * as in the design.
+ * "121 ms" in Space Grotesk, as Servers.dc.html lists it (no bars in Dark
+ * Swiss); a slow or failed server shows in the warning colours.
  */
 @Composable
 fun LatencyIndicator(delayMs: Long, modifier: Modifier = Modifier) {
@@ -90,22 +91,21 @@ fun LatencyIndicator(delayMs: Long, modifier: Modifier = Modifier) {
     } else {
         stringResource(R.string.geek_latency_unknown)
     }
-    Row(
-        modifier = modifier.clearAndSetSemantics { contentDescription = description },
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-            Text(
-                text = if (delayMs > 0) "${delayMs}ms" else "—",
-                style = Geek.type.numberSmall,
-                color = Geek.colors.onGlassMuted,
-                // Fixed width keeps the bars of a list in one column.
-                modifier = Modifier.width(LatencyTextWidth),
-            )
-        }
-        SignalBars(signal)
+    val colors = Geek.colors
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        Text(
+            text = if (delayMs > 0) "$delayMs ms" else "—",
+            style = Geek.type.numberSmall,
+            color = when (signal.tone) {
+                SignalTone.Poor -> colors.danger
+                SignalTone.Fair -> colors.warning
+                else -> colors.onBackgroundMuted
+            },
+            textAlign = TextAlign.End,
+            // Fixed width keeps the latencies of a list in one column.
+            modifier = modifier.width(LatencyTextWidth).clearAndSetSemantics { contentDescription = description },
+        )
     }
 }
 
-private val LatencyTextWidth = 46.dp
+private val LatencyTextWidth = 60.dp

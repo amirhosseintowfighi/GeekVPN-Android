@@ -211,6 +211,27 @@ class GeekApi(
         )
 
     /** This install's FCM token, so a support reply reaches the phone (com.geekvpn.push). */
+    /** The servers' health, as the bot's «وضعیت سرورها» shows it. */
+    suspend fun serverStatus(): List<ServerStatus> =
+        get(authorized, "/api/miniapp/servers", object : TypeToken<List<ServerStatus>>() {})
+
+    /** The bot's frequently asked questions, by section. */
+    suspend fun faq(): List<FaqSection> = get(authorized, "/api/miniapp/faq", object : TypeToken<List<FaqSection>>() {})
+
+    /** Which notifications the bot (and the app's push) may send this customer. */
+    suspend fun notificationPreferences(): NotificationPreferences =
+        get(authorized, "/api/miniapp/preferences", object : TypeToken<NotificationPreferences>() {})
+
+    suspend fun saveNotificationPreferences(preferences: NotificationPreferences): NotificationPreferences =
+        post(authorized, "/api/miniapp/preferences", preferences)
+
+    /**
+     * A fresh link for a service: new credentials on the panel, the old link
+     * stops working. 409 when the service's panel cannot do it.
+     */
+    suspend fun rotateLink(subscriptionId: String): SubscriptionCard =
+        post(authorized, "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/rotate", emptyMap<String, String>())
+
     suspend fun registerPushToken(token: String) =
         send(authorized, request("/api/miniapp/push-token").post(gson.toJson(PushTokenRequest(token)).toRequestBody(JSON)).build())
 
