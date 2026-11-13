@@ -28,6 +28,16 @@ fun geekHttpsUrl(name: String, default: String): String {
     return url
 }
 
+// Mirrors of the API, comma-separated, tried in order when the main address
+// cannot be reached (see com.geekvpn.api.ApiHosts).
+fun geekHttpsUrls(name: String): String =
+    geekProperty(name, "").split(',').map { it.trim() }.filter { it.isNotEmpty() }
+        .map { url ->
+            require(url.startsWith("https://")) { "$name must list https:// URLs, got '$url'" }
+            url.trimEnd('/')
+        }
+        .joinToString(",")
+
 android {
     // The namespace stays upstream's so v2rayNG merges keep applying cleanly;
     // only the installed identity is GeekVPN's.
@@ -136,6 +146,7 @@ android {
                 "String", "API_BASE",
                 "\"${geekHttpsUrl("GEEK_API_BASE_STAGING", "https://staging-api.geekvpn.invalid")}\""
             )
+            buildConfigField("String", "API_FALLBACKS", "\"${geekHttpsUrls("GEEK_API_FALLBACKS_STAGING")}\"")
         }
         create("prod") {
             dimension = "env"
@@ -144,6 +155,7 @@ android {
                 "String", "API_BASE",
                 "\"${geekHttpsUrl("GEEK_API_BASE_PROD", "https://api.geekvpn.invalid")}\""
             )
+            buildConfigField("String", "API_FALLBACKS", "\"${geekHttpsUrls("GEEK_API_FALLBACKS_PROD")}\"")
         }
     }
 

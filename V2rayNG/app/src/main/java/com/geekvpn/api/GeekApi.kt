@@ -15,6 +15,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.Route
 import java.io.IOException
+import java.net.ProxySelector
 import java.util.concurrent.TimeUnit
 
 /**
@@ -72,19 +73,28 @@ interface LinkApi {
  * Only the main app process may use this. Refresh tokens rotate on every use
  * and the backend treats a reused one as theft, so two processes refreshing
  * the same token would sign the customer out; one process with one lock
- * cannot race itself. The app's own package is excluded from the VPN, so these
- * requests always go out directly, whether or not a tunnel is up.
+ * cannot race itself.
+ *
+ * Requests are built on [ApiHosts.primary] and [ApiFailover] moves them to a
+ * mirror when that address cannot be reached. The app's own package is
+ * excluded from the VPN, so [proxySelector] (see [CoreProxySelector]) is what
+ * sends them through the tunnel while one is up.
  */
 class GeekApi(
-    private val baseUrl: String,
+    private val hosts: ApiHosts,
     private val tokens: TokenHolder,
     private val gson: Gson = Gson(),
     baseClient: OkHttpClient = OkHttpClient(),
+    proxySelector: ProxySelector? = null,
+    proxyAuthenticator: Authenticator? = null,
 ) : LinkApi, ShopApi {
     private val refreshLock = Any()
 
     /** Without the authenticator: used for sign-in and for refresh itself. */
     private val anonymous: OkHttpClient = baseClient.newBuilder()
+        .addInterceptor(ApiFailover(hosts))
+        .apply { proxySelector?.let { proxySelector(it) } }
+        .apply { proxyAuthenticator?.let { proxyAuthenticator(it) } }
         .connectTimeout(15, TimeUnit.SECONDS)
         // A waiting poll is held up to 25 s by the server.
         .readTimeout(40, TimeUnit.SECONDS)
@@ -250,7 +260,7 @@ class GeekApi(
         execute(client, request(path).get().build(), type)
 
     private fun request(path: String) = Request.Builder()
-        .url(baseUrl.trimEnd('/') + path)
+        .url(hosts.primary.toString().trimEnd('/') + path)
         .header("Accept", "application/json")
 
     private suspend fun <T> execute(client: OkHttpClient, request: Request, type: TypeToken<T>): T =
