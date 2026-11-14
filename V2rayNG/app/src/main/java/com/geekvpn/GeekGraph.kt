@@ -2,6 +2,8 @@ package com.geekvpn
 
 import com.geekvpn.account.AccountStore
 import com.geekvpn.account.AccountSync
+import com.geekvpn.api.ApiHosts
+import com.geekvpn.api.CoreProxySelector
 import com.geekvpn.api.GeekApi
 import com.geekvpn.api.TokenHolder
 import com.geekvpn.api.TokenPair
@@ -15,6 +17,7 @@ import com.geekvpn.push.PushRegistration
 import com.tencent.mmkv.MMKV
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
+import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -24,6 +27,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.Authenticator
+import okhttp3.Credentials
 
 /**
  * The GeekVPN account objects, one per process, built on first use (after
@@ -42,7 +47,9 @@ object GeekGraph {
 
     val api: GeekApi by lazy {
         GeekApi(
-            baseUrl = BuildConfig.API_BASE,
+            hosts = ApiHosts.of(BuildConfig.API_BASE, BuildConfig.API_FALLBACKS),
+            proxySelector = CoreProxySelector(port = SettingsManager::getHttpPort),
+            proxyAuthenticator = coreProxyAuthenticator(),
             tokens = object : TokenHolder {
                 override fun accessToken() = session.accessToken()
                 override fun refreshToken() = session.refreshToken()
@@ -129,6 +136,17 @@ object GeekGraph {
             }
         } else {
             session.signOut()
+        }
+    }
+
+    /** The core's local proxy asks for the SOCKS credentials when the user set them. */
+    private fun coreProxyAuthenticator() = Authenticator { _, response ->
+        val user = SettingsManager.getSocksUsername()
+        val pass = SettingsManager.getSocksPassword()
+        if (user.isNullOrBlank() || pass.isNullOrBlank() || response.request.header("Proxy-Authorization") != null) {
+            null
+        } else {
+            response.request.newBuilder().header("Proxy-Authorization", Credentials.basic(user, pass)).build()
         }
     }
 
