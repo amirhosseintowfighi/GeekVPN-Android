@@ -302,6 +302,8 @@
     <!-- Smart connect and failover (spec §3.5, §3.6) -->
     <string name="geek_smart_finding_ip">Finding a clean IP…</string>
     <string name="geek_smart_testing">Testing servers…</string>
+    <string name="geek_smart_anti_filter">Trying again with anti-filter mode…</string>
+    <string name="geek_smart_anti_filter_on">Connected with anti-filter mode (TLS fragmentation). It stays on; turn it off in Advanced settings.</string>
     <string name="geek_smart_connecting_attempt">Connecting… attempt %1$d of %2$d</string>
     <string name="geek_smart_cancel_hint">Tap the button again to cancel</string>
     <string name="geek_smart_failed">Could not connect. Servers tried: %1$d. Check your internet or try again later.</string>

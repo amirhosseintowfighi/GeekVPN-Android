@@ -19,7 +19,12 @@ class SmartConnectTest {
         val scanFinds: List<String> = emptyList(),
         val delay: (guid: String, ip: String?) -> Long,
         val carries: (guid: String, ip: String?) -> Boolean = { _, _ -> true },
+        /** Fragmentation is off and would apply; [carriesWithAntiFilter] decides once it is on. */
+        val canAntiFilter: Boolean = false,
+        val carriesWithAntiFilter: (guid: String) -> Boolean = { false },
     ) : SmartConnectPorts {
+        var antiFilter = false
+        val antiFilterSwitches = mutableListOf<Boolean>()
         val ipOf = mutableMapOf<String, String>()
         val scans = mutableListOf<String>()
         val rounds = mutableListOf<List<String>>()
@@ -45,8 +50,52 @@ class SmartConnectTest {
         override suspend fun connect(guid: String): Boolean {
             val choice = Choice(guid, ipOf[guid])
             connects += choice
-            return carries(guid, choice.ip)
+            return if (antiFilter) carriesWithAntiFilter(guid) else carries(guid, choice.ip)
         }
+
+        override suspend fun antiFilterCanHelp(guids: List<String>) = canAntiFilter && !antiFilter
+
+        override fun setAntiFilter(on: Boolean) {
+            antiFilter = on
+            antiFilterSwitches += on
+        }
+    }
+
+    @Test
+    fun nothing_through_retries_once_with_anti_filter_and_keeps_it_when_it_works() = runTest {
+        val ports = FakePorts(
+            listOf("a", "b"),
+            delay = { g, _ -> if (g == "a") 100L else 200L },
+            carries = { _, _ -> false },
+            canAntiFilter = true,
+            carriesWithAntiFilter = { it == "b" },
+        )
+        val seen = stages()
+        val result = SmartConnectUseCase(ports).run("g", fallback = null) { seen += it }
+
+        assertEquals(SmartResult.Connected(Choice("b"), 200, antiFilter = true), result)
+        assertEquals(listOf("a", "b", "a", "b"), ports.connects.map { it.guid })
+        assertEquals(listOf(true), ports.antiFilterSwitches)
+        assertTrue(SmartStage.AntiFilter in seen)
+        // The second round's test reads as anti-filter, not as a plain test.
+        assertEquals(1, seen.count { it == SmartStage.Testing })
+    }
+
+    @Test
+    fun anti_filter_is_turned_back_off_when_it_does_not_help_either() = runTest {
+        val ports = FakePorts(listOf("a"), delay = { _, _ -> 100L }, carries = { _, _ -> false }, canAntiFilter = true)
+        val result = SmartConnectUseCase(ports).run("g", fallback = null) {}
+
+        assertEquals(SmartResult.Failed(2), result)
+        assertEquals(listOf(true, false), ports.antiFilterSwitches)
+        assertFalse(ports.antiFilter)
+    }
+
+    @Test
+    fun no_anti_filter_round_where_it_cannot_matter() = runTest {
+        val ports = FakePorts(listOf("a"), delay = { _, _ -> 100L }, carries = { _, _ -> false })
+        assertEquals(SmartResult.Failed(1), SmartConnectUseCase(ports).run("g", fallback = null) {})
+        assertTrue(ports.antiFilterSwitches.isEmpty())
     }
 
     private fun stages() = mutableListOf<SmartStage>()

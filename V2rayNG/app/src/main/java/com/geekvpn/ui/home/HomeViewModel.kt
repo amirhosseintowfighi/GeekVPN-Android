@@ -264,6 +264,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             when (result) {
                 is SmartResult.Connected -> {
                     if (result.untested) eventChannel.send(HomeEvent.Message(R.string.geek_home_err_no_server_answered))
+                    if (result.antiFilter) eventChannel.send(HomeEvent.Message(R.string.geek_smart_anti_filter_on))
                     val since = System.currentTimeMillis()
                     prefs.connectedSince = since
                     state.update { it.copy(phase = ConnectionPhase.On, stage = null, connectedSince = since) }
@@ -732,6 +733,21 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
             return delay > 0
+        }
+
+        override suspend fun antiFilterCanHelp(guids: List<String>): Boolean = withContext(Dispatchers.IO) {
+            !MmkvManager.decodeSettingsBool(AppConfig.PREF_FRAGMENT_ENABLED, false) &&
+                guids.any { guid ->
+                    // v2rayNG fragments only these (CoreOutboundBuilder.updateOutboundFragment).
+                    MmkvManager.decodeServerConfig(guid)?.security in setOf(AppConfig.TLS, AppConfig.REALITY)
+                }
+        }
+
+        override fun setAntiFilter(on: Boolean) {
+            // Written straight to the setting: the next start and test read it, and
+            // going through SettingsChangeManager would restart the attempt under way.
+            MmkvManager.encodeSettings(AppConfig.PREF_FRAGMENT_ENABLED, on)
+            LogUtil.i(AppConfig.TAG, "Home: smart connect turned fragmentation ${if (on) "on" else "off"}")
         }
 
         /** Keeps the list honest after rounds with different addresses: each config's best. */
