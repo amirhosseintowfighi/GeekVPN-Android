@@ -361,6 +361,7 @@ private fun busyText(phase: ConnectionPhase, stage: SmartStage?): String = when 
     phase == ConnectionPhase.Stopping -> stringResource(R.string.geek_home_stopping)
     stage == SmartStage.FindingIp -> stringResource(R.string.geek_smart_finding_ip)
     stage == SmartStage.Testing -> stringResource(R.string.geek_smart_testing)
+    stage == SmartStage.AntiFilter -> stringResource(R.string.geek_smart_anti_filter)
     stage is SmartStage.Connecting && stage.attempt > 1 ->
         stringResource(R.string.geek_smart_connecting_attempt, stage.attempt, stage.of)
     phase == ConnectionPhase.Testing -> stringResource(R.string.geek_home_testing)

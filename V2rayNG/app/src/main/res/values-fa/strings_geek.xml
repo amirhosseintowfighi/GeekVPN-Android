@@ -298,6 +298,8 @@
     <!-- اتصال هوشمند و failover -->
     <string name="geek_smart_finding_ip">در حال پیدا کردن IP تمیز…</string>
     <string name="geek_smart_testing">در حال تست سرورها…</string>
+    <string name="geek_smart_anti_filter">تلاش دوباره با حالت ضد فیلتر…</string>
+    <string name="geek_smart_anti_filter_on">با حالت ضد فیلتر (Fragment) وصل شد. این حالت روشن می‌ماند؛ از «تنظیمات پیشرفته» خاموش می‌شود.</string>
     <string name="geek_smart_connecting_attempt">در حال اتصال… تلاش %1$d از %2$d</string>
     <string name="geek_smart_cancel_hint">برای لغو، دوباره دکمه را بزن</string>
     <string name="geek_smart_failed">اتصال برقرار نشد. تعداد سرورهای امتحان‌شده: %1$d. اینترنت را بررسی کن یا کمی بعد دوباره امتحان کن.</string>
