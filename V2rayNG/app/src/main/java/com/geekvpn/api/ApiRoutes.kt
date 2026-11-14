@@ -109,7 +109,7 @@ class ApiFailover(private val hosts: ApiHosts) : Interceptor {
                 lastError = e
                 continue
             }
-            val api = ApiFailoverPolicy.isApiAnswer(response.code, response.header("Content-Type"))
+            val api = ApiFailoverPolicy.isApiAnswer(response.code, response.body.contentType()?.toString())
             if (api || last || !ApiFailoverPolicy.retryAfterForeignAnswer(original.method, response.code)) {
                 if (api) hosts.answered(base)
                 return response
