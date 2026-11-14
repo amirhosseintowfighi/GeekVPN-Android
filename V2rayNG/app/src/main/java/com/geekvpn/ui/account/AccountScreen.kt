@@ -83,6 +83,9 @@ interface AccountActions {
     /** "تست سرعت". */
     fun onSpeedTest()
 
+    /** "عیب‌یاب اتصال". */
+    fun onDiagnose() {}
+
     /** "دعوت از دوستان"; signed in only. */
     fun onReferral()
 
@@ -176,6 +179,13 @@ fun AccountScreen(
                 title = stringResource(R.string.geek_usage_title),
                 hint = stringResource(R.string.geek_usage_entry_hint),
                 onClick = actions::onUsage,
+            )
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Search,
+                title = stringResource(R.string.geek_diag_title),
+                hint = stringResource(R.string.geek_diag_entry_hint),
+                onClick = actions::onDiagnose,
             )
             SettingsDivider()
             SettingRow(

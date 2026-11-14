@@ -140,7 +140,7 @@ object GeekGraph {
     }
 
     /** The core's local proxy asks for the SOCKS credentials when the user set them. */
-    private fun coreProxyAuthenticator() = Authenticator { _, response ->
+    fun coreProxyAuthenticator() = Authenticator { _, response ->
         val user = SettingsManager.getSocksUsername()
         val pass = SettingsManager.getSocksPassword()
         if (user.isNullOrBlank() || pass.isNullOrBlank() || response.request.header("Proxy-Authorization") != null) {
