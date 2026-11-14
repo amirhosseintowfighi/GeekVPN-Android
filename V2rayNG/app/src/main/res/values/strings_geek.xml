@@ -676,4 +676,43 @@
     <string name="geek_rotate_done">The new link is ready.</string>
     <string name="geek_rotate_failed">Could not make a new link. Try again.</string>
     <string name="geek_rotate_unavailable">This service\'s server cannot make a new link.</string>
+
+    <!-- Connection troubleshooter (com.geekvpn.diagnose) -->
+    <string name="geek_diag_title">Connection troubleshooter</string>
+    <string name="geek_diag_entry_hint">Find out why it will not connect</string>
+    <string name="geek_diag_running">Checking the network, the server and the app’s backend…</string>
+    <string name="geek_diag_again">Check again</string>
+    <string name="geek_diag_report">Send to support</string>
+    <string name="geek_diag_report_text">Troubleshooter result: %1$s</string>
+    <string name="geek_diag_note">Checks go out on the phone’s own network, except the tunnel check. No address leaves the phone.</string>
+    <string name="geek_diag_check_network">Phone network</string>
+    <string name="geek_diag_check_domestic">Iranian sites</string>
+    <string name="geek_diag_check_international">Sites abroad</string>
+    <string name="geek_diag_check_server">Selected server</string>
+    <string name="geek_diag_check_tunnel">Traffic through the VPN</string>
+    <string name="geek_diag_check_api">GeekVPN server (account and shop)</string>
+    <string name="geek_diag_state_waiting">Waiting</string>
+    <string name="geek_diag_state_running">Checking…</string>
+    <string name="geek_diag_state_ok">OK</string>
+    <string name="geek_diag_state_failed">Problem</string>
+    <string name="geek_diag_state_skipped">Not checked</string>
+    <string name="geek_diag_state_filtered">Filtered</string>
+    <string name="geek_diag_v_no_network">The phone is not on a network</string>
+    <string name="geek_diag_a_no_network">Turn on Wi-Fi or mobile data, then check again.</string>
+    <string name="geek_diag_v_no_internet">This network has no internet</string>
+    <string name="geek_diag_a_no_internet">Even Iranian sites do not open. Try another network, or check your data plan.</string>
+    <string name="geek_diag_v_no_server">No server is selected</string>
+    <string name="geek_diag_a_no_server">Choose a server in the Services tab, or turn on “Server: Auto”.</string>
+    <string name="geek_diag_v_server_filtered">The server’s address is filtered on this network</string>
+    <string name="geek_diag_a_server_filtered">Turn on “Server: Auto” or choose another server. On a direct service, the clean IP scanner can help.</string>
+    <string name="geek_diag_v_international">International internet is cut off or limited</string>
+    <string name="geek_diag_a_international">Iranian sites open but sites abroad do not. Tunnel services usually keep working at such times: choose a tunnel server.</string>
+    <string name="geek_diag_v_server_down">The selected server does not answer</string>
+    <string name="geek_diag_a_server_down">Turn on “Server: Auto” to pick a working server, or refresh the service’s servers.</string>
+    <string name="geek_diag_v_tunnel">Connected, but traffic does not pass</string>
+    <string name="geek_diag_a_tunnel">Disconnect and connect again, or choose another server.</string>
+    <string name="geek_diag_v_api">Only the GeekVPN server is out of reach</string>
+    <string name="geek_diag_a_api">The connection itself works. Sign-in, the shop and refreshing services will work again once it is reachable.</string>
+    <string name="geek_diag_v_ok">No problem found</string>
+    <string name="geek_diag_a_ok">Everything this check can see works. If something still fails, send it to support.</string>
 </resources>

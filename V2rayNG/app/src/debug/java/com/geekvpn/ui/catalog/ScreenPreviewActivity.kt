@@ -59,6 +59,11 @@ import com.geekvpn.speedtest.SpeedResult
 import com.geekvpn.ui.referral.ReferralScreen
 import com.geekvpn.ui.referral.ReferralUiState
 import com.geekvpn.ui.speedtest.SpeedTestScreen
+import com.geekvpn.diagnose.Check
+import com.geekvpn.diagnose.Diagnosis
+import com.geekvpn.diagnose.Outcome
+import com.geekvpn.ui.diagnose.DiagnoseScreen
+import com.geekvpn.ui.diagnose.DiagnoseUiState
 import com.geekvpn.ui.speedtest.SpeedTestUiState
 import com.geekvpn.lock.LockScreen
 import com.geekvpn.ui.theme.GeekTheme
@@ -129,6 +134,22 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                         onBack = {},
                     )
                 }
+                SCREEN_DIAGNOSE -> GeekBackdrop {
+                    val results = mapOf(
+                        Check.Network to Outcome.Ok,
+                        Check.Domestic to Outcome.Ok,
+                        Check.International to Outcome.Failed,
+                        Check.Server to Outcome.Failed,
+                        Check.Tunnel to Outcome.Skipped,
+                        Check.Api to Outcome.Ok,
+                    )
+                    DiagnoseScreen(
+                        DiagnoseUiState(results = results, verdict = Diagnosis.verdict(results), summary = Diagnosis.summary(results)),
+                        onAgain = {},
+                        onReport = {},
+                        onBack = {},
+                    )
+                }
                 SCREEN_AUTO_CONNECT -> GeekBackdrop {
                     AutoConnectScreen(
                         AutoConnectUiState(loaded = true, startOnBoot = true, autoOnWifi = true, currentWifi = "wifi:1", trustedCount = 1, canStartInBackground = false),
@@ -153,6 +174,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_TICKETS = "tickets"
         const val SCREEN_AUTO_CONNECT = "auto-connect"
         const val SCREEN_SPEED = "speed"
+        const val SCREEN_DIAGNOSE = "diagnose"
         const val SCREEN_REFERRAL = "referral"
         const val SCREEN_USAGE = "usage"
         const val SCREEN_LOCK = "lock"

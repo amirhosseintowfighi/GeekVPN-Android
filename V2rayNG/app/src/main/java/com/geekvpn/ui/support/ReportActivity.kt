@@ -71,6 +71,8 @@ class ReportActivity : BaseComponentActivity() {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
+        // Opened from "عیب‌یاب اتصال" with its findings; the customer can still edit them.
+        if (savedInstanceState == null) intent.getStringExtra(EXTRA_DESCRIPTION)?.let(viewModel::describe)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.events.collect { event ->
@@ -116,6 +118,11 @@ class ReportActivity : BaseComponentActivity() {
                 LogUtil.i(AppConfig.TAG, "Report: no app for ${uri.substringBefore(':')} links", e)
             }
         }
+    }
+
+    companion object {
+        /** Text to start the description with. */
+        const val EXTRA_DESCRIPTION = "com.geekvpn.extra.REPORT_DESCRIPTION"
     }
 }
 

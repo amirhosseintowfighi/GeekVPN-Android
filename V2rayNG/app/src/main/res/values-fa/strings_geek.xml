@@ -672,4 +672,43 @@
     <string name="geek_rotate_done">لینک جدید ساخته شد.</string>
     <string name="geek_rotate_failed">ساخت لینک جدید ممکن نشد. دوباره امتحان کن.</string>
     <string name="geek_rotate_unavailable">سرور این سرویس ساخت لینک جدید را پشتیبانی نمی‌کند.</string>
+
+    <!-- Connection troubleshooter (com.geekvpn.diagnose) -->
+    <string name="geek_diag_title">عیب‌یاب اتصال</string>
+    <string name="geek_diag_entry_hint">پیدا کردن دلیل وصل نشدن</string>
+    <string name="geek_diag_running">در حال بررسی شبکه، سرور و سرور اپ…</string>
+    <string name="geek_diag_again">بررسی دوباره</string>
+    <string name="geek_diag_report">ارسال به پشتیبانی</string>
+    <string name="geek_diag_report_text">نتیجه‌ی عیب‌یاب: %1$s</string>
+    <string name="geek_diag_note">همه‌ی بررسی‌ها به‌جز «ترافیک از VPN» از شبکه‌ی خود گوشی انجام می‌شوند. هیچ آدرسی از گوشی بیرون نمی‌رود.</string>
+    <string name="geek_diag_check_network">شبکه‌ی گوشی</string>
+    <string name="geek_diag_check_domestic">سایت‌های داخلی</string>
+    <string name="geek_diag_check_international">سایت‌های خارجی</string>
+    <string name="geek_diag_check_server">سرور انتخاب‌شده</string>
+    <string name="geek_diag_check_tunnel">ترافیک از VPN</string>
+    <string name="geek_diag_check_api">سرور GeekVPN (حساب و فروشگاه)</string>
+    <string name="geek_diag_state_waiting">در انتظار</string>
+    <string name="geek_diag_state_running">در حال بررسی…</string>
+    <string name="geek_diag_state_ok">درست</string>
+    <string name="geek_diag_state_failed">مشکل</string>
+    <string name="geek_diag_state_skipped">بررسی نشد</string>
+    <string name="geek_diag_state_filtered">فیلتر</string>
+    <string name="geek_diag_v_no_network">گوشی به شبکه وصل نیست</string>
+    <string name="geek_diag_a_no_network">وای‌فای یا داده‌ی موبایل را روشن کن و دوباره بررسی کن.</string>
+    <string name="geek_diag_v_no_internet">این شبکه اینترنت ندارد</string>
+    <string name="geek_diag_a_no_internet">حتی سایت‌های داخلی باز نمی‌شوند. شبکه‌ی دیگری را امتحان کن یا بسته‌ی اینترنتت را بررسی کن.</string>
+    <string name="geek_diag_v_no_server">هیچ سروری انتخاب نشده</string>
+    <string name="geek_diag_a_no_server">از تب «سرویس‌ها» یک سرور انتخاب کن یا «سرور: خودکار» را روشن کن.</string>
+    <string name="geek_diag_v_server_filtered">آدرس سرور روی این شبکه فیلتر است</string>
+    <string name="geek_diag_a_server_filtered">«سرور: خودکار» را روشن کن یا سرور دیگری انتخاب کن. روی سرویس مستقیم، اسکنر IP تمیز هم کمک می‌کند.</string>
+    <string name="geek_diag_v_international">اینترنت بین‌الملل قطع یا محدود است</string>
+    <string name="geek_diag_a_international">سایت‌های داخلی باز می‌شوند ولی خارجی نه. در این وضعیت معمولاً سرویس‌های تونل کار می‌کنند: یک سرور تونل انتخاب کن.</string>
+    <string name="geek_diag_v_server_down">سرور انتخاب‌شده جواب نمی‌دهد</string>
+    <string name="geek_diag_a_server_down">«سرور: خودکار» را روشن کن تا سرور سالم انتخاب شود، یا سرورهای سرویس را به‌روز کن.</string>
+    <string name="geek_diag_v_tunnel">وصل است ولی ترافیک رد نمی‌شود</string>
+    <string name="geek_diag_a_tunnel">یک بار قطع و وصل کن یا سرور دیگری انتخاب کن.</string>
+    <string name="geek_diag_v_api">فقط سرور GeekVPN در دسترس نیست</string>
+    <string name="geek_diag_a_api">خود اتصال کار می‌کند. ورود، فروشگاه و به‌روزرسانی سرویس‌ها وقتی سرور در دسترس شد دوباره کار می‌کنند.</string>
+    <string name="geek_diag_v_ok">مشکلی پیدا نشد</string>
+    <string name="geek_diag_a_ok">هر چیزی که این بررسی می‌بیند درست کار می‌کند. اگر هنوز مشکل داری، برای پشتیبانی بفرست.</string>
 </resources>
