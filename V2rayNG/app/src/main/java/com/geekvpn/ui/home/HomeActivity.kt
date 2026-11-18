@@ -94,6 +94,7 @@ import com.geekvpn.ui.shop.WalletSheet
 import com.geekvpn.ui.speedtest.SpeedTestActivity
 import com.geekvpn.ui.diagnose.DiagnoseActivity
 import com.geekvpn.ui.share.ShareActivity
+import com.geekvpn.ui.sites.SitesActivity
 import com.geekvpn.ui.support.ReportActivity
 import com.geekvpn.ui.support.TicketsActivity
 import com.geekvpn.ui.theme.GeekTheme
@@ -646,6 +647,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onSpeedTest() = startActivity(Intent(this@HomeActivity, SpeedTestActivity::class.java))
         override fun onDiagnose() = startActivity(Intent(this@HomeActivity, DiagnoseActivity::class.java))
         override fun onShare() = startActivity(Intent(this@HomeActivity, ShareActivity::class.java))
+        override fun onSites() = startActivity(Intent(this@HomeActivity, SitesActivity::class.java))
         override fun onReferral() = startActivity(Intent(this@HomeActivity, ReferralActivity::class.java))
         override fun onUsage() = startActivity(Intent(this@HomeActivity, UsageActivity::class.java))
         override fun onServerStatus() = startActivity(Intent(this@HomeActivity, ServerStatusActivity::class.java))

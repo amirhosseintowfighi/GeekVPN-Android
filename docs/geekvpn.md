@@ -471,6 +471,13 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   خوانده می‌شود و اگر پیدا نشد فقط IP نشان داده می‌شود.
 - «مسیر»: هوشمند = preset `WHITE_IRAN` خود v2rayNG، سراسری = `GLOBAL`، مستقیم =
   یک ruleset که همه چیز را direct می‌فرستد. قانون‌های قفل‌شده‌ی کاربر می‌مانند.
+- «حساب ← سایت‌های استثنا» (`routing.SiteRules`، با تست؛ `ui.sites.SitesActivity`): دو فهرست
+  دامنه، «همیشه مستقیم» و «همیشه از VPN». هر فهرست یک ruleset قفل‌شده‌ی v2rayNG با id ثابت
+  (`geekvpn-sites-direct`، `geekvpn-sites-proxy`) اول فهرست قانون‌هاست، پس بر قانون‌های مسیر
+  می‌چربد و با عوض کردن مسیر می‌ماند (v2rayNG ruleset قفل‌شده را نگه می‌دارد). ورودی به دامنه‌ی
+  ASCII ساده تبدیل می‌شود (scheme، مسیر، پورت و `www.` حذف، IDN به punycode) و `domain:` همه‌ی
+  زیردامنه‌ها را می‌گیرد. هر دامنه فقط در یک فهرست است. هر تغییر `makeRestartService` می‌زند تا
+  Home در `onStart` اتصال را دوباره بسازد. اسکرین‌شات: `preview-sites`.
 - `GEEK_BOT_USERNAME` (property یا repository variable در CI، بدون @) لینک
   پشتیبانی را به ربات وصل می‌کند؛ خالی باشد این ردیف پنهان است.
 - `ScreenPreviewActivity` (فقط debug) همه‌ی تب‌ها را با داده‌ی نمونه نشان می‌دهد

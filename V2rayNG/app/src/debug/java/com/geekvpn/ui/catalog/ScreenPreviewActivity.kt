@@ -65,6 +65,10 @@ import com.geekvpn.diagnose.Outcome
 import com.geekvpn.ui.diagnose.DiagnoseScreen
 import com.geekvpn.share.LanAddress
 import com.geekvpn.ui.share.ShareScreen
+import com.geekvpn.routing.SiteLists
+import com.geekvpn.ui.sites.SitesActions
+import com.geekvpn.ui.sites.SitesScreen
+import com.geekvpn.ui.sites.SitesUiState
 import com.geekvpn.ui.share.ShareUiState
 import com.geekvpn.ui.diagnose.DiagnoseUiState
 import com.geekvpn.ui.speedtest.SpeedTestUiState
@@ -153,6 +157,16 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                         onBack = {},
                     )
                 }
+                SCREEN_SITES -> GeekBackdrop {
+                    SitesScreen(
+                        SitesUiState(
+                            loaded = true,
+                            lists = SiteLists(direct = listOf("digikala.com", "bank.ir"), proxy = listOf("example.com")),
+                            input = "github.com",
+                        ),
+                        SitesActions(onType = {}, onAdd = {}, onRemove = {}, onBack = {}),
+                    )
+                }
                 SCREEN_SHARE -> GeekBackdrop {
                     ShareScreen(
                         ShareUiState(
@@ -193,6 +207,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_SPEED = "speed"
         const val SCREEN_DIAGNOSE = "diagnose"
         const val SCREEN_SHARE = "share"
+        const val SCREEN_SITES = "sites"
         const val SCREEN_REFERRAL = "referral"
         const val SCREEN_USAGE = "usage"
         const val SCREEN_LOCK = "lock"
