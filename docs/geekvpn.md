@@ -129,6 +129,10 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   - `scripts/ci/a11y-check.py` روی صفحه‌های GeekVPN چیزی پیدا کند: هر چیز
     قابل لمس باید حداقل ۴۴dp باشد و متن یا contentDescription داشته باشد.
     گزارشش `a11y.txt` است.
+- محدودیت‌ها: job `app` حداکثر ۴۵ دقیقه است (اجرای عادی ۸ تا ۱۵ دقیقه). Gradle با `-Xmx6g` و
+  `--max-workers=3` اجرا می‌شود، چون دو بار R8 و lint دو variant release در daemon چهار گیگی
+  یک ساعت بی‌صدا ماندند، و هر دو دقیقه مصرف حافظه‌ی رانر و پروسه‌های java در log می‌آید.
+  image هر Emulator قبل از action با سه بار تلاش نصب می‌شود (دانلود نیمه‌کاره «Premature EOF»).
 - `publish-screenshots`: اسکرین‌شات‌ها، dump صفحه و logcat هر API را در branch
   `ci/screenshots` زیر پوشه‌ای به اسم branch منبع می‌گذارد (`/` به `_` تبدیل
   می‌شود) و با هر اجرا جایگزینشان می‌کند. `RUN.txt` می‌گوید از کدام commit و run آمده‌اند.
