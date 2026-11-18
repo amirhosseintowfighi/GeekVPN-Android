@@ -23,7 +23,7 @@ class SmartConnectTest {
         val canAntiFilter: Boolean = false,
         val carriesWithAntiFilter: (guid: String) -> Boolean = { false },
     ) : SmartConnectPorts {
-        var antiFilter = false
+        var fragmentOn = false
         val antiFilterSwitches = mutableListOf<Boolean>()
         val ipOf = mutableMapOf<String, String>()
         val scans = mutableListOf<String>()
@@ -50,13 +50,13 @@ class SmartConnectTest {
         override suspend fun connect(guid: String): Boolean {
             val choice = Choice(guid, ipOf[guid])
             connects += choice
-            return if (antiFilter) carriesWithAntiFilter(guid) else carries(guid, choice.ip)
+            return if (fragmentOn) carriesWithAntiFilter(guid) else carries(guid, choice.ip)
         }
 
-        override suspend fun antiFilterCanHelp(guids: List<String>) = canAntiFilter && !antiFilter
+        override suspend fun antiFilterCanHelp(guids: List<String>) = canAntiFilter && !fragmentOn
 
         override fun setAntiFilter(on: Boolean) {
-            antiFilter = on
+            fragmentOn = on
             antiFilterSwitches += on
         }
     }
@@ -88,7 +88,7 @@ class SmartConnectTest {
 
         assertEquals(SmartResult.Failed(2), result)
         assertEquals(listOf(true, false), ports.antiFilterSwitches)
-        assertFalse(ports.antiFilter)
+        assertFalse(ports.fragmentOn)
     }
 
     @Test
