@@ -61,6 +61,13 @@ class ConnectionPrefs(private val storage: MMKV) {
             storage.encode(KEY_APP_LOCK, value)
         }
 
+    /** The first-run guide (`OnboardingActivity`) was shown; it is shown once. */
+    var onboardingSeen: Boolean
+        get() = storage.decodeBool(KEY_ONBOARDING_SEEN, false)
+        set(value) {
+            storage.encode(KEY_ONBOARDING_SEEN, value)
+        }
+
     /**
      * Starred servers, by `ProfileKey` rather than GUID: a subscription
      * refresh gives every server a new GUID, and the star has to stay.
@@ -115,6 +122,7 @@ class ConnectionPrefs(private val storage: MMKV) {
         private const val KEY_AUTO_SERVER = "auto_server"
         private const val KEY_AUTO_UPDATE = "auto_update"
         private const val KEY_ROUTE = "route_mode"
+        private const val KEY_ONBOARDING_SEEN = "onboarding_seen"
         private const val KEY_CONNECTED_SINCE = "connected_since"
         private const val KEY_ACTIVE_CONNECTIONS = "active_connections"
         private const val KEY_LAST_FAILURE = "last_failure"
