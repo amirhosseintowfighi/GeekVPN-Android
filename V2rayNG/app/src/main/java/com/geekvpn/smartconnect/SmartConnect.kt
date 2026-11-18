@@ -16,11 +16,22 @@ sealed interface SmartStage {
 
     /** Connecting with the [attempt]th best choice of [of]. */
     data class Connecting(val attempt: Int, val of: Int) : SmartStage
+
+    /** Nothing got through; testing again with TLS fragmentation on. */
+    data object AntiFilter : SmartStage
 }
 
 sealed interface SmartResult {
-    /** [untested]: nothing answered the delay test, so the selected config was tried as is. */
-    data class Connected(val choice: Choice, val delayMs: Long, val untested: Boolean = false) : SmartResult
+    /**
+     * [untested]: nothing answered the delay test, so the selected config was tried as is.
+     * [antiFilter]: only got through once fragmentation was turned on, and it stays on.
+     */
+    data class Connected(
+        val choice: Choice,
+        val delayMs: Long,
+        val untested: Boolean = false,
+        val antiFilter: Boolean = false,
+    ) : SmartResult
 
     data object NoServers : SmartResult
 
@@ -57,6 +68,16 @@ interface SmartConnectPorts {
 
     /** Select [guid], connect (or reconnect) with it and report whether traffic got through. */
     suspend fun connect(guid: String): Boolean
+
+    /**
+     * Turning on v2rayNG's TLS fragmentation could change anything for
+     * [guids]: it is off, and some of them use TLS or REALITY (the only ones
+     * it touches). False where the caller cannot switch it.
+     */
+    suspend fun antiFilterCanHelp(guids: List<String>): Boolean = false
+
+    /** Turns v2rayNG's fragmentation setting on or off for every later connection and test. */
+    fun setAntiFilter(on: Boolean) {}
 }
 
 /**
@@ -68,6 +89,9 @@ interface SmartConnectPorts {
  *    every config × clean address for the CDN-fronted ones, so a clean
  *    address is only used where it beats the config's own.
  * 3. Connect with the best, then the next, [maxAttempts] at most.
+ * 4. If nothing got through and fragmentation could matter, all of it once
+ *    more with fragmentation on (DPI that resets TLS handshakes by their
+ *    ClientHello is common in Iran). It stays on only if that connected.
  */
 class SmartConnectUseCase(
     private val ports: SmartConnectPorts,
@@ -81,6 +105,33 @@ class SmartConnectUseCase(
     suspend fun run(groupId: String, fallback: String?, onStage: (SmartStage) -> Unit): SmartResult {
         val guids = ports.servers(groupId)
         if (guids.isEmpty()) return SmartResult.NoServers
+        val first = attempt(guids, fallback, onStage)
+        if (first !is SmartResult.Failed || !ports.antiFilterCanHelp(guids)) return first
+
+        onStage(SmartStage.AntiFilter)
+        ports.setAntiFilter(true)
+        // The second round's testing reads as "anti-filter" on Home; its attempts as attempts.
+        val second = try {
+            attempt(guids, fallback) { stage -> onStage(if (stage is SmartStage.Connecting) stage else SmartStage.AntiFilter) }
+        } catch (e: Throwable) {
+            ports.setAntiFilter(false)
+            throw e
+        }
+        return when (second) {
+            is SmartResult.Connected -> second.copy(antiFilter = true)
+            is SmartResult.Failed -> {
+                ports.setAntiFilter(false)
+                SmartResult.Failed(first.attempts + second.attempts)
+            }
+            SmartResult.NoServers -> {
+                ports.setAntiFilter(false)
+                first
+            }
+        }
+    }
+
+    /** Steps 1–3 once, with the settings as they are now. */
+    private suspend fun attempt(guids: List<String>, fallback: String?, onStage: (SmartStage) -> Unit): SmartResult {
         val ranked = rank(guids, onStage)
         if (ranked.isEmpty()) {
             val guid = fallback?.takeIf { it in guids } ?: guids.first()
