@@ -89,6 +89,9 @@ interface AccountActions {
     /** "اشتراک VPN با دستگاه دیگر". */
     fun onShare() {}
 
+    /** "سایت‌های استثنا". */
+    fun onSites() {}
+
     /** "دعوت از دوستان"; signed in only. */
     fun onReferral()
 
@@ -166,6 +169,13 @@ fun AccountScreen(
                 title = stringResource(R.string.geek_account_route),
                 hint = stringResource(route.label),
                 onClick = actions::onRoute,
+            )
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Globe,
+                title = stringResource(R.string.geek_sites_title),
+                hint = stringResource(R.string.geek_sites_entry_hint),
+                onClick = actions::onSites,
             )
             if (showCleanIp) {
                 SettingsDivider()

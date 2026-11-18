@@ -731,4 +731,20 @@
     <string name="geek_share_auth">proxy نام کاربری «%1$s» و رمزی را که در «تنظیمات پیشرفته» گذاشته‌ای می‌خواهد.</string>
     <string name="geek_share_steps">روی دستگاه دیگر: تنظیمات همان وای‌فای را باز کن، Proxy را روی Manual بگذار و آدرس و پورت بالا را وارد کن. برنامه‌هایی که تنظیم proxy خودشان را دارند (تلگرام، مرورگرها) آن را به شکل SOCKS5 هم می‌پذیرند.</string>
     <string name="geek_share_warning">هر چه دستگاه‌های دیگر مصرف کنند از حجم سرویس خودت کم می‌شود. فقط روی شبکه‌ی مورد اعتماد روشنش کن. وقتی برگردی، اگر وصل باشی اتصال یک بار دوباره ساخته می‌شود تا اعمال شود.</string>
+
+    <!-- Site exceptions (com.geekvpn.routing.SiteRules) -->
+    <string name="geek_sites_title">سایت‌های استثنا</string>
+    <string name="geek_sites_entry_hint">سایت‌هایی که همیشه مستقیم یا همیشه از VPN بروند</string>
+    <string name="geek_sites_intro">هر مسیری که انتخاب کرده باشی، این سایت‌ها همان کاری را می‌کنند که اینجا می‌گویی: بانک یا سایت ایرانی‌ای که با VPN باز نمی‌شود مستقیم برود، و سایتی که مسیر هوشمند مستقیم می‌فرستد از VPN برود.</string>
+    <string name="geek_sites_input">آدرس سایت</string>
+    <string name="geek_sites_invalid">این آدرس سایت نیست؛ مثلاً example.com.</string>
+    <string name="geek_sites_add_direct">همیشه مستقیم</string>
+    <string name="geek_sites_add_proxy">همیشه از VPN</string>
+    <string name="geek_sites_direct_title">همیشه مستقیم</string>
+    <string name="geek_sites_direct_empty">هنوز سایتی اضافه نشده.</string>
+    <string name="geek_sites_proxy_title">همیشه از VPN</string>
+    <string name="geek_sites_proxy_empty">هنوز سایتی اضافه نشده.</string>
+    <string name="geek_sites_remove">حذف %1$s</string>
+    <string name="geek_sites_applied">ذخیره شد. اگر وصل باشی، با برگشتن اتصال یک بار دوباره ساخته می‌شود.</string>
+    <string name="geek_sites_note">هر سایت زیردامنه‌هایش را هم شامل می‌شود. این قانون‌ها با عوض کردن مسیر می‌مانند.</string>
 </resources>

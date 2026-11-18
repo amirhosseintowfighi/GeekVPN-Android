@@ -735,4 +735,20 @@
     <string name="geek_share_auth">The proxy asks for the username “%1$s” and the password set in Advanced settings.</string>
     <string name="geek_share_steps">On the other device: open the Wi-Fi network’s settings, set Proxy to Manual and enter the address and port above. Apps with their own proxy setting (Telegram, browsers) take it as SOCKS5 too.</string>
     <string name="geek_share_warning">Everything the other devices use counts against your service’s data. Turn this on only on networks you trust. When you go back, a running connection restarts to apply it.</string>
+
+    <!-- Site exceptions (com.geekvpn.routing.SiteRules) -->
+    <string name="geek_sites_title">Site exceptions</string>
+    <string name="geek_sites_entry_hint">Sites that always go direct or always through the VPN</string>
+    <string name="geek_sites_intro">Whatever the route mode, these sites follow your choice: a bank or an Iranian site that refuses VPNs can go direct, and a site the smart route sends direct can go through the VPN.</string>
+    <string name="geek_sites_input">Site address</string>
+    <string name="geek_sites_invalid">That is not a site address, such as example.com.</string>
+    <string name="geek_sites_add_direct">Always direct</string>
+    <string name="geek_sites_add_proxy">Always through the VPN</string>
+    <string name="geek_sites_direct_title">Always direct</string>
+    <string name="geek_sites_direct_empty">No sites yet.</string>
+    <string name="geek_sites_proxy_title">Always through the VPN</string>
+    <string name="geek_sites_proxy_empty">No sites yet.</string>
+    <string name="geek_sites_remove">Remove %1$s</string>
+    <string name="geek_sites_applied">Saved. A running connection restarts with it when you go back.</string>
+    <string name="geek_sites_note">Each site covers its subdomains too. These rules stay when you change the route mode.</string>
 </resources>

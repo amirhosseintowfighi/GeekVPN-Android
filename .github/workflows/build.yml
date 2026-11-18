@@ -111,6 +111,9 @@ jobs:
   app:
     needs: libv2ray
     runs-on: ubuntu-latest
+    # A normal run takes 8-15 minutes. Twice the Gradle step went silent for
+    # an hour in the release tasks; fail instead of holding the runner.
+    timeout-minutes: 45
     steps:
     - name: Checkout code
       uses: actions/checkout@v7
@@ -208,7 +211,18 @@ jobs:
       run: |
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
-        ./gradlew --continue -PndkVersion=${NDK_VERSION} lint test assembleDebug assembleRelease
+        # Memory every two minutes, so a silent step shows whether the heap or
+        # the runner ran out (the runner has 16 GB and 4 cores).
+        ( while sleep 120; do
+            echo "--- memory $(date -u +%H:%M:%S)"; free -m | sed -n 2p
+            ps -eo rss=,args= --sort=-rss | grep '[j]ava' | head -3 | awk '{printf "%6d MB %s\n", $1/1024, substr($0, index($0,$2), 120)}'
+          done ) &
+        trap "kill $! 2>/dev/null" EXIT
+        # Two release variants' R8 and lint ran in a 4 GB daemon alongside each
+        # other; more heap, fewer concurrent workers.
+        ./gradlew --continue --max-workers=3 \
+          -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC -Dfile.encoding=UTF-8" \
+          -PndkVersion=${NDK_VERSION} lint test assembleDebug assembleRelease
 
     - name: Print lint errors
       if: ${{ failure() }}
@@ -317,6 +331,17 @@ jobs:
         echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
         sudo udevadm control --reload-rules
         sudo udevadm trigger --name-match=kvm
+
+    # The emulator action downloads the image once and fails on a cut-off
+    # transfer ("Premature EOF"); fetch it first with retries.
+    - name: Install system image
+      run: |
+        pkg="system-images;android-${{ matrix.api-level }};google_apis;x86_64"
+        for attempt in 1 2 3; do
+          if yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$pkg" > /dev/null; then exit 0; fi
+          echo "attempt $attempt to install $pkg failed"; sleep 20
+        done
+        exit 1
 
     - name: Run smoke test on emulator
       uses: reactivecircus/android-emulator-runner@v2

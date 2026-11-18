@@ -129,6 +129,10 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   - `scripts/ci/a11y-check.py` روی صفحه‌های GeekVPN چیزی پیدا کند: هر چیز
     قابل لمس باید حداقل ۴۴dp باشد و متن یا contentDescription داشته باشد.
     گزارشش `a11y.txt` است.
+- محدودیت‌ها: job `app` حداکثر ۴۵ دقیقه است (اجرای عادی ۸ تا ۱۵ دقیقه). Gradle با `-Xmx6g` و
+  `--max-workers=3` اجرا می‌شود، چون دو بار R8 و lint دو variant release در daemon چهار گیگی
+  یک ساعت بی‌صدا ماندند، و هر دو دقیقه مصرف حافظه‌ی رانر و پروسه‌های java در log می‌آید.
+  image هر Emulator قبل از action با سه بار تلاش نصب می‌شود (دانلود نیمه‌کاره «Premature EOF»).
 - `publish-screenshots`: اسکرین‌شات‌ها، dump صفحه و logcat هر API را در branch
   `ci/screenshots` زیر پوشه‌ای به اسم branch منبع می‌گذارد (`/` به `_` تبدیل
   می‌شود) و با هر اجرا جایگزینشان می‌کند. `RUN.txt` می‌گوید از کدام commit و run آمده‌اند.
@@ -471,6 +475,13 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   خوانده می‌شود و اگر پیدا نشد فقط IP نشان داده می‌شود.
 - «مسیر»: هوشمند = preset `WHITE_IRAN` خود v2rayNG، سراسری = `GLOBAL`، مستقیم =
   یک ruleset که همه چیز را direct می‌فرستد. قانون‌های قفل‌شده‌ی کاربر می‌مانند.
+- «حساب ← سایت‌های استثنا» (`routing.SiteRules`، با تست؛ `ui.sites.SitesActivity`): دو فهرست
+  دامنه، «همیشه مستقیم» و «همیشه از VPN». هر فهرست یک ruleset قفل‌شده‌ی v2rayNG با id ثابت
+  (`geekvpn-sites-direct`، `geekvpn-sites-proxy`) اول فهرست قانون‌هاست، پس بر قانون‌های مسیر
+  می‌چربد و با عوض کردن مسیر می‌ماند (v2rayNG ruleset قفل‌شده را نگه می‌دارد). ورودی به دامنه‌ی
+  ASCII ساده تبدیل می‌شود (scheme، مسیر، پورت و `www.` حذف، IDN به punycode) و `domain:` همه‌ی
+  زیردامنه‌ها را می‌گیرد. هر دامنه فقط در یک فهرست است. هر تغییر `makeRestartService` می‌زند تا
+  Home در `onStart` اتصال را دوباره بسازد. اسکرین‌شات: `preview-sites`.
 - `GEEK_BOT_USERNAME` (property یا repository variable در CI، بدون @) لینک
   پشتیبانی را به ربات وصل می‌کند؛ خالی باشد این ردیف پنهان است.
 - `ScreenPreviewActivity` (فقط debug) همه‌ی تب‌ها را با داده‌ی نمونه نشان می‌دهد
