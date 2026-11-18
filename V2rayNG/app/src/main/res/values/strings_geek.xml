@@ -717,4 +717,22 @@
     <string name="geek_diag_a_api">The connection itself works. Sign-in, the shop and refreshing services will work again once it is reachable.</string>
     <string name="geek_diag_v_ok">No problem found</string>
     <string name="geek_diag_a_ok">Everything this check can see works. If something still fails, send it to support.</string>
+
+    <!-- Share VPN over the LAN (com.geekvpn.share) -->
+    <string name="geek_share_title">Share VPN with another device</string>
+    <string name="geek_share_entry_hint">Laptop, TV or another phone on your Wi-Fi or hotspot</string>
+    <string name="geek_share_intro">Other devices on the same Wi-Fi, or on this phone’s hotspot, can use this connection through a proxy, without installing anything.</string>
+    <string name="geek_share_toggle">Let other devices use the connection</string>
+    <string name="geek_share_not_connected">Not connected: other devices can use it only while this phone is connected.</string>
+    <string name="geek_share_no_network">This phone is not on a Wi-Fi network and its hotspot is off. Join a Wi-Fi network or turn the hotspot on.</string>
+    <string name="geek_share_kind_wifi">On this Wi-Fi</string>
+    <string name="geek_share_kind_hotspot">On this phone’s hotspot</string>
+    <string name="geek_share_kind_usb">Over USB tethering</string>
+    <string name="geek_share_kind_other">On the local network</string>
+    <string name="geek_share_copy">Copy address</string>
+    <string name="geek_share_copied">Address copied</string>
+    <string name="geek_share_qr_description">QR code of the proxy address %1$s</string>
+    <string name="geek_share_auth">The proxy asks for the username “%1$s” and the password set in Advanced settings.</string>
+    <string name="geek_share_steps">On the other device: open the Wi-Fi network’s settings, set Proxy to Manual and enter the address and port above. Apps with their own proxy setting (Telegram, browsers) take it as SOCKS5 too.</string>
+    <string name="geek_share_warning">Everything the other devices use counts against your service’s data. Turn this on only on networks you trust. When you go back, a running connection restarts to apply it.</string>
 </resources>

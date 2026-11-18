@@ -289,6 +289,18 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   (`diagnosis: server_down (network=ok …)`) باز می‌کند (`ReportActivity.EXTRA_DESCRIPTION`).
   اسکرین‌شات: `preview-diagnose`.
 
+## اشتراک VPN با دستگاه دیگر (`com.geekvpn.share`، `ui.share.ShareActivity`)
+
+- «حساب ← اشتراک VPN با دستگاه دیگر» همان تنظیم «اشتراک‌گذاری پروکسی در شبکه محلی» خود v2rayNG
+  (`PREF_PROXY_SHARING`) را روشن می‌کند. با آن inbound محلی SOCKS هسته روی همه‌ی آدرس‌ها گوش
+  می‌دهد. inbound SOCKS در Xray روی همان پورت HTTP هم می‌فهمد. تغییر از `MmkvSettingsStore` می‌گذرد،
+  مثل «تنظیمات پیشرفته»، تا اتصال در حال اجرا با برگشتن به Home دوباره ساخته شود.
+- صفحه برای هر آدرس IPv4 خصوصی گوشی روی وای‌فای، هات‌اسپات (`ap*`، `swlan*`) یا USB
+  (`rndis*`) یک کارت با `IP:پورت`، QR `socks5://…` و دکمه‌ی کپی نشان می‌دهد (`LanShare.pick`،
+  با تست). آدرس اپراتور (CGNAT) و تونل خود VPN کنار گذاشته می‌شوند. اگر نام کاربری SOCKS در
+  تنظیمات پیشرفته باشد، صفحه می‌گوید proxy آن را می‌خواهد.
+- هشدار: مصرف دستگاه‌های دیگر از حجم همان سرویس است. اسکرین‌شات: `preview-share`.
+
 ## اتصال خودکار و Kill Switch (`com.geekvpn.autoconnect`، `ui.autoconnect.AutoConnectActivity`)
 
 - «حساب ← اتصال خودکار و Kill Switch». «با روشن شدن گوشی» همان تنظیم `PREF_IS_BOOTED`
