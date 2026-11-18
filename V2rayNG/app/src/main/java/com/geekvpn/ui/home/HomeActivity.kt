@@ -94,6 +94,7 @@ import com.geekvpn.ui.shop.WalletSheet
 import com.geekvpn.ui.speedtest.SpeedTestActivity
 import com.geekvpn.ui.diagnose.DiagnoseActivity
 import com.geekvpn.ui.share.ShareActivity
+import com.geekvpn.ui.onboarding.OnboardingActivity
 import com.geekvpn.ui.sites.SitesActivity
 import com.geekvpn.ui.support.ReportActivity
 import com.geekvpn.ui.support.TicketsActivity
@@ -147,6 +148,7 @@ class HomeActivity : HelperBaseComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) showOnboardingOnce(intent)
         savedInstanceState?.getString(STATE_TAB)?.let { saved -> GeekTab.entries.firstOrNull { it.name == saved }?.let { tab = it } }
         GeekGraph.syncOnLaunch()
         handlePaymentReturn(intent)
@@ -233,6 +235,22 @@ class HomeActivity : HelperBaseComponentActivity() {
     }
 
     /** From the tile, widget or a shortcut with «سرور: خودکار» on: smart connect (`QuickConnect`). */
+    /**
+     * The first-run guide, before anything else reads the prefs. A phone that
+     * has opened Home before (it has a route mode) is not new; a start from
+     * the tile or widget connects instead of teaching.
+     */
+    private fun showOnboardingOnce(intent: Intent?) {
+        val prefs = GeekGraph.connectionPrefs
+        if (prefs.onboardingSeen) return
+        if (prefs.routeMode != null) {
+            prefs.onboardingSeen = true
+            return
+        }
+        if (intent?.getBooleanExtra(EXTRA_CONNECT, false) == true) return
+        startActivity(Intent(this, OnboardingActivity::class.java))
+    }
+
     private fun handleConnect(intent: Intent?) {
         if (intent?.getBooleanExtra(EXTRA_CONNECT, false) != true) return
         intent.removeExtra(EXTRA_CONNECT)

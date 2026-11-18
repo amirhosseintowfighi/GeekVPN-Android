@@ -751,4 +751,16 @@
     <string name="geek_sites_remove">Remove %1$s</string>
     <string name="geek_sites_applied">Saved. A running connection restarts with it when you go back.</string>
     <string name="geek_sites_note">Each site covers its subdomains too. These rules stay when you change the route mode.</string>
+
+    <!-- First-run guide (ui.onboarding) -->
+    <string name="geek_onboard_step">%1$d of %2$d</string>
+    <string name="geek_onboard_next">Next</string>
+    <string name="geek_onboard_start">Start</string>
+    <string name="geek_onboard_skip">Skip</string>
+    <string name="geek_onboard_auto_title">Server: Auto</string>
+    <string name="geek_onboard_auto_body">With “Server: Auto” on, the connect button tests every server of your service, connects to the fastest, and moves on if one does not work. If nothing gets through, it tries once more in anti-filter mode. While connected, it switches server on its own when the connection drops.</string>
+    <string name="geek_onboard_route_title">Smart route</string>
+    <string name="geek_onboard_route_body">Iranian sites and apps go direct and everything else through the VPN, so banks and local sites stay fast and your data lasts longer. Account › Site exceptions sends any site the other way.</string>
+    <string name="geek_onboard_help_title">When it will not connect</string>
+    <string name="geek_onboard_help_body">Account › Connection troubleshooter finds out whether the network, the server or a filter is the problem and says what to do. On a direct service, the clean IP scanner finds a Cloudflare address that still works on your network.</string>
 </resources>

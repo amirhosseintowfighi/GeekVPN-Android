@@ -482,6 +482,12 @@ upstream این AAR را از release‌های `2dust/AndroidLibXrayLite` دان
   ASCII ساده تبدیل می‌شود (scheme، مسیر، پورت و `www.` حذف، IDN به punycode) و `domain:` همه‌ی
   زیردامنه‌ها را می‌گیرد. هر دامنه فقط در یک فهرست است. هر تغییر `makeRestartService` می‌زند تا
   Home در `onStart` اتصال را دوباره بسازد. اسکرین‌شات: `preview-sites`.
+- راهنمای اولین اجرا (`ui.onboarding.OnboardingActivity`): سه صفحه‌ی کوتاه درباره‌ی «سرور: خودکار»،
+  مسیر هوشمند و سایت‌های استثنا، و عیب‌یاب و اسکنر. `HomeActivity.onCreate` آن را فقط یک بار باز
+  می‌کند (`ConnectionPrefs.onboardingSeen`، با باز شدن ثبت می‌شود). گوشی‌ای که قبلاً Home را باز
+  کرده (مسیر دارد) جدید حساب نمی‌شود و شروع از کاشی یا ویجت (`EXTRA_CONNECT`) هم آن را نشان
+  نمی‌دهد. smoke test بعد از «شروع سریع» آن را می‌بیند (`onboarding.png`)، back می‌زند و بعد Home
+  را چک می‌کند. اسکرین‌شات: `preview-onboarding`.
 - `GEEK_BOT_USERNAME` (property یا repository variable در CI، بدون @) لینک
   پشتیبانی را به ربات وصل می‌کند؛ خالی باشد این ردیف پنهان است.
 - `ScreenPreviewActivity` (فقط debug) همه‌ی تب‌ها را با داده‌ی نمونه نشان می‌دهد

@@ -130,7 +130,14 @@ sleep 6
 adb exec-out uiautomator dump /dev/tty 2>/dev/null > "$OUT/login-again.xml" || true
 if xy=$(center_of "$OUT/login-again.xml" "شروع سریع بدون ثبت‌نام"); then
     adb shell input tap $xy
-    shot home-guest 6
+    # A fresh install's first Home opens the first-run guide once; back closes it.
+    shot onboarding 6
+    if ! grep -q "سرور: خودکار" "$OUT/onboarding.xml"; then
+        echo "::error::the first Home did not open the first-run guide"
+        LOGIN_FAILED=1
+    fi
+    adb shell input keyevent KEYCODE_BACK
+    shot home-guest 4
     alive "entering guest mode"
     if ! grep -q "قطع است" "$OUT/home-guest.xml"; then
         echo "::error::guest mode did not open the home screen"
@@ -164,7 +171,7 @@ if [[ "$probe" != *Error* ]]; then
         alive "previewing $1"
         adb shell am force-stop "$PKG"
     }
-    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update tickets ticket-thread auto-connect speed diagnose share sites referral usage lock; do
+    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update tickets ticket-thread auto-connect speed diagnose share sites onboarding referral usage lock; do
         preview "$screen" false
         preview "$screen" true
     done

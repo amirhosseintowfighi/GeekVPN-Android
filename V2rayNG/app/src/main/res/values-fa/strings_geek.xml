@@ -747,4 +747,16 @@
     <string name="geek_sites_remove">حذف %1$s</string>
     <string name="geek_sites_applied">ذخیره شد. اگر وصل باشی، با برگشتن اتصال یک بار دوباره ساخته می‌شود.</string>
     <string name="geek_sites_note">هر سایت زیردامنه‌هایش را هم شامل می‌شود. این قانون‌ها با عوض کردن مسیر می‌مانند.</string>
+
+    <!-- First-run guide (ui.onboarding) -->
+    <string name="geek_onboard_step">%1$d از %2$d</string>
+    <string name="geek_onboard_next">بعدی</string>
+    <string name="geek_onboard_start">شروع</string>
+    <string name="geek_onboard_skip">رد کردن</string>
+    <string name="geek_onboard_auto_title">سرور: خودکار</string>
+    <string name="geek_onboard_auto_body">با «سرور: خودکار» روشن، دکمه‌ی اتصال همه‌ی سرورهای سرویست را تست می‌کند، با سریع‌ترین وصل می‌شود و اگر یکی کار نکرد سراغ بعدی می‌رود. اگر هیچ‌کدام رد نشد، یک بار دیگر با حالت ضد فیلتر امتحان می‌کند. وقتی وصلی هم اگر اتصال قطع شود خودش سرور را عوض می‌کند.</string>
+    <string name="geek_onboard_route_title">مسیر هوشمند</string>
+    <string name="geek_onboard_route_body">سایت‌ها و برنامه‌های ایرانی مستقیم می‌روند و بقیه از VPN، پس بانک و سایت‌های داخلی سریع می‌مانند و حجمت دیرتر تمام می‌شود. از «حساب ← سایت‌های استثنا» هر سایتی را برعکس بفرست.</string>
+    <string name="geek_onboard_help_title">وقتی وصل نمی‌شود</string>
+    <string name="geek_onboard_help_body">«حساب ← عیب‌یاب اتصال» می‌گوید مشکل از شبکه است، از سرور یا از فیلتر، و چه کار کنی. روی سرویس مستقیم، اسکنر IP تمیز یک آدرس کلادفلر پیدا می‌کند که روی شبکه‌ی تو هنوز کار می‌کند.</string>
 </resources>

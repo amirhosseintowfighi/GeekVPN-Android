@@ -119,6 +119,9 @@
             android:name="com.geekvpn.ui.share.ShareActivity"
             android:exported="false" />
         <activity
+            android:name="com.geekvpn.ui.onboarding.OnboardingActivity"
+            android:exported="false" />
+        <activity
             android:name="com.geekvpn.ui.sites.SitesActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
