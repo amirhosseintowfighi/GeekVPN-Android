@@ -116,6 +116,9 @@
             android:name="com.geekvpn.ui.diagnose.DiagnoseActivity"
             android:exported="false" />
         <activity
+            android:name="com.geekvpn.ui.share.ShareActivity"
+            android:exported="false" />
+        <activity
             android:name="com.geekvpn.ui.referral.ReferralActivity"
             android:exported="false" />
         <activity

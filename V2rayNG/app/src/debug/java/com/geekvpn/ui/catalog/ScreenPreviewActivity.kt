@@ -63,6 +63,9 @@ import com.geekvpn.diagnose.Check
 import com.geekvpn.diagnose.Diagnosis
 import com.geekvpn.diagnose.Outcome
 import com.geekvpn.ui.diagnose.DiagnoseScreen
+import com.geekvpn.share.LanAddress
+import com.geekvpn.ui.share.ShareScreen
+import com.geekvpn.ui.share.ShareUiState
 import com.geekvpn.ui.diagnose.DiagnoseUiState
 import com.geekvpn.ui.speedtest.SpeedTestUiState
 import com.geekvpn.lock.LockScreen
@@ -150,6 +153,20 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                         onBack = {},
                     )
                 }
+                SCREEN_SHARE -> GeekBackdrop {
+                    ShareScreen(
+                        ShareUiState(
+                            loaded = true,
+                            sharing = true,
+                            connected = true,
+                            port = 10808,
+                            addresses = listOf(LanAddress("192.168.43.1", LanAddress.Kind.Hotspot)),
+                        ),
+                        onToggle = {},
+                        onCopy = {},
+                        onBack = {},
+                    )
+                }
                 SCREEN_AUTO_CONNECT -> GeekBackdrop {
                     AutoConnectScreen(
                         AutoConnectUiState(loaded = true, startOnBoot = true, autoOnWifi = true, currentWifi = "wifi:1", trustedCount = 1, canStartInBackground = false),
@@ -175,6 +192,7 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_AUTO_CONNECT = "auto-connect"
         const val SCREEN_SPEED = "speed"
         const val SCREEN_DIAGNOSE = "diagnose"
+        const val SCREEN_SHARE = "share"
         const val SCREEN_REFERRAL = "referral"
         const val SCREEN_USAGE = "usage"
         const val SCREEN_LOCK = "lock"

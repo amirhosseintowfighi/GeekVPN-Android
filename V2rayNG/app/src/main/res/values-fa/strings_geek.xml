@@ -713,4 +713,22 @@
     <string name="geek_diag_a_api">خود اتصال کار می‌کند. ورود، فروشگاه و به‌روزرسانی سرویس‌ها وقتی سرور در دسترس شد دوباره کار می‌کنند.</string>
     <string name="geek_diag_v_ok">مشکلی پیدا نشد</string>
     <string name="geek_diag_a_ok">هر چیزی که این بررسی می‌بیند درست کار می‌کند. اگر هنوز مشکل داری، برای پشتیبانی بفرست.</string>
+
+    <!-- Share VPN over the LAN (com.geekvpn.share) -->
+    <string name="geek_share_title">اشتراک VPN با دستگاه دیگر</string>
+    <string name="geek_share_entry_hint">لپ‌تاپ، تلویزیون یا گوشی دیگر روی وای‌فای یا هات‌اسپات</string>
+    <string name="geek_share_intro">دستگاه‌های دیگر روی همین وای‌فای، یا روی هات‌اسپات این گوشی، می‌توانند بدون نصب چیزی از طریق یک proxy از همین اتصال استفاده کنند.</string>
+    <string name="geek_share_toggle">دستگاه‌های دیگر از اتصال استفاده کنند</string>
+    <string name="geek_share_not_connected">وصل نیستی: دستگاه‌های دیگر فقط وقتی این گوشی وصل است می‌توانند استفاده کنند.</string>
+    <string name="geek_share_no_network">این گوشی به وای‌فای وصل نیست و هات‌اسپاتش خاموش است. به یک وای‌فای وصل شو یا هات‌اسپات را روشن کن.</string>
+    <string name="geek_share_kind_wifi">روی همین وای‌فای</string>
+    <string name="geek_share_kind_hotspot">روی هات‌اسپات این گوشی</string>
+    <string name="geek_share_kind_usb">از طریق کابل USB</string>
+    <string name="geek_share_kind_other">روی شبکه‌ی محلی</string>
+    <string name="geek_share_copy">کپی آدرس</string>
+    <string name="geek_share_copied">آدرس کپی شد</string>
+    <string name="geek_share_qr_description">QR آدرس proxy ‏%1$s</string>
+    <string name="geek_share_auth">proxy نام کاربری «%1$s» و رمزی را که در «تنظیمات پیشرفته» گذاشته‌ای می‌خواهد.</string>
+    <string name="geek_share_steps">روی دستگاه دیگر: تنظیمات همان وای‌فای را باز کن، Proxy را روی Manual بگذار و آدرس و پورت بالا را وارد کن. برنامه‌هایی که تنظیم proxy خودشان را دارند (تلگرام، مرورگرها) آن را به شکل SOCKS5 هم می‌پذیرند.</string>
+    <string name="geek_share_warning">هر چه دستگاه‌های دیگر مصرف کنند از حجم سرویس خودت کم می‌شود. فقط روی شبکه‌ی مورد اعتماد روشنش کن. وقتی برگردی، اگر وصل باشی اتصال یک بار دوباره ساخته می‌شود تا اعمال شود.</string>
 </resources>

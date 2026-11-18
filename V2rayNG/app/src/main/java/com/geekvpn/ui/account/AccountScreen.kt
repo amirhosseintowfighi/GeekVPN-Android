@@ -86,6 +86,9 @@ interface AccountActions {
     /** "عیب‌یاب اتصال". */
     fun onDiagnose() {}
 
+    /** "اشتراک VPN با دستگاه دیگر". */
+    fun onShare() {}
+
     /** "دعوت از دوستان"; signed in only. */
     fun onReferral()
 
@@ -193,6 +196,13 @@ fun AccountScreen(
                 title = stringResource(R.string.geek_speed_title),
                 hint = stringResource(R.string.geek_speed_entry_hint),
                 onClick = actions::onSpeedTest,
+            )
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Link,
+                title = stringResource(R.string.geek_share_title),
+                hint = stringResource(R.string.geek_share_entry_hint),
+                onClick = actions::onShare,
             )
             SettingsDivider()
             SettingRow(
