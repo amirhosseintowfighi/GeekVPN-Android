@@ -61,6 +61,7 @@ import com.geekvpn.ui.common.Hairline
 import com.geekvpn.ui.common.SectionLabel
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatDate
+import com.geekvpn.ui.common.formatBalance
 import com.geekvpn.ui.common.formatNumber
 import com.geekvpn.ui.components.ChoicePill
 import com.geekvpn.ui.components.GeekPrimaryButton
@@ -100,9 +101,9 @@ fun BoxScope.CheckoutSheet(
                             icon = GeekIcons.Wallet,
                             title = stringResource(R.string.geek_checkout_wallet),
                             hint = if (short) {
-                                stringResource(R.string.geek_checkout_wallet_short, formatNumber(balance ?: 0, locale))
+                                stringResource(R.string.geek_checkout_wallet_short, formatBalance(balance, locale))
                             } else {
-                                stringResource(R.string.geek_checkout_wallet_hint, formatNumber(balance ?: 0, locale))
+                                stringResource(R.string.geek_checkout_wallet_hint, formatBalance(balance, locale))
                             },
                             enabled = !busy && !short,
                             onClick = { onChoose(key) },
@@ -175,7 +176,7 @@ fun BoxScope.WalletSheet(
 
     GeekSheet(
         title = stringResource(R.string.geek_wallet_title),
-        subtitle = stringResource(R.string.geek_wallet_balance, formatNumber(balance ?: 0, locale)),
+        subtitle = stringResource(R.string.geek_wallet_balance, formatBalance(balance, locale)),
         closeLabel = stringResource(R.string.geek_sheet_close),
         onDismiss = onDismiss,
     ) {

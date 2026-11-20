@@ -29,6 +29,8 @@ import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -140,6 +142,9 @@ interface ShopEnvironment {
     /** Whose shop this is: the signed-in user's id, null for a guest or nobody. */
     fun accountKey(): String?
     fun balance(): Long?
+
+    /** The stored balance as it changes (a sync, another screen); none in tests. */
+    fun balances(): Flow<Long?> = emptyFlow()
     fun saveBalance(tomans: Long)
     fun logFailure(message: String, e: Throwable)
 }
@@ -149,6 +154,7 @@ object GeekShopEnvironment : ShopEnvironment {
     override fun signedIn() = GeekGraph.session.session.value is Session.SignedIn
     override fun accountKey() = (GeekGraph.session.session.value as? Session.SignedIn)?.user?.id
     override fun balance() = GeekGraph.accountStore.balance.value
+    override fun balances(): Flow<Long?> = GeekGraph.accountStore.balance
     override fun saveBalance(tomans: Long) = GeekGraph.accountStore.saveBalance(tomans)
     override fun logFailure(message: String, e: Throwable) {
         LogUtil.w(AppConfig.TAG, message, e)
@@ -166,11 +172,26 @@ class ShopViewModel : ViewModel {
     /** What `viewModels()` calls. */
     constructor() : super() {
         env = GeekShopEnvironment
+        followBalance()
     }
 
     /** For tests: a fake environment on a test dispatcher instead of the Android main thread. */
     constructor(env: ShopEnvironment, scope: CoroutineScope) : super(scope) {
         this.env = env
+        followBalance()
+    }
+
+    /**
+     * The wallet sheet and the pay sheet show [ShopUiState.balance]; it follows
+     * the stored balance, which an account sync or Home's refresh also writes.
+     * It was a copy taken when the shop opened, so it went stale (or stayed
+     * empty) whenever the balance was read elsewhere. Called from the
+     * constructors, after [env] is set.
+     */
+    private fun followBalance() {
+        viewModelScope.launch {
+            env.balances().collect { tomans -> if (tomans != null) state.update { it.copy(balance = tomans) } }
+        }
     }
 
     private val state = MutableStateFlow(ShopUiState())
@@ -181,6 +202,7 @@ class ShopViewModel : ViewModel {
 
     private var storefront: Storefront? = null
     private var loadJob: Job? = null
+    private var methodsJob: Job? = null
     private var quoteJob: Job? = null
     private var walletJob: Job? = null
 
@@ -214,9 +236,9 @@ class ShopViewModel : ViewModel {
                 state.update { it.copy(loading = false) }
             }
             // Extras: the shop still works without them.
-            val methods = attempt("payment-methods") { env.api.paymentMethods() }.orEmpty()
+            loadMethods()
             val trial = attempt("trial") { env.api.trialOffer() }
-            state.update { it.copy(methods = methods, trial = trial) }
+            state.update { it.copy(trial = trial) }
         }
     }
 
@@ -321,13 +343,41 @@ class ShopViewModel : ViewModel {
         state.update { it.copy(sheet = ShopSheet.Checkout(CheckoutPurpose.Purchase, total)) }
     }
 
-    /** "شارژ": choose how to put [amount] tomans into the wallet. */
+    /**
+     * "شارژ": choose how to put [amount] tomans into the wallet. The wallet
+     * opens from Home as well as the shop, so the shop's methods may not be
+     * loaded yet: they are read first, and the sheet offers exactly what the
+     * shop does.
+     */
     fun topup(amount: Long) {
         when {
             amount < TopupLimits.MIN -> eventChannel.trySend(ShopEvent.Message(R.string.geek_wallet_err_min))
             amount > TopupLimits.MAX -> eventChannel.trySend(ShopEvent.Message(R.string.geek_wallet_err_max))
-            else -> state.update { it.copy(sheet = ShopSheet.Checkout(CheckoutPurpose.Topup(amount), amount)) }
+            state.value.busy -> Unit
+            else -> viewModelScope.launch {
+                if (!methodsLoaded) {
+                    state.update { it.copy(busy = true) }
+                    loadMethods()
+                    state.update { it.copy(busy = false) }
+                }
+                state.update { it.copy(sheet = ShopSheet.Checkout(CheckoutPurpose.Topup(amount), amount)) }
+            }
         }
+    }
+
+    /** The server's payment methods answered at least once for this account. */
+    private var methodsLoaded = false
+
+    /** Reads the payment methods; a failure keeps what was there (and the card fallback). */
+    private suspend fun loadMethods() {
+        methodsJob?.takeIf { it.isActive }?.let { it.join(); return }
+        val job = viewModelScope.launch {
+            val methods = attempt("payment-methods") { env.api.paymentMethods() } ?: return@launch
+            methodsLoaded = true
+            state.update { it.copy(methods = methods) }
+        }
+        methodsJob = job
+        job.join()
     }
 
     /** The methods the pay sheet offers for [purpose], in order: wallet, card, gateways. */
@@ -410,6 +460,8 @@ class ShopViewModel : ViewModel {
         ensureAccount()
         state.update { it.copy(sheet = ShopSheet.Wallet, balance = env.balance()) }
         refreshWallet()
+        // Ready before "شارژ" is pressed: the wallet is often opened from Home.
+        if (!methodsLoaded) viewModelScope.launch { loadMethods() }
     }
 
     /** A pending card payment in the wallet list: show its card again to finish it. */
@@ -525,9 +577,12 @@ class ShopViewModel : ViewModel {
         loadJob?.cancel()
         quoteJob?.cancel()
         walletJob?.cancel()
+        methodsJob?.cancel()
+        methodsLoaded = false
         storefront = null
         awaitingGateway = false
-        state.value = ShopUiState()
+        // The balance is the account's, not the shop's: keep what the store has.
+        state.value = ShopUiState(balance = env.balance())
     }
 
     private fun applyStorefront(front: Storefront) {
