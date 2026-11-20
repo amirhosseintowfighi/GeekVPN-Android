@@ -354,13 +354,11 @@ class ShopViewModel : ViewModel {
             amount < TopupLimits.MIN -> eventChannel.trySend(ShopEvent.Message(R.string.geek_wallet_err_min))
             amount > TopupLimits.MAX -> eventChannel.trySend(ShopEvent.Message(R.string.geek_wallet_err_max))
             state.value.busy -> Unit
+            methodsLoaded -> state.update { it.copy(sheet = ShopSheet.Checkout(CheckoutPurpose.Topup(amount), amount)) }
             else -> viewModelScope.launch {
-                if (!methodsLoaded) {
-                    state.update { it.copy(busy = true) }
-                    loadMethods()
-                    state.update { it.copy(busy = false) }
-                }
-                state.update { it.copy(sheet = ShopSheet.Checkout(CheckoutPurpose.Topup(amount), amount)) }
+                state.update { it.copy(busy = true) }
+                loadMethods()
+                state.update { it.copy(busy = false, sheet = ShopSheet.Checkout(CheckoutPurpose.Topup(amount), amount)) }
             }
         }
     }
