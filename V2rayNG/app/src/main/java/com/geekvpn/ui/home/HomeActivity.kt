@@ -47,6 +47,7 @@ import com.geekvpn.account.AutoRenewViewModel
 import com.geekvpn.account.RefreshOutcome
 import com.geekvpn.account.UsageNotifier
 import com.geekvpn.autoconnect.AutoConnect
+import com.geekvpn.autoconnect.Schedule
 import com.geekvpn.connection.ConnectionPhase
 import com.geekvpn.lock.AppLock
 import com.geekvpn.push.Push
@@ -156,7 +157,11 @@ class HomeActivity : HelperBaseComponentActivity() {
         handleConnect(intent)
         UsageNotifier.schedule(this)
         // A force-stop drops the Wi-Fi callback; opening the app puts it back.
-        lifecycleScope.launch(Dispatchers.IO) { AutoConnect.sync(applicationContext) }
+        lifecycleScope.launch(Dispatchers.IO) {
+            AutoConnect.sync(applicationContext)
+            // A force-stop clears the schedule's alarm too.
+            Schedule.arm(applicationContext)
+        }
         Push.init(applicationContext)
         GeekGraph.syncPushToken()
         AppLock.install(application)

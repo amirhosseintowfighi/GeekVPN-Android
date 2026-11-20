@@ -196,4 +196,20 @@ class CloudflareCheckTest {
         assertTrue(CloudflareCheck.isPrivate(ip("192.168.1.1")))
         assertFalse(CloudflareCheck.isPrivate(ip("104.16.1.1")))
     }
+
+    @Test
+    fun only_global_unicast_ipv6_counts_for_the_scanner() {
+        fun bytes(ip: String) = java.net.InetAddress.getByName(ip).address
+        assertTrue(NetworkIdentity.isGlobal(bytes("2a01:5ec0:1::1")))
+        assertFalse(NetworkIdentity.isGlobal(bytes("fe80::1")))
+        assertFalse(NetworkIdentity.isGlobal(bytes("fd00::1")))
+        assertFalse(NetworkIdentity.isGlobal(bytes("10.0.0.1")))
+    }
+
+    @Test
+    fun the_scan_asks_for_ipv6_only_when_told() {
+        val target = CdnTarget("cdn.example.com", "cdn.example.com", 443)
+        assertFalse(ScanConfig.json(target, emptyList(), false).contains("ipv6Share"))
+        assertTrue(ScanConfig.json(target, emptyList(), false, ipv6 = true).contains("\"ipv6Share\":0.3"))
+    }
 }

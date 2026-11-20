@@ -54,7 +54,10 @@ import kotlinx.coroutines.withTimeoutOrNull
 object AutoConnect {
     enum class Decision { Nothing, Start, Ask }
 
-    /** What to do when a Wi-Fi comes up; pure, for the tests. */
+    /**
+     * What to do when a network comes up; pure, for the tests. [enabled] is
+     * "on an unknown Wi-Fi", [mobileEnabled] "on mobile data".
+     */
     fun decide(
         enabled: Boolean,
         identity: NetworkIdentity,
@@ -62,34 +65,46 @@ object AutoConnect {
         running: Boolean,
         hasServer: Boolean,
         canStart: Boolean,
-    ): Decision = when {
-        !enabled || running || !hasServer -> Decision.Nothing
-        identity.kind != NetworkIdentity.Kind.Wifi -> Decision.Nothing
-        identity.key in trusted -> Decision.Nothing
-        canStart -> Decision.Start
-        else -> Decision.Ask
+        mobileEnabled: Boolean = false,
+    ): Decision {
+        if (running || !hasServer) return Decision.Nothing
+        val wanted = when (identity.kind) {
+            NetworkIdentity.Kind.Wifi -> enabled && identity.key !in trusted
+            NetworkIdentity.Kind.Mobile -> mobileEnabled
+            NetworkIdentity.Kind.Other -> false
+        }
+        return when {
+            !wanted -> Decision.Nothing
+            canStart -> Decision.Start
+            else -> Decision.Ask
+        }
     }
 
-    /** Registers or drops the Wi-Fi callback to match the setting; call after changing it and at boot. */
+    /** Registers or drops the network callbacks to match the settings; call after changing them and at boot. */
     fun sync(context: Context) {
+        val prefs = ConnectionPrefs.open()
+        register(context, NetworkCapabilities.TRANSPORT_WIFI, callbackIntent(context), prefs.autoOnWifi, "Wi-Fi")
+        register(context, NetworkCapabilities.TRANSPORT_CELLULAR, mobileIntent(context), prefs.autoOnMobile, "mobile")
+    }
+
+    private fun register(context: Context, transport: Int, pending: PendingIntent, wanted: Boolean, what: String) {
         val connectivity = context.getSystemService(ConnectivityManager::class.java) ?: return
-        val pending = callbackIntent(context)
         try {
             connectivity.unregisterNetworkCallback(pending)
         } catch (e: IllegalArgumentException) {
             // Nothing was registered with it.
-            LogUtil.d(AppConfig.TAG, "AutoConnect: no Wi-Fi callback to drop (${e.message})")
+            LogUtil.d(AppConfig.TAG, "AutoConnect: no $what callback to drop (${e.message})")
         }
-        if (!ConnectionPrefs.open().autoOnWifi) return
+        if (!wanted) return
         val request = NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(transport)
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
         try {
             connectivity.registerNetworkCallback(request, pending)
         } catch (e: RuntimeException) {
             // SecurityException or TooManyRequestsException: the setting stays, the trigger does not.
-            LogUtil.e(AppConfig.TAG, "AutoConnect: registering the Wi-Fi callback failed", e)
+            LogUtil.e(AppConfig.TAG, "AutoConnect: registering the $what callback failed", e)
         }
     }
 
@@ -111,10 +126,19 @@ object AutoConnect {
             PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0),
         )
 
+    /** The same receiver for "mobile data came up"; its own request code, so both can be registered. */
+    private fun mobileIntent(context: Context): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            REQUEST_CODE_MOBILE,
+            Intent(context, WifiJoinReceiver::class.java).setAction(ACTION_MOBILE),
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0),
+        )
+
     /** Runs in the VPN process: decides, then starts the core or asks with a notification. */
     internal suspend fun onWifi(context: Context, network: Network?) {
         val prefs = ConnectionPrefs.open()
-        if (!prefs.autoOnWifi) return
+        if (!prefs.autoOnWifi && !prefs.autoOnMobile) return
         // DHCP's DNS servers can arrive a moment after the network does; the identity needs them.
         val identity = withTimeoutOrNull(LINK_WAIT_MS) {
             var id = identify(context, network)
@@ -126,18 +150,33 @@ object AutoConnect {
         } ?: identify(context, network)
         val vpnReady = !SettingsManager.isVpnMode() || VpnService.prepare(context) == null
         val decision = decide(
-            enabled = true,
+            enabled = prefs.autoOnWifi,
             identity = identity,
             trusted = prefs.trustedNetworks,
             running = CoreServiceManager.isRunning(),
             hasServer = !MmkvManager.getSelectServer().isNullOrEmpty(),
             canStart = vpnReady && canStartInBackground(context),
+            mobileEnabled = prefs.autoOnMobile,
         )
-        LogUtil.i(AppConfig.TAG, "AutoConnect: Wi-Fi ${identity.key} -> $decision")
+        LogUtil.i(AppConfig.TAG, "AutoConnect: ${identity.kind} network -> $decision")
         when (decision) {
             Decision.Nothing -> Unit
             Decision.Start -> LauncherManager.startService(context)
             Decision.Ask -> ask(context)
+        }
+    }
+
+    /**
+     * Starts the core from the background where Android allows it, else asks
+     * with a notification ([Schedule]'s connect time). Nothing without a server.
+     */
+    internal fun startOrAsk(context: Context) {
+        if (MmkvManager.getSelectServer().isNullOrEmpty()) return
+        val vpnReady = !SettingsManager.isVpnMode() || VpnService.prepare(context) == null
+        if (vpnReady && canStartInBackground(context)) {
+            LauncherManager.startService(context)
+        } else {
+            ask(context, R.string.geek_schedule_prompt_title, R.string.geek_schedule_prompt_text)
         }
     }
 
@@ -150,7 +189,11 @@ object AutoConnect {
         return connectivity.getLinkProperties(target)?.dnsServers?.isNotEmpty() != false
     }
 
-    private fun ask(context: Context) {
+    private fun ask(
+        context: Context,
+        @androidx.annotation.StringRes title: Int = R.string.geek_auto_wifi_title,
+        @androidx.annotation.StringRes text: Int = R.string.geek_auto_wifi_text,
+    ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -164,8 +207,8 @@ object AutoConnect {
         val open = QuickConnect.pendingIntent(context)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_name)
-            .setContentTitle(context.getString(R.string.geek_auto_wifi_title))
-            .setContentText(context.getString(R.string.geek_auto_wifi_text))
+            .setContentTitle(context.getString(title))
+            .setContentText(context.getString(text))
             .setContentIntent(open)
             .addAction(0, context.getString(R.string.geek_auto_wifi_connect), open)
             .setAutoCancel(true)
@@ -182,7 +225,9 @@ object AutoConnect {
     internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     internal const val ACTION_WIFI = "com.geekvpn.action.WIFI_AVAILABLE"
+    internal const val ACTION_MOBILE = "com.geekvpn.action.MOBILE_AVAILABLE"
     private const val REQUEST_CODE = 0x6e6c
+    private const val REQUEST_CODE_MOBILE = 0x6e6d
     private const val CHANNEL_ID = "geek_auto_connect"
     private const val NOTIFICATION_ID = 0x6e6c
     private const val LINK_WAIT_MS = 4_000L
@@ -193,8 +238,15 @@ object AutoConnect {
 /** The system's "a Wi-Fi is available" callback (see [AutoConnect]); runs in `:daemon`. */
 class WifiJoinReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != AutoConnect.ACTION_WIFI) return
-        val network = IntentCompat.getParcelableExtra(intent, ConnectivityManager.EXTRA_NETWORK, Network::class.java)
+        if (intent.action != AutoConnect.ACTION_WIFI && intent.action != AutoConnect.ACTION_MOBILE) return
+        // Mobile data can come up behind a Wi-Fi the phone still uses: judge it by
+        // the network the phone actually uses (null: the active one), so a trusted
+        // home Wi-Fi still wins.
+        val network = if (intent.action == AutoConnect.ACTION_MOBILE) {
+            null
+        } else {
+            IntentCompat.getParcelableExtra(intent, ConnectivityManager.EXTRA_NETWORK, Network::class.java)
+        }
         val result = goAsync()
         AutoConnect.scope.launch {
             try {
@@ -215,7 +267,11 @@ class WifiJoinReceiver : BroadcastReceiver() {
 class AutoConnectBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
-            Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> AutoConnect.sync(context.applicationContext)
+            Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                AutoConnect.sync(context.applicationContext)
+                // Alarms do not survive a reboot either.
+                Schedule.arm(context.applicationContext)
+            }
         }
     }
 }

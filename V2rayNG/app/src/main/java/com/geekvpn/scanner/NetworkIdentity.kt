@@ -33,6 +33,25 @@ data class NetworkIdentity(
         val UNKNOWN = NetworkIdentity("other", Kind.Other)
 
         /** The network underneath: the app itself is excluded from the VPN, so this is not the tunnel. */
+        /**
+         * Whether the phone's own network (not the VPN's tun) has a global
+         * IPv6 address, so the scanner can reach IPv6 addresses. Read from the
+         * interfaces because the active network is the VPN while connected,
+         * and the app's sockets bypass it.
+         */
+        fun hasGlobalIpv6(): Boolean = try {
+            java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
+                .filter { it.isUp && !it.isLoopback && !it.name.startsWith("tun") }
+                .flatMap { it.inetAddresses.toList() }
+                .filterIsInstance<java.net.Inet6Address>()
+                .any { isGlobal(it.address) && !it.isLinkLocalAddress && !it.isLoopbackAddress }
+        } catch (_: java.net.SocketException) {
+            false
+        }
+
+        /** 2000::/3, the global unicast block (excludes ULA fc00::/7 and link-local). */
+        fun isGlobal(address: ByteArray): Boolean = address.size == 16 && (address[0].toInt() and 0xE0) == 0x20
+
         fun current(context: Context): NetworkIdentity {
             val connectivity = context.getSystemService(ConnectivityManager::class.java) ?: return UNKNOWN
             return of(context, connectivity.activeNetwork ?: return UNKNOWN)

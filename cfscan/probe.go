@@ -75,18 +75,23 @@ func newTester(conf config) *tester {
 	return t
 }
 
-func run(ctx context.Context, conf config, prefixes []netip.Prefix, listener Listener) error {
+func run(ctx context.Context, conf config, prefixes []netip.Prefix, prefixes6 []netip.Prefix, listener Listener) error {
 	seed := conf.Seed
 	if seed == 0 {
 		seed = rand.Uint64()
 	}
-	sampled := sample(prefixes, conf.MaxIPs, rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15)))
-	return scan(ctx, newTester(conf), withPreferred(conf.PreferIPs, sampled, conf.MaxIPs), listener)
+	rng := rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15))
+	n6 := 0
+	if len(prefixes6) > 0 && conf.IPv6Share > 0 {
+		n6 = int(float64(conf.MaxIPs) * min(conf.IPv6Share, 0.5))
+	}
+	sampled := interleave(sample(prefixes, conf.MaxIPs-n6, rng), sample6(prefixes6, n6, rng))
+	return scan(ctx, newTester(conf), withPreferred(conf.PreferIPs, sampled, conf.MaxIPs, n6 > 0), listener)
 }
 
 // withPreferred puts the known addresses first and fills the rest of the
 // budget from the sample, without testing any address twice.
-func withPreferred(preferred []string, sampled []netip.Addr, limit int) []netip.Addr {
+func withPreferred(preferred []string, sampled []netip.Addr, limit int, allow6 bool) []netip.Addr {
 	out := make([]netip.Addr, 0, limit)
 	seen := make(map[netip.Addr]struct{}, limit)
 	add := func(a netip.Addr) {
@@ -100,7 +105,8 @@ func withPreferred(preferred []string, sampled []netip.Addr, limit int) []netip.
 		out = append(out, a)
 	}
 	for _, s := range preferred {
-		if a, err := netip.ParseAddr(s); err == nil && a.Is4() {
+		// An IPv6 address found earlier is retried only while IPv6 is scanned.
+		if a, err := netip.ParseAddr(s); err == nil && (a.Is4() || allow6) {
 			add(a)
 		}
 	}
@@ -164,7 +170,8 @@ func (t *tester) test(ctx context.Context, ip netip.Addr) (scanResult, bool) {
 	}
 	result := scanResult{IP: ip.String(), Port: t.conf.Port}
 
-	if t.conf.Ping.Enable && !t.ping.disabled.Load() {
+	// The ICMP probe is IPv4's; an IPv6 address goes straight to TCP and TLS.
+	if t.conf.Ping.Enable && !t.ping.disabled.Load() && ip.Is4() {
 		rtt, err := t.pinger(ip, time.Duration(t.conf.Ping.MaxMs)*time.Millisecond)
 		tries := t.ping.tries.Add(1)
 		switch {

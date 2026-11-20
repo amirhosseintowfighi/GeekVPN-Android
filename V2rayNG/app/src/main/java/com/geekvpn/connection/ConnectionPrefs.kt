@@ -86,6 +86,34 @@ class ConnectionPrefs(private val storage: MMKV) {
             storage.encode(KEY_AUTO_WIFI, value)
         }
 
+    /** "روی داده‌ی موبایل": start the VPN when mobile data comes up. */
+    var autoOnMobile: Boolean
+        get() = storage.decodeBool(KEY_AUTO_MOBILE, false)
+        set(value) {
+            storage.encode(KEY_AUTO_MOBILE, value)
+        }
+
+    /** "زمان‌بندی روزانه" ([com.geekvpn.autoconnect.Schedule]). */
+    var scheduleOn: Boolean
+        get() = storage.decodeBool(KEY_SCHEDULE_ON, false)
+        set(value) {
+            storage.encode(KEY_SCHEDULE_ON, value)
+        }
+
+    /** Minute of the day to connect; 08:00 by default. */
+    var scheduleStart: Int
+        get() = storage.decodeInt(KEY_SCHEDULE_START, 8 * 60)
+        set(value) {
+            storage.encode(KEY_SCHEDULE_START, value.coerceIn(0, 24 * 60 - 1))
+        }
+
+    /** Minute of the day to disconnect; 23:00 by default. */
+    var scheduleEnd: Int
+        get() = storage.decodeInt(KEY_SCHEDULE_END, 23 * 60)
+        set(value) {
+            storage.encode(KEY_SCHEDULE_END, value.coerceIn(0, 24 * 60 - 1))
+        }
+
     /** `NetworkIdentity.key`s of the Wi-Fi networks the user trusts (home, work). */
     val trustedNetworks: Set<String>
         get() = storage.decodeStringSet(KEY_TRUSTED, emptySet())?.toSet().orEmpty()
@@ -123,6 +151,10 @@ class ConnectionPrefs(private val storage: MMKV) {
         private const val KEY_AUTO_UPDATE = "auto_update"
         private const val KEY_ROUTE = "route_mode"
         private const val KEY_ONBOARDING_SEEN = "onboarding_seen"
+        private const val KEY_AUTO_MOBILE = "auto_on_mobile"
+        private const val KEY_SCHEDULE_ON = "schedule_on"
+        private const val KEY_SCHEDULE_START = "schedule_start"
+        private const val KEY_SCHEDULE_END = "schedule_end"
         private const val KEY_CONNECTED_SINCE = "connected_since"
         private const val KEY_ACTIVE_CONNECTIONS = "active_connections"
         private const val KEY_LAST_FAILURE = "last_failure"

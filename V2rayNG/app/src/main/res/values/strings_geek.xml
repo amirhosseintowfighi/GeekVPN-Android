@@ -466,6 +466,8 @@
     <string name="geek_auto_boot_hint">Connects to the selected server</string>
     <string name="geek_auto_wifi">On an unknown Wi-Fi</string>
     <string name="geek_auto_wifi_hint">Cafés, hotels, public networks; not the ones you trust</string>
+    <string name="geek_auto_mobile">On mobile data</string>
+    <string name="geek_auto_mobile_hint">Connect by itself when the phone switches to mobile data</string>
     <string name="geek_auto_trust_current">Trust this Wi-Fi</string>
     <string name="geek_auto_trust_current_hint">No auto-connect here (home, work)</string>
     <string name="geek_auto_trust_clear">Forget trusted networks</string>
@@ -763,4 +765,14 @@
     <string name="geek_onboard_route_body">Iranian sites and apps go direct and everything else through the VPN, so banks and local sites stay fast and your data lasts longer. Account › Site exceptions sends any site the other way.</string>
     <string name="geek_onboard_help_title">When it will not connect</string>
     <string name="geek_onboard_help_body">Account › Connection troubleshooter finds out whether the network, the server or a filter is the problem and says what to do. On a direct service, the clean IP scanner finds a Cloudflare address that still works on your network.</string>
+
+    <!-- Daily schedule (autoconnect.Schedule) -->
+    <string name="geek_schedule_section">Schedule</string>
+    <string name="geek_schedule_title">Daily schedule</string>
+    <string name="geek_schedule_hint">Connect and disconnect at set times every day</string>
+    <string name="geek_schedule_start">Connect at</string>
+    <string name="geek_schedule_end">Disconnect at</string>
+    <string name="geek_schedule_same">The two times are the same, so nothing is scheduled.</string>
+    <string name="geek_schedule_prompt_title">Time to connect</string>
+    <string name="geek_schedule_prompt_text">Your daily schedule starts now. Tap to connect.</string>
 </resources>

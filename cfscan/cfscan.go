@@ -72,6 +72,7 @@ func (s *Scanner) Start(configJSON string, ranges string, listener Listener) err
 	if err != nil {
 		return err
 	}
+	prefixes6 := parseRanges6(ranges)
 
 	s.mu.Lock()
 	if s.running {
@@ -91,7 +92,7 @@ func (s *Scanner) Start(configJSON string, ranges string, listener Listener) err
 			s.mu.Unlock()
 			cancel()
 		}()
-		runErr := run(ctx, conf, prefixes, listener)
+		runErr := run(ctx, conf, prefixes, prefixes6, listener)
 		message := ""
 		if runErr != nil && !errors.Is(runErr, context.Canceled) {
 			message = runErr.Error()

@@ -39,13 +39,6 @@ class InfoWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         when (intent.action) {
-            ACTION_TOGGLE -> {
-                if (CoreServiceManager.isRunning()) {
-                    LauncherManager.stopService(context)
-                } else {
-                    LauncherManager.startServiceFromToggle(context)
-                }
-            }
             AppConfig.BROADCAST_ACTION_ACTIVITY -> {
                 val running = when (intent.getIntExtra("key", 0)) {
                     AppConfig.MSG_STATE_RUNNING, AppConfig.MSG_STATE_START_SUCCESS -> true
@@ -101,7 +94,7 @@ class InfoWidget : AppWidgetProvider() {
             PendingIntent.getBroadcast(
                 context,
                 REQUEST_TOGGLE,
-                Intent(context, InfoWidget::class.java).setAction(ACTION_TOGGLE),
+                Intent(context, InfoWidgetToggle::class.java).setAction(InfoWidgetToggle.ACTION_TOGGLE),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
@@ -119,7 +112,6 @@ class InfoWidget : AppWidgetProvider() {
     }
 
     companion object {
-        private const val ACTION_TOGGLE = "com.geekvpn.widget.TOGGLE"
         private const val REQUEST_TOGGLE = 0x6977
         private const val REQUEST_OPEN = 0x6978
         private const val PROGRESS_MAX = 1000
@@ -135,5 +127,27 @@ class InfoWidget : AppWidgetProvider() {
                     .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids),
             )
         }
+    }
+}
+
+/**
+ * The widget's connect/disconnect button. Apart from [InfoWidget] because a
+ * widget provider has to be exported for the launcher to update it, and an
+ * exported receiver that toggled the VPN let any app on the phone turn the
+ * connection off (or on) with one broadcast. This one is not exported: only
+ * the widget's own PendingIntent, sent as this app, reaches it.
+ */
+class InfoWidgetToggle : android.content.BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != ACTION_TOGGLE) return
+        if (CoreServiceManager.isRunning()) {
+            LauncherManager.stopService(context)
+        } else {
+            LauncherManager.startServiceFromToggle(context)
+        }
+    }
+
+    companion object {
+        const val ACTION_TOGGLE = "com.geekvpn.widget.TOGGLE"
     }
 }

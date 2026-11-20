@@ -149,6 +149,11 @@
             android:name="com.geekvpn.autoconnect.WifiJoinReceiver"
             android:exported="false"
             android:process=":daemon" />
+        <!-- The daily schedule's alarm (Schedule); in the VPN process, like the Wi-Fi trigger. -->
+        <receiver
+            android:name="com.geekvpn.autoconnect.ScheduleReceiver"
+            android:exported="false"
+            android:process=":daemon" />
         <receiver
             android:name="com.geekvpn.autoconnect.AutoConnectBootReceiver"
             android:exported="true">
@@ -424,6 +429,11 @@
                 <action android:name="${applicationId}.action.activity" />
             </intent-filter>
         </receiver>
+        <!-- The widget's button; not exported, so no other app can toggle the VPN. -->
+        <receiver
+            android:name="com.geekvpn.widget.InfoWidgetToggle"
+            android:exported="false"
+            android:process=":daemon" />
         <receiver
             android:name=".receiver.BootReceiver"
             android:exported="true"
