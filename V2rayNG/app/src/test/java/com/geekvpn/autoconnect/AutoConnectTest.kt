@@ -36,6 +36,15 @@ class AutoConnectTest {
     }
 
     @Test
+    fun mobile_data_starts_the_vpn_only_with_its_own_switch_on() {
+        val mobile = NetworkIdentity.mobile("43235", "Irancell")
+        assertEquals(Decision.Start, AutoConnect.decide(false, mobile, emptySet(), false, true, true, mobileEnabled = true))
+        assertEquals(Decision.Nothing, AutoConnect.decide(true, mobile, emptySet(), false, true, true, mobileEnabled = false))
+        // The mobile switch does not turn on the Wi-Fi rule.
+        assertEquals(Decision.Nothing, AutoConnect.decide(false, cafe, emptySet(), false, true, true, mobileEnabled = true))
+    }
+
+    @Test
     fun where_android_forbids_a_background_start_it_asks() {
         assertEquals(Decision.Ask, decide(canStart = false))
     }

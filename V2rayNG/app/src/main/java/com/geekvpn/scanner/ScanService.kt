@@ -80,8 +80,12 @@ class ScanService : Service() {
         val network = NetworkIdentity.current(this)
         val store = ScanController.store
         val known = store.results(target, network.key)?.results.orEmpty().map { it.ip }
+        // IPv6 only where this network can reach it; elsewhere a third of the
+        // budget would go to addresses that cannot answer.
+        val ipv6 = NetworkIdentity.hasGlobalIpv6()
         val ranges = try {
-            assets.open(RANGES_ASSET).bufferedReader().use { it.readText() }
+            assets.open(RANGES_ASSET).bufferedReader().use { it.readText() } +
+                if (ipv6) "\n" + assets.open(RANGES_ASSET_V6).bufferedReader().use { it.readText() } else ""
         } catch (e: java.io.IOException) {
             LogUtil.e(AppConfig.TAG, "Scan: bundled ranges missing", e)
             finish(getString(R.string.geek_scan_err_generic), null)
@@ -91,7 +95,7 @@ class ScanService : Service() {
         val found = mutableListOf<CleanIp>()
         try {
             CfScanNative.start(
-                ScanConfig.json(target, known, download),
+                ScanConfig.json(target, known, download, ipv6 = ipv6),
                 ranges,
                 object : CfScanNative.Events {
                     override fun onResult(json: String) {
@@ -203,6 +207,7 @@ class ScanService : Service() {
 
         /** cf-scanner's Cloudflare IPv4 list (MIT), shipped with the app. */
         const val RANGES_ASSET = "cfscan/ipv4.txt"
+        const val RANGES_ASSET_V6 = "cfscan/ipv6.txt"
         private const val CHANNEL = "geek_scan"
         private const val NOTIFICATION_ID = 4107
         private const val NOTIFY_INTERVAL_MS = 1_000L

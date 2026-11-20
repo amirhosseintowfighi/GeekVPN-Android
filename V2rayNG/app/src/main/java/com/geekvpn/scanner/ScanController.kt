@@ -122,8 +122,12 @@ object ScanConfig {
     const val MAX_IPS = 300
     const val STOP_AFTER = 5
 
-    fun json(target: CdnTarget, preferIps: List<String>, downloadTest: Boolean, gson: Gson = Gson()): String {
+    /** The part of the budget spent on IPv6 when the network has it. */
+    const val IPV6_SHARE = 0.3
+
+    fun json(target: CdnTarget, preferIps: List<String>, downloadTest: Boolean, gson: Gson = Gson(), ipv6: Boolean = false): String {
         val root = JsonObject()
+        if (ipv6) root.addProperty("ipv6Share", IPV6_SHARE)
         root.addProperty("sni", target.sni)
         root.addProperty("host", target.host)
         root.addProperty("port", target.port)

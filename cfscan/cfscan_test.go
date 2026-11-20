@@ -290,7 +290,7 @@ func TestStartRefusesBadInput(t *testing.T) {
 func TestKnownAddressesAreRetestedFirst(t *testing.T) {
 	prefixes, _ := parseRanges("104.16.0.0/16\n")
 	sampled := sample(prefixes, 5, rand.New(rand.NewPCG(5, 6)))
-	got := withPreferred([]string{"1.1.1.1", "bogus", "::1", sampled[0].String()}, sampled, 5)
+	got := withPreferred([]string{"1.1.1.1", "bogus", "::1", sampled[0].String()}, sampled, 5, false)
 	if len(got) != 5 || got[0].String() != "1.1.1.1" || got[1] != sampled[0] {
 		t.Fatalf("got %v", got)
 	}
@@ -310,5 +310,35 @@ func TestTheBundledRangesParse(t *testing.T) {
 	}
 	if got := sample(prefixes, 300, rand.New(rand.NewPCG(7, 8))); len(got) != 300 {
 		t.Fatalf("sampled %d", len(got))
+	}
+}
+
+func TestIPv6RangesAreReadApartAndSampledInside(t *testing.T) {
+	text := "104.16.0.0/24\n2606:4700::/32\n# comment\n2a06:98c0::/29\n"
+	v6 := parseRanges6(text)
+	if len(v6) != 2 {
+		t.Fatalf("got %v", v6)
+	}
+	rng := rand.New(rand.NewPCG(5, 6))
+	addrs := sample6(v6, 50, rng)
+	if len(addrs) != 50 {
+		t.Fatalf("got %d addresses", len(addrs))
+	}
+	for _, a := range addrs {
+		if a.Is4() || (!v6[0].Contains(a) && !v6[1].Contains(a)) {
+			t.Errorf("%s is outside the ranges", a)
+		}
+	}
+}
+
+func TestIPv4AndIPv6AlternateInTheBudget(t *testing.T) {
+	a := []netip.Addr{netip.MustParseAddr("1.1.1.1"), netip.MustParseAddr("1.1.1.2"), netip.MustParseAddr("1.1.1.3")}
+	b := []netip.Addr{netip.MustParseAddr("2606:4700::1")}
+	got := interleave(a, b)
+	want := []string{"1.1.1.1", "2606:4700::1", "1.1.1.2", "1.1.1.3"}
+	for i, w := range want {
+		if got[i].String() != w {
+			t.Fatalf("got %v", got)
+		}
 	}
 }

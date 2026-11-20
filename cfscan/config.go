@@ -40,6 +40,10 @@ type config struct {
 	// earlier scan found, re-tested once they have gone stale.
 	PreferIPs []string `json:"preferIps"`
 
+	// IPv6Share is the part of MaxIPs drawn from the IPv6 ranges, 0 to 0.5.
+	// The app sets it only when the phone's network has IPv6; 0 scans IPv4 only.
+	IPv6Share float64 `json:"ipv6Share"`
+
 	// Seed fixes the address sample (tests); 0 is random.
 	Seed uint64 `json:"seed"`
 	// Insecure skips certificate checks. Tests only; the app never sets it.

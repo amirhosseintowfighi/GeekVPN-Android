@@ -30,6 +30,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.geekvpn.autoconnect.AutoConnect
+import com.geekvpn.autoconnect.Schedule
 import com.geekvpn.connection.ConnectionPrefs
 import com.geekvpn.scanner.NetworkIdentity
 import com.geekvpn.ui.common.GlassIconButton
@@ -62,6 +63,11 @@ data class AutoConnectUiState(
     val loaded: Boolean = false,
     val startOnBoot: Boolean = false,
     val autoOnWifi: Boolean = false,
+    val autoOnMobile: Boolean = false,
+    val scheduleOn: Boolean = false,
+    /** Minutes of the day. */
+    val scheduleStart: Int = 8 * 60,
+    val scheduleEnd: Int = 23 * 60,
     /** The key of the Wi-Fi the phone is on now; null on mobile data or offline. */
     val currentWifi: String? = null,
     val currentTrusted: Boolean = false,
@@ -88,6 +94,26 @@ class AutoConnectViewModel(application: Application) : AndroidViewModel(applicat
     fun setAutoOnWifi(on: Boolean) = write {
         ConnectionPrefs.open().autoOnWifi = on
         AutoConnect.sync(getApplication())
+    }
+
+    fun setAutoOnMobile(on: Boolean) = write {
+        ConnectionPrefs.open().autoOnMobile = on
+        AutoConnect.sync(getApplication())
+    }
+
+    fun setSchedule(on: Boolean) = write {
+        ConnectionPrefs.open().scheduleOn = on
+        Schedule.arm(getApplication())
+    }
+
+    fun setScheduleStart(minute: Int) = write {
+        ConnectionPrefs.open().scheduleStart = minute
+        Schedule.arm(getApplication())
+    }
+
+    fun setScheduleEnd(minute: Int) = write {
+        ConnectionPrefs.open().scheduleEnd = minute
+        Schedule.arm(getApplication())
     }
 
     fun setCurrentTrusted(trusted: Boolean) {
@@ -117,6 +143,10 @@ class AutoConnectViewModel(application: Application) : AndroidViewModel(applicat
             loaded = true,
             startOnBoot = MmkvManager.decodeStartOnBoot(),
             autoOnWifi = prefs.autoOnWifi,
+            autoOnMobile = prefs.autoOnMobile,
+            scheduleOn = prefs.scheduleOn,
+            scheduleStart = prefs.scheduleStart,
+            scheduleEnd = prefs.scheduleEnd,
             currentWifi = wifi,
             currentTrusted = wifi != null && wifi in trusted,
             trustedCount = trusted.size,
@@ -155,6 +185,10 @@ class AutoConnectActivity : BaseComponentActivity() {
                         override fun onBack() = finish()
                         override fun onStartOnBoot(on: Boolean) = viewModel.setStartOnBoot(on)
                         override fun onAutoOnWifi(on: Boolean) = viewModel.setAutoOnWifi(on)
+                        override fun onAutoOnMobile(on: Boolean) = viewModel.setAutoOnMobile(on)
+                        override fun onSchedule(on: Boolean) = viewModel.setSchedule(on)
+                        override fun onScheduleStart() = pickTime(viewModel.uiState.value.scheduleStart, viewModel::setScheduleStart)
+                        override fun onScheduleEnd() = pickTime(viewModel.uiState.value.scheduleEnd, viewModel::setScheduleEnd)
                         override fun onTrustCurrent(trusted: Boolean) = viewModel.setCurrentTrusted(trusted)
                         override fun onClearTrusted() = viewModel.clearTrusted()
                         override fun onBatterySettings() = openSettings(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
@@ -163,6 +197,17 @@ class AutoConnectActivity : BaseComponentActivity() {
                 )
             }
         }
+    }
+
+    /** The platform's own time picker, in the phone's 12/24-hour format. */
+    private fun pickTime(minute: Int, onPicked: (Int) -> Unit) {
+        android.app.TimePickerDialog(
+            this,
+            { _, hour, min -> onPicked(hour * 60 + min) },
+            minute / 60,
+            minute % 60,
+            android.text.format.DateFormat.is24HourFormat(this),
+        ).show()
     }
 
     private fun openSettings(action: String) {
@@ -182,6 +227,10 @@ interface AutoConnectActions {
     fun onBack()
     fun onStartOnBoot(on: Boolean)
     fun onAutoOnWifi(on: Boolean)
+    fun onAutoOnMobile(on: Boolean) {}
+    fun onSchedule(on: Boolean) {}
+    fun onScheduleStart() {}
+    fun onScheduleEnd() {}
     fun onTrustCurrent(trusted: Boolean)
     fun onClearTrusted()
     fun onBatterySettings()
@@ -245,10 +294,48 @@ fun AutoConnectScreen(state: AutoConnectUiState, actions: AutoConnectActions) {
                     )
                 }
             }
+            SettingsCard {
+                SettingRow(
+                    icon = GeekIcons.Bolt,
+                    title = stringResource(R.string.geek_auto_mobile),
+                    hint = stringResource(R.string.geek_auto_mobile_hint),
+                    onClick = { actions.onAutoOnMobile(!state.autoOnMobile) },
+                    role = Role.Switch,
+                ) { GeekSwitch(checked = state.autoOnMobile, onCheckedChange = null) }
+            }
+            SectionLabel(stringResource(R.string.geek_schedule_section))
+            SettingsCard {
+                SettingRow(
+                    icon = GeekIcons.Clock,
+                    title = stringResource(R.string.geek_schedule_title),
+                    hint = stringResource(R.string.geek_schedule_hint),
+                    onClick = { actions.onSchedule(!state.scheduleOn) },
+                    role = Role.Switch,
+                ) { GeekSwitch(checked = state.scheduleOn, onCheckedChange = null) }
+                if (state.scheduleOn) {
+                    SettingsDivider()
+                    SettingRow(
+                        icon = GeekIcons.Bolt,
+                        title = stringResource(R.string.geek_schedule_start),
+                        hint = clock(state.scheduleStart),
+                        onClick = actions::onScheduleStart,
+                    )
+                    SettingsDivider()
+                    SettingRow(
+                        icon = GeekIcons.Close,
+                        title = stringResource(R.string.geek_schedule_end),
+                        hint = clock(state.scheduleEnd),
+                        onClick = actions::onScheduleEnd,
+                    )
+                }
+            }
+            if (state.scheduleOn && state.scheduleStart == state.scheduleEnd) {
+                Note(stringResource(R.string.geek_schedule_same))
+            }
             if (state.autoOnWifi && state.currentWifi == null) {
                 Note(stringResource(R.string.geek_auto_trust_offwifi))
             }
-            if (state.autoOnWifi && !state.canStartInBackground) {
+            if ((state.autoOnWifi || state.autoOnMobile || state.scheduleOn) && !state.canStartInBackground) {
                 Note(stringResource(R.string.geek_auto_battery_note))
                 GeekSecondaryButton(
                     stringResource(R.string.geek_auto_battery_open),
@@ -286,4 +373,11 @@ private fun Note(text: String) {
         color = Geek.colors.onBackgroundMuted,
         modifier = Modifier.padding(horizontal = 4.dp),
     )
+}
+
+/** "۰۸:۳۰" / "08:30": a minute of the day in the app's digits. */
+@Composable
+private fun clock(minute: Int): String {
+    val locale = com.geekvpn.ui.common.appLocale()
+    return String.format(locale, "%02d:%02d", minute / 60, minute % 60)
 }

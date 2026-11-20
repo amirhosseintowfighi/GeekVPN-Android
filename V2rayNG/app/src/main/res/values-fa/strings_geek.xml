@@ -462,6 +462,8 @@
     <string name="geek_auto_boot_hint">به سرور انتخاب‌شده وصل می‌شود</string>
     <string name="geek_auto_wifi">روی وای‌فای ناشناس</string>
     <string name="geek_auto_wifi_hint">کافه، هتل و شبکه‌های عمومی؛ نه شبکه‌هایی که به آن‌ها اعتماد داری</string>
+    <string name="geek_auto_mobile">روی داده‌ی موبایل</string>
+    <string name="geek_auto_mobile_hint">وقتی گوشی به داده‌ی موبایل وصل شد، خودش وصل شود</string>
     <string name="geek_auto_trust_current">این وای‌فای مورد اعتماد است</string>
     <string name="geek_auto_trust_current_hint">اینجا خودکار وصل نشو (خانه، محل کار)</string>
     <string name="geek_auto_trust_clear">فراموش کردن شبکه‌های مورد اعتماد</string>
@@ -759,4 +761,14 @@
     <string name="geek_onboard_route_body">سایت‌ها و برنامه‌های ایرانی مستقیم می‌روند و بقیه از VPN، پس بانک و سایت‌های داخلی سریع می‌مانند و حجمت دیرتر تمام می‌شود. از «حساب ← سایت‌های استثنا» هر سایتی را برعکس بفرست.</string>
     <string name="geek_onboard_help_title">وقتی وصل نمی‌شود</string>
     <string name="geek_onboard_help_body">«حساب ← عیب‌یاب اتصال» می‌گوید مشکل از شبکه است، از سرور یا از فیلتر، و چه کار کنی. روی سرویس مستقیم، اسکنر IP تمیز یک آدرس کلادفلر پیدا می‌کند که روی شبکه‌ی تو هنوز کار می‌کند.</string>
+
+    <!-- Daily schedule (autoconnect.Schedule) -->
+    <string name="geek_schedule_section">زمان‌بندی</string>
+    <string name="geek_schedule_title">زمان‌بندی روزانه</string>
+    <string name="geek_schedule_hint">هر روز سر ساعت مشخص وصل و قطع شود</string>
+    <string name="geek_schedule_start">ساعت وصل شدن</string>
+    <string name="geek_schedule_end">ساعت قطع شدن</string>
+    <string name="geek_schedule_same">دو ساعت یکی است، پس چیزی زمان‌بندی نمی‌شود.</string>
+    <string name="geek_schedule_prompt_title">وقت اتصال است</string>
+    <string name="geek_schedule_prompt_text">زمان‌بندی روزانه‌ات شروع شد. برای اتصال بزن.</string>
 </resources>
