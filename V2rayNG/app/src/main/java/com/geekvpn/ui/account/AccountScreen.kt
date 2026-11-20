@@ -42,6 +42,7 @@ import com.geekvpn.ui.common.SettingRow
 import com.geekvpn.ui.common.SettingsCard
 import com.geekvpn.ui.common.SettingsDivider
 import com.geekvpn.ui.common.appLocale
+import com.geekvpn.ui.common.formatBalance
 import com.geekvpn.ui.common.formatNumber
 import com.geekvpn.ui.components.GeekPrimaryButton
 import com.geekvpn.ui.components.GeekSwitch
@@ -392,7 +393,7 @@ private fun WalletCard(balance: Long?, actions: AccountActions) {
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.semantics(mergeDescendants = true) {},
             ) {
-                Text(formatNumber(balance ?: 0, locale), style = Geek.type.pageTitle.copy(fontSize = 32.sp, fontWeight = FontWeight.Black), color = colors.onGlass)
+                Text(formatBalance(balance, locale), style = Geek.type.pageTitle.copy(fontSize = 32.sp, fontWeight = FontWeight.Black), color = colors.onGlass)
                 Text(stringResource(R.string.geek_account_toman), style = Geek.type.label.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold), color = colors.onGlassMuted, modifier = Modifier.padding(bottom = 6.dp))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

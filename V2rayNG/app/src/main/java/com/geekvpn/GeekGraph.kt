@@ -96,6 +96,30 @@ object GeekGraph {
         }
     }
 
+    private var balanceJob: Job? = null
+    @Volatile private var lastBalanceAt = 0L
+
+    /**
+     * Reads the wallet balance on its own. Before, only the launch sync read
+     * it, at most every ten minutes, only with "update services on open" on,
+     * and only after the service list itself loaded; a top-up approved by the
+     * bot, a purchase in the bot, or a first sign-in left Home showing an old
+     * balance, or none at all. Home calls this whenever it comes to the front.
+     */
+    fun refreshBalance(force: Boolean = false) {
+        if (session.session.value !is Session.SignedIn) return
+        if (balanceJob?.isActive == true) return
+        if (!force && System.currentTimeMillis() - lastBalanceAt < BALANCE_INTERVAL_MS) return
+        balanceJob = launchScope.launch {
+            try {
+                api.wallet().balance?.let(accountStore::saveBalance)
+                lastBalanceAt = System.currentTimeMillis()
+            } catch (e: java.io.IOException) {
+                LogUtil.w(AppConfig.TAG, "GeekGraph: wallet read failed", e)
+            }
+        }
+    }
+
     /** The operator's offer banner (Home, shop). */
     val promos: Promos by lazy { Promos.open(api) }
 
@@ -155,4 +179,5 @@ object GeekGraph {
     const val ID_ACCOUNT = "GEEK_ACCOUNT"
     private const val ID_SECURE = "GEEK_SECURE"
     private const val LAUNCH_SYNC_INTERVAL_MS = 10 * 60 * 1000L
+    private const val BALANCE_INTERVAL_MS = 20 * 1000L
 }

@@ -255,7 +255,14 @@ if [[ "$catalog_probe" != *Error* ]]; then
     scroll; shot catalog-dark-3 2
 fi
 
-adb logcat -d > "$OUT/logcat.txt"
+# The API 35 image's adb transport has dropped mid-dump (exit 255) after a
+# full, crash-free run; reconnect and dump again rather than lose the log.
+if ! adb logcat -d > "$OUT/logcat.txt"; then
+    echo "::warning::logcat dump failed, reconnecting to the emulator"
+    adb reconnect offline >/dev/null 2>&1 || true
+    timeout 60 adb wait-for-device
+    adb logcat -d > "$OUT/logcat.txt"
+fi
 
 if grep -q "FATAL EXCEPTION" "$OUT/logcat.txt" && grep -A3 "FATAL EXCEPTION" "$OUT/logcat.txt" | grep -q "$PKG"; then
     echo "::error::crash in $PKG, see logcat.txt"

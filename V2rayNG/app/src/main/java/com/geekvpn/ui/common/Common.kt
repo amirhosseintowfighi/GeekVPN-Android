@@ -58,6 +58,12 @@ fun appLocale(): Locale = LocalLocale.current.platformLocale
 fun formatNumber(value: Long, locale: Locale): String = NumberFormat.getIntegerInstance(locale).format(value)
 
 /**
+ * A wallet balance, or a dash while it has not been read yet. Showing an
+ * unknown balance as 0 told customers their money was gone.
+ */
+fun formatBalance(value: Long?, locale: Locale): String = value?.let { formatNumber(it, locale) } ?: "—"
+
+/**
  * A server timestamp as a short date: "۱۴۰۵/۰۷/۰۲" (Solar Hijri) in Persian,
  * the locale's own calendar otherwise. Null when [iso] does not parse.
  */
@@ -152,7 +158,7 @@ fun WalletChip(balance: Long?, onClick: () -> Unit) {
         ) {
             Icon(GeekIcons.Card, contentDescription = null, tint = colors.onBackground, modifier = Modifier.size(15.dp))
             Text(
-                text = stringResource(R.string.geek_home_balance, formatNumber(balance ?: 0, locale)),
+                text = stringResource(R.string.geek_home_balance, formatBalance(balance, locale)),
                 style = Geek.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold),
                 color = colors.onBackground,
             )

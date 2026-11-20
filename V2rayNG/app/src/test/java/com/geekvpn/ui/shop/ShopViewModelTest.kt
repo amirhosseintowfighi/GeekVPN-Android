@@ -24,6 +24,8 @@ import com.geekvpn.shop.ShopApi
 import com.v2ray.ang.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -139,7 +141,9 @@ class ShopViewModelTest {
         var account = "u1"
         override fun signedIn() = signedIn
         override fun accountKey() = if (signedIn) account else null
+        val stored = MutableStateFlow<Long?>(null)
         override fun balance() = saved
+        override fun balances(): Flow<Long?> = stored
         override fun saveBalance(tomans: Long) {
             saved = tomans
         }
@@ -307,6 +311,28 @@ class ShopViewModelTest {
         testScheduler.advanceUntilIdle()
 
         assertTrue(h.events.isEmpty())
+    }
+
+    @Test
+    fun a_top_up_from_home_offers_the_same_methods_as_the_shop() = runTest {
+        // The wallet opened from Home: the shop tab, and its methods, never loaded.
+        val h = Harness(this)
+        h.viewModel.openWallet()
+        h.viewModel.topup(100_000)
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(h.viewModel.uiState.value.sheet is ShopSheet.Checkout)
+        assertEquals(listOf("card", "zarinpal"), h.viewModel.optionsFor(CheckoutPurpose.Topup(100_000)).map { it.key })
+    }
+
+    @Test
+    fun the_shown_balance_follows_the_stored_one() = runTest {
+        val h = Harness(this)
+        testScheduler.advanceUntilIdle()
+        h.env.stored.value = 420_000
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(420_000L, h.viewModel.uiState.value.balance)
     }
 
     @Test

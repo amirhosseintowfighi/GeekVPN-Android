@@ -213,6 +213,8 @@ class HomeActivity : HelperBaseComponentActivity() {
         AppUpdater.check()
         // An answer from support shows on «تیکت‌های من» without opening the bot.
         account.refreshTickets()
+        // The wallet chip and card: a top-up approved in the bot shows here too.
+        GeekGraph.refreshBalance()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -355,6 +357,8 @@ class HomeActivity : HelperBaseComponentActivity() {
             }
             LaunchedEffect(tab, accountState.session) {
                 if (tab == GeekTab.Shop) shop.load()
+                // Every tab that shows the balance; a fresh sign-in reads it at once.
+                if (tab != GeekTab.Services) GeekGraph.refreshBalance()
             }
 
             val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
