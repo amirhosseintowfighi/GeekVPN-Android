@@ -1,4 +1,4 @@
 source=claude/lucid-brahmagupta-lhpdqg
-sha=f4086919f80ae5ac2d2b9f9bfca0487344bc57c0
-run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/45625402395
-smoke=failure
+sha=442a01d703312f390c2884f79d48bb34705616d7
+run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/45674839151
+smoke=success
