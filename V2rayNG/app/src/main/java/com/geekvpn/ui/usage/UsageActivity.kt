@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,13 +51,17 @@ import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.common.appLocale
 import com.geekvpn.ui.common.formatDate
 import com.geekvpn.ui.common.formatDecimal
+import com.geekvpn.ui.components.ChoicePill
 import com.geekvpn.ui.components.GeekBackdrop
+import com.geekvpn.ui.components.GeekSegmented
+import com.geekvpn.ui.components.GeekSwitch
 import com.geekvpn.ui.components.GlassKind
 import com.geekvpn.ui.components.GlassSurface
 import com.geekvpn.ui.icons.GeekIcons
 import com.geekvpn.ui.theme.Geek
 import com.geekvpn.ui.theme.GeekTheme
 import com.geekvpn.usage.DailyUsage
+import com.geekvpn.usage.DataCap
 import com.geekvpn.usage.DayUsage
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
@@ -127,6 +133,9 @@ data class UsageUiState(
     val source: UsageSource = UsageSource.Phone,
     val loading: Boolean = false,
     val failed: Boolean = false,
+    /** «سقف مصرف» and what this phone used in its period so far. */
+    val cap: DataCap? = null,
+    val capUsed: Long = 0,
 )
 
 class UsageViewModel(application: Application) : AndroidViewModel(application) {
@@ -136,11 +145,36 @@ class UsageViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         load()
+        loadCap()
     }
 
     fun setRange(days: Int) {
         state.value = state.value.copy(range = days)
         load()
+    }
+
+    /** Off with null; a change applies from the VPN process's next sample, within half a minute. */
+    fun setCap(cap: DataCap?) {
+        state.value = state.value.copy(cap = cap)
+        viewModelScope.launch {
+            val used = withContext(Dispatchers.IO) {
+                val usage = DailyUsage.open()
+                usage.cap = cap
+                cap?.let { usage.usedInPeriod(it, LocalDate.now()) } ?: 0L
+            }
+            state.value = state.value.copy(capUsed = used)
+        }
+    }
+
+    private fun loadCap() {
+        viewModelScope.launch {
+            val (cap, used) = withContext(Dispatchers.IO) {
+                val usage = DailyUsage.open()
+                val cap = usage.cap
+                cap to (cap?.let { usage.usedInPeriod(it, LocalDate.now()) } ?: 0L)
+            }
+            state.value = state.value.copy(cap = cap, capUsed = used)
+        }
     }
 
     fun setSource(source: UsageSource) {
@@ -189,14 +223,26 @@ class UsageActivity : BaseComponentActivity() {
         GeekTheme {
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             GeekBackdrop {
-                UsageScreen(state, onRange = viewModel::setRange, onSource = viewModel::setSource, onBack = ::finish)
+                UsageScreen(
+                    state,
+                    onRange = viewModel::setRange,
+                    onSource = viewModel::setSource,
+                    onCap = viewModel::setCap,
+                    onBack = ::finish,
+                )
             }
         }
     }
 }
 
 @Composable
-fun UsageScreen(state: UsageUiState, onRange: (Int) -> Unit, onSource: (UsageSource) -> Unit, onBack: () -> Unit) {
+fun UsageScreen(
+    state: UsageUiState,
+    onRange: (Int) -> Unit,
+    onSource: (UsageSource) -> Unit,
+    onCap: (DataCap?) -> Unit,
+    onBack: () -> Unit,
+) {
     val colors = Geek.colors
     val locale = appLocale()
     val summary = UsageChart.summary(state.days)
@@ -285,11 +331,83 @@ fun UsageScreen(state: UsageUiState, onRange: (Int) -> Unit, onSource: (UsageSou
                 Stat(stringResource(R.string.geek_usage_average), summary.average, locale, Modifier.weight(1f))
                 Stat(stringResource(R.string.geek_usage_peak), summary.peak, locale, Modifier.weight(1f))
             }
+            if (state.source.subscriptionId == null) {
+                CapCard(state.cap, state.capUsed, locale, onCap)
+            }
             Text(
                 stringResource(if (state.source.subscriptionId == null) R.string.geek_usage_note else R.string.geek_usage_note_service),
                 style = Geek.type.caption.copy(fontSize = 12.sp),
                 color = colors.onBackgroundMuted,
                 modifier = Modifier.padding(horizontal = 4.dp),
+            )
+        }
+    }
+}
+
+/** «سقف مصرف» ([DataCap]): on/off, the period, the limit and what happens at it. */
+@Composable
+private fun CapCard(cap: DataCap?, used: Long, locale: Locale, onCap: (DataCap?) -> Unit) {
+    val colors = Geek.colors
+    val on = cap != null
+    val title = stringResource(R.string.geek_cap_title)
+    GlassSurface(kind = GlassKind.Milk, shape = Geek.shapes.tileLarge, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+                    .toggleable(value = on, role = Role.Switch) { checked ->
+                        onCap(if (checked) DataCap(DataCap.PRESETS[3], DataCap.Period.Month, disconnect = false) else null)
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(title, style = Geek.type.row, color = colors.onGlass)
+                    Text(stringResource(R.string.geek_cap_hint), style = Geek.type.caption, color = colors.onGlassMuted)
+                }
+                GeekSwitch(checked = on, onCheckedChange = null)
+            }
+            if (cap == null) return@Column
+            GeekSegmented(
+                options = DataCap.Period.entries,
+                selected = cap.period,
+                label = { stringResource(if (it == DataCap.Period.Day) R.string.geek_cap_period_day else R.string.geek_cap_period_month) },
+                onSelect = { onCap(cap.copy(period = it)) },
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                DataCap.PRESETS.forEach { limit ->
+                    val (value, unit) = UsageChart.size(limit, locale)
+                    val label = "$value ${stringResource(unitLabel(unit))}"
+                    ChoicePill(selected = cap.limitBytes == limit, onClick = { onCap(cap.copy(limitBytes = limit)) }) { color ->
+                        Text(label, style = Geek.type.button.copy(fontSize = 14.sp), color = color, maxLines = 1, modifier = Modifier.padding(horizontal = 16.dp))
+                    }
+                }
+            }
+            GeekSegmented(
+                options = listOf(false, true),
+                selected = cap.disconnect,
+                label = { stringResource(if (it) R.string.geek_cap_action_disconnect else R.string.geek_cap_action_warn) },
+                onSelect = { onCap(cap.copy(disconnect = it)) },
+            )
+            val (usedValue, usedUnit) = UsageChart.size(used, locale)
+            val (limitValue, limitUnit) = UsageChart.size(cap.limitBytes, locale)
+            Text(
+                stringResource(
+                    if (cap.period == DataCap.Period.Day) R.string.geek_cap_used_day else R.string.geek_cap_used_month,
+                    "$usedValue ${stringResource(unitLabel(usedUnit))}",
+                    "$limitValue ${stringResource(unitLabel(limitUnit))}",
+                ),
+                style = Geek.type.caption,
+                color = if (used >= cap.limitBytes) colors.danger else colors.onGlassMuted,
+            )
+            Text(
+                stringResource(if (cap.disconnect) R.string.geek_cap_note_disconnect else R.string.geek_cap_note_warn),
+                style = Geek.type.caption.copy(fontSize = 12.sp),
+                color = colors.onGlassMuted,
             )
         }
     }

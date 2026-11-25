@@ -141,6 +141,12 @@
             android:name="com.geekvpn.ui.usage.UsageActivity"
             android:exported="false" />
         <activity
+            android:name="com.geekvpn.ui.history.HistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.geekvpn.ui.dns.DnsActivity"
+            android:exported="false" />
+        <activity
             android:name="com.geekvpn.lock.LockActivity"
             android:exported="false"
             android:launchMode="singleTop" />
@@ -459,6 +465,17 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="tile" />
+        </service>
+        <!-- GeekVPN: «مسیر», switches the route (com.geekvpn.quick.RouteTileService). -->
+        <service
+            android:name="com.geekvpn.quick.RouteTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_routing_24dp"
+            android:label="@string/geek_route_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
         </service>
         <!-- =====================Tasker===================== -->
         <activity

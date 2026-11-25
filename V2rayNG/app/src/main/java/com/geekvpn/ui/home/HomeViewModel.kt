@@ -17,6 +17,8 @@ import com.geekvpn.connection.ExitIp
 import com.geekvpn.connection.ExitIpLookup
 import com.geekvpn.connection.RouteMode
 import com.geekvpn.connection.ServerNames
+import com.geekvpn.connection.ServerStats
+import com.geekvpn.connection.ServerSummary
 import com.geekvpn.connection.ServiceSignal
 import com.geekvpn.connection.ServiceStatus
 import com.geekvpn.connection.TrafficMeter
@@ -68,6 +70,8 @@ data class ServerRow(
     val delayMs: Long,
     /** Starred: listed first. */
     val favorite: Boolean = false,
+    /** Its tests of the last two weeks; null when never tested. */
+    val stats: ServerSummary? = null,
 )
 
 /** A subscription the user added by hand (Services.html, "لینک‌های دستی"). */
@@ -135,6 +139,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = MainRepository(app)
     private val prefs = GeekGraph.connectionPrefs
     private val store = GeekGraph.accountStore
+    private val stats = ServerStats.open()
 
     private val state = MutableStateFlow(
         HomeUiState(
@@ -198,6 +203,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun onForeground(visible: Boolean) {
         foreground = visible
         if (visible) {
+            // The route tile («مسیر» in Quick Settings) may have changed it meanwhile.
+            prefs.routeMode?.let { route -> if (route != state.value.route) state.update { it.copy(route = route) } }
             reloadServers()
             updateSpeedSampler()
             if (System.currentTimeMillis() - exitIpCheckedAt > EXIT_IP_MAX_AGE_MS) refreshExitIp()
@@ -662,7 +669,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             pendingTest = null
             state.update { it.copy(testing = false) }
         }
-        return withContext(Dispatchers.IO) { guids.associateWith { delayOf(it) } }
+        return withContext(Dispatchers.IO) {
+            val delays = guids.associateWith { delayOf(it) }
+            recordStats(delays)
+            delays
+        }
+    }
+
+    /** «مقایسه‌ی سرورها»: every test's result, by the server's lasting identity. */
+    private fun recordStats(delays: Map<String, Long>) {
+        val byKey = delays.mapNotNull { (guid, delay) ->
+            MmkvManager.decodeServerConfig(guid)?.let { ProfileKey.of(it) to delay }
+        }.toMap()
+        stats.record(byKey)
     }
 
     /** Smart connect on this screen: v2rayNG's test service, `LauncherManager` and the daemon's reports. */
@@ -863,6 +882,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     countryCode = ServerNames.countryCode(profile.remarks),
                     delayMs = delayOf(guid),
                     favorite = ProfileKey.of(profile) in favorites,
+                    stats = stats.summary(ProfileKey.of(profile)),
                 )
             }
         }.orEmpty().let { list -> ConnectionLogic.favoritesFirst(list) { it.favorite } }

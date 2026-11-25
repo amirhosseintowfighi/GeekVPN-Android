@@ -51,10 +51,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.geekvpn.connection.ConnectionLogic
+import com.geekvpn.connection.ServerStatsLog
+import com.geekvpn.connection.ServerSummary
 import com.geekvpn.smartconnect.FailoverThreshold
 import com.geekvpn.ui.common.Eyebrow
 import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.common.Hairline
+import com.geekvpn.ui.common.appLocale
+import com.geekvpn.ui.common.formatNumber
 import com.geekvpn.ui.components.CountryBadge
 import com.geekvpn.ui.components.GeekCheckbox
 import com.geekvpn.ui.components.GeekSegmented
@@ -84,15 +88,19 @@ fun ServersScreen(
 ) {
     val colors = Geek.colors
     var query by rememberSaveable { mutableStateOf("") }
-    var byPing by rememberSaveable { mutableStateOf(false) }
-    val visible = remember(query, state.servers, byPing) {
+    var sort by rememberSaveable { mutableStateOf(ServerSort.List) }
+    val visible = remember(query, state.servers, sort) {
         val needle = query.trim()
         val matching = if (needle.isEmpty()) state.servers
         else state.servers.filter {
             it.title.contains(needle, ignoreCase = true) || it.countryCode?.contains(needle, ignoreCase = true) == true
         }
         // Starred ones stay on top either way.
-        if (byPing) ConnectionLogic.favoritesFirst(ConnectionLogic.byDelay(matching) { it.delayMs }) { it.favorite } else matching
+        when (sort) {
+            ServerSort.List -> matching
+            ServerSort.Ping -> ConnectionLogic.favoritesFirst(ConnectionLogic.byDelay(matching) { it.delayMs }) { it.favorite }
+            ServerSort.Stable -> ConnectionLogic.favoritesFirst(ServerStatsLog.byStability(matching) { it.stats }) { it.favorite }
+        }
     }
 
     LazyColumn(
@@ -133,7 +141,7 @@ fun ServersScreen(
         }
         item(key = "search") { SearchField(query, { query = it }) }
         if (state.servers.size > 1) {
-            item(key = "sort") { SortChips(byPing) { byPing = it } }
+            item(key = "sort") { SortChips(sort) { sort = it } }
         }
         item(key = "auto") { AutoCard(state.autoServer, state.failover, onAutoServerChange, onFailoverChange) }
         if (onCleanIp != null) {
@@ -291,26 +299,64 @@ private fun ServerItem(server: ServerRow, selected: Boolean, onClick: () -> Unit
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         CountryBadge(code = server.countryCode ?: "··", selected = selected, modifier = Modifier.width(30.dp))
-        Text(
-            server.title,
-            style = Geek.type.row.copy(fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Bold),
-            color = colors.onBackground,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                server.title,
+                style = Geek.type.row.copy(fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Bold),
+                color = colors.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            statsLine(server.stats)?.let { line ->
+                Text(line, style = Geek.type.caption.copy(fontSize = 12.sp), color = colors.onBackgroundMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
         LatencyIndicator(delayMs = server.delayMs)
         FavoriteButton(server.favorite, onFavorite)
         GeekCheckbox(checked = selected, onCheckedChange = null)
     }
 }
 
-/** List order: the subscription's own, or fastest first by the last test. */
+/** The server list's order. */
+enum class ServerSort {
+    /** The subscription's own. */
+    List,
+
+    /** Fastest first by the last test. */
+    Ping,
+
+    /** «پایدارترین»: most often answering, then fastest, over two weeks of tests ([ServerStatsLog]). */
+    Stable,
+}
+
 @Composable
-private fun SortChips(byPing: Boolean, onChange: (Boolean) -> Unit) {
-    val list = stringResource(R.string.geek_servers_sort_list)
-    val ping = stringResource(R.string.geek_servers_sort_ping)
-    GeekSegmented(options = listOf(false, true), selected = byPing, label = { if (it) ping else list }, onSelect = onChange, height = 44.dp)
+private fun SortChips(sort: ServerSort, onChange: (ServerSort) -> Unit) {
+    GeekSegmented(
+        options = ServerSort.entries,
+        selected = sort,
+        label = {
+            stringResource(
+                when (it) {
+                    ServerSort.List -> R.string.geek_servers_sort_list
+                    ServerSort.Ping -> R.string.geek_servers_sort_ping
+                    ServerSort.Stable -> R.string.geek_servers_sort_stable
+                },
+            )
+        },
+        onSelect = onChange,
+        height = 44.dp,
+    )
+}
+
+/** «میانه‌ی ۲۳۰ ms · ۹۵٪ موفق در ۲۰ تست»; null before the first test. */
+@Composable
+private fun statsLine(stats: ServerSummary?): String? {
+    if (stats == null || stats.tests == 0) return null
+    val locale = appLocale()
+    val tests = formatNumber(stats.tests.toLong(), locale)
+    val percent = formatNumber(stats.successPercent.toLong(), locale)
+    val median = stats.medianMs ?: return stringResource(R.string.geek_servers_stats_failed, tests)
+    return stringResource(R.string.geek_servers_stats, formatNumber(median, locale), percent, tests)
 }
 
 /** Its own touch target inside the row, so starring does not also select. */

@@ -2,10 +2,17 @@ package com.geekvpn.smartconnect
 
 import android.app.Service
 import android.os.PowerManager
+import com.geekvpn.connection.ConnectionHistory
 import com.geekvpn.connection.ConnectionPrefs
+import com.geekvpn.connection.ConnectionRecord
+import com.geekvpn.connection.HistoryLog
+import com.geekvpn.connection.ServerStats
 import com.geekvpn.scanner.CleanIps
+import com.geekvpn.scanner.ProfileKey
+import com.geekvpn.usage.CapNotifier
 import com.geekvpn.usage.DailyUsage
 import com.v2ray.ang.AppConfig
+import com.v2ray.ang.core.LauncherManager
 import com.v2ray.ang.dto.RealPingEvent
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.helper.MessageHelper
@@ -45,10 +52,25 @@ class FailoverMonitor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineName("geek-failover"))
     private val prefs = ConnectionPrefs.open()
-    private val usage = DailyUsage.open().let { book -> DailyUsage.Recorder(book::add) }
+    private val usageBook = DailyUsage.open()
+    private val history = ConnectionHistory.open()
+    private val stats = ServerStats.open()
+
+    /** This connection's traffic, for «تاریخچه‌ی اتصال». */
+    @Volatile
+    private var sessionBytes = 0L
+    @Volatile
+    private var endReason = ConnectionRecord.End.Stopped
+    private val usage = DailyUsage.Recorder({ day, bytes ->
+        usageBook.add(day, bytes)
+        sessionBytes += bytes
+    })
+    private val cap = CapNotifier(service, usageBook)
 
     fun start() {
         usage.sample()
+        cap.begin()
+        history.update { HistoryLog.begin(it, System.currentTimeMillis(), selectedServerName()) }
         scope.launch { watch() }
         scope.launch { publishConnections() }
         scope.launch { recordUsage() }
@@ -59,13 +81,27 @@ class FailoverMonitor(
         prefs.activeConnections = 0
         // What moved since the last sample, so a short connection still counts.
         usage.sample()
+        history.update { HistoryLog.end(it, System.currentTimeMillis(), sessionBytes, endReason) }
     }
 
-    /** «مصرف روزانه»: books the traffic to today every half minute, screen on or off. */
+    private fun selectedServerName(): String? =
+        MmkvManager.getSelectServer()?.let { MmkvManager.decodeServerConfig(it)?.remarks }
+
+    /**
+     * «مصرف روزانه»: books the traffic to today every half minute, screen on or off,
+     * and checks «سقف مصرف» ([CapNotifier]) against it.
+     */
     private suspend fun recordUsage() {
         while (scope.isActive) {
             delay(USAGE_INTERVAL_MS)
             usage.sample()
+            history.update { HistoryLog.touch(it, System.currentTimeMillis(), sessionBytes) }
+            if (cap.check()) {
+                endReason = ConnectionRecord.End.DataCap
+                // The same stop message the app and the notification send.
+                LauncherManager.stopService(service)
+                return
+            }
         }
     }
 
@@ -132,6 +168,7 @@ class FailoverMonitor(
         MmkvManager.setSelectServer(best.choice.guid)
         if (reload()) {
             LogUtil.i(AppConfig.TAG, "Failover: moved from $current to ${best.choice.guid} (${best.delayMs} ms)")
+            history.update { HistoryLog.failover(it, selectedServerName()) }
             // The app's screens refresh the selected server on this.
             MessageHelper.sendMsg2UI(service, AppConfig.MSG_STATE_RUNNING, "")
         }
@@ -170,6 +207,8 @@ class FailoverMonitor(
                 throw e
             }
             worker.cancel()
+            // «مقایسه‌ی سرورها» counts the failover's tests too.
+            stats.record(results.mapNotNull { (guid, delay) -> MmkvManager.decodeServerConfig(guid)?.let { ProfileKey.of(it) to delay } }.toMap())
             return results
         }
 
