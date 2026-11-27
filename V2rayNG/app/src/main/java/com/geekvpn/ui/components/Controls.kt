@@ -231,8 +231,10 @@ fun ChoicePill(
             },
             contentAlignment = Alignment.Center,
         ) { content(color) }
+        // Centred rather than matchParentSize: a pill without a set size (a scrolling
+        // row of them) takes its size from the content, as the selected one does.
         else -> GlassSurface(kind = GlassKind.Clear, shape = shape, modifier = base) {
-            Box(Modifier.matchParentSize(), contentAlignment = Alignment.Center) { content(color) }
+            Box(Modifier.align(Alignment.Center), contentAlignment = Alignment.Center) { content(color) }
         }
     }
 }

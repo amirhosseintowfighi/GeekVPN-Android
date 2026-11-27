@@ -36,6 +36,45 @@ class DailyUsage(private val storage: MMKV) {
             DayUsage(day, storage.decodeLong(KEY_PREFIX + day, 0L))
         }
 
+    /** Bytes booked from [from] to [to], both included. */
+    fun total(from: LocalDate, to: LocalDate): Long {
+        var sum = 0L
+        var day = from
+        while (!day.isAfter(to)) {
+            sum += storage.decodeLong(KEY_PREFIX + day, 0L)
+            day = day.plusDays(1)
+        }
+        return sum
+    }
+
+    /** «سقف مصرف» ([DataCap]); null when off. */
+    var cap: DataCap?
+        get() {
+            val limit = storage.decodeLong(KEY_CAP_LIMIT, 0L)
+            if (limit <= 0) return null
+            val period = DataCap.Period.entries.firstOrNull { it.name == storage.decodeString(KEY_CAP_PERIOD) } ?: DataCap.Period.Month
+            return DataCap(limit, period, storage.decodeBool(KEY_CAP_DISCONNECT, false))
+        }
+        set(value) {
+            if (value == null) {
+                storage.removeValuesForKeys(arrayOf(KEY_CAP_LIMIT, KEY_CAP_PERIOD, KEY_CAP_DISCONNECT))
+            } else {
+                storage.encode(KEY_CAP_LIMIT, value.limitBytes)
+                storage.encode(KEY_CAP_PERIOD, value.period.name)
+                storage.encode(KEY_CAP_DISCONNECT, value.disconnect)
+            }
+        }
+
+    /** Used so far in the cap's current period. */
+    fun usedInPeriod(cap: DataCap, today: LocalDate): Long = total(DataCapPolicy.periodStart(cap.period, today), today)
+
+    /** The cap notifications already posted ([DataCapPolicy.Decision.sentKeys]). */
+    var capSent: Set<String>
+        get() = storage.decodeStringSet(KEY_CAP_SENT).orEmpty()
+        set(value) {
+            storage.encode(KEY_CAP_SENT, value)
+        }
+
     private fun prune(today: LocalDate) {
         val oldest = today.minusDays(KEEP_DAYS.toLong())
         storage.allKeys()?.forEach { key ->
@@ -78,6 +117,10 @@ class DailyUsage(private val storage: MMKV) {
         private const val STORE_ID = "GEEK_USAGE"
         private const val KEY_PREFIX = "day|"
         const val KEEP_DAYS = 45
+        private const val KEY_CAP_LIMIT = "cap_limit"
+        private const val KEY_CAP_PERIOD = "cap_period"
+        private const val KEY_CAP_DISCONNECT = "cap_disconnect"
+        private const val KEY_CAP_SENT = "cap_sent"
 
         fun open(): DailyUsage = DailyUsage(GeekStorage.open(STORE_ID))
     }

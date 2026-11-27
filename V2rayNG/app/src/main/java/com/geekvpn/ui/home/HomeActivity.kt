@@ -70,6 +70,8 @@ import com.geekvpn.ui.components.GeekBottomNav
 import com.geekvpn.ui.components.GeekMotion
 import com.geekvpn.ui.components.GeekTab
 import com.geekvpn.ui.components.geekPage
+import com.geekvpn.ui.dns.DnsActivity
+import com.geekvpn.ui.history.HistoryActivity
 import com.geekvpn.ui.info.FaqActivity
 import com.geekvpn.ui.info.NotificationsActivity
 import com.geekvpn.ui.info.ServerStatusActivity
@@ -518,6 +520,7 @@ class HomeActivity : HelperBaseComponentActivity() {
                                             onAskLogout = account::askLogout,
                                             onLogout = account::logout,
                                             onAppLock = { on -> if (!account.setAppLock(on)) showMessage(R.string.geek_lock_unavailable) },
+                                            onLanguage = account::setLanguage,
                                         )
                                     }
                                 }
@@ -716,6 +719,8 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onSites() = startActivity(Intent(this@HomeActivity, SitesActivity::class.java))
         override fun onReferral() = startActivity(Intent(this@HomeActivity, ReferralActivity::class.java))
         override fun onUsage() = startActivity(Intent(this@HomeActivity, UsageActivity::class.java))
+        override fun onHistory() = startActivity(Intent(this@HomeActivity, HistoryActivity::class.java))
+        override fun onDns() = startActivity(Intent(this@HomeActivity, DnsActivity::class.java))
         override fun onServerStatus() = startActivity(Intent(this@HomeActivity, ServerStatusActivity::class.java))
         override fun onFaq() = startActivity(Intent(this@HomeActivity, FaqActivity::class.java))
         override fun onNotifications() = startActivity(Intent(this@HomeActivity, NotificationsActivity::class.java))
