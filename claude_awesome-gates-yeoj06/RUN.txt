@@ -1,4 +1,4 @@
 source=claude/awesome-gates-yeoj06
-sha=3a03f2645a4d4c595acec85ce894425d92619b53
-run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/46066814994
-smoke=cancelled
+sha=7f89a09dad5debea3702e1023b29f8308c5c42ed
+run=https://github.com/amirhosseintowfighi/GeekVPN-Android/actions/runs/46069780505
+smoke=success
