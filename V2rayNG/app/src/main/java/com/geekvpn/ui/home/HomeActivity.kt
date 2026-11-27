@@ -641,7 +641,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onBuy() = openShop()
         override fun onRenew(subscriptionId: String) {
             val card = GeekGraph.accountStore.services.value.firstOrNull { it.subscriptionId == subscriptionId }
-            val title = card?.productNameFa ?: card?.planNameFa ?: getString(R.string.geek_brand)
+            val title = card?.displayName?.takeIf(String::isNotBlank) ?: card?.productNameFa ?: card?.planNameFa ?: getString(R.string.geek_brand)
             shop.renew(subscriptionId, title, card?.tier, card?.categoryNameFa)
             openShop()
         }

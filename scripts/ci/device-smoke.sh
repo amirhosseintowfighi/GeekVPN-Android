@@ -171,16 +171,24 @@ if [[ "$probe" != *Error* ]]; then
         alive "previewing $1"
         adb shell am force-stop "$PKG"
     }
-    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update tickets ticket-thread auto-connect speed diagnose share sites onboarding referral usage usage-cap history dns lock; do
+    for screen in waiting create syncing username home-off home-on services account shop wallet deposit scanner servers route checkout update tickets ticket-thread auto-connect speed diagnose share sites onboarding referral usage usage-cap history dns lock devices owner-transfer owner-refund; do
         preview "$screen" false
         preview "$screen" true
     done
-    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt update-downloading wait-qr; do
+    for screen in home-empty shop-guest scanner-running home-finding-ip home-attempt update-downloading wait-qr owner-rename; do
         preview "$screen" false
     done
     # A name the preview activity does not know falls back to the waiting screen.
     if ! grep -q "تیکت‌های من" "$OUT/preview-tickets.xml"; then
         echo "::error::preview tickets did not show the ticket list"
+        LOGIN_FAILED=1
+    fi
+    if ! grep -q "همین گوشی" "$OUT/preview-devices.xml"; then
+        echo "::error::preview devices did not show the device list"
+        LOGIN_FAILED=1
+    fi
+    if ! grep -q "تومان به کیف پولت برمی‌گردد" "$OUT/preview-owner-refund.xml"; then
+        echo "::error::preview owner-refund did not show the refund offer"
         LOGIN_FAILED=1
     fi
     for screen in home-finding-ip home-attempt; do
