@@ -23,9 +23,11 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -56,9 +58,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
+import com.geekvpn.perapp.AppProfile
+import com.geekvpn.perapp.AppProfileList
 import com.geekvpn.perapp.IranianApps
 import com.geekvpn.ui.common.GlassIconButton
 import com.geekvpn.ui.common.SettingsDivider
+import com.geekvpn.ui.components.ChoicePill
 import com.geekvpn.ui.components.GeekBackdrop
 import com.geekvpn.ui.components.GeekCheckbox
 import com.geekvpn.ui.components.GeekSwitch
@@ -88,6 +93,13 @@ import kotlinx.coroutines.launch
 class PerAppActivity : BaseComponentActivity() {
 
     private val viewModel: PerAppProxyViewModel by viewModels()
+    private val profilesModel: AppProfilesViewModel by viewModels()
+
+    /** «ذخیره به‌عنوان پروفایل»'s name dialog is open. */
+    private var saveAsked by mutableStateOf(false)
+
+    /** The profile whose removal is being confirmed. */
+    private var removeAsked by mutableStateOf<AppProfile?>(null)
 
     /** The "Iranian apps direct" preset replaces the selection, so it asks first. */
     private var iranianAsked by mutableStateOf(false)
@@ -104,6 +116,7 @@ class PerAppActivity : BaseComponentActivity() {
         val selected by viewModel.blacklist.collectAsStateWithLifecycle()
         val enabled by viewModel.perAppProxyEnabled.collectAsStateWithLifecycle()
         val bypass by viewModel.bypassApps.collectAsStateWithLifecycle()
+        val profiles by profilesModel.profiles.collectAsStateWithLifecycle()
         GeekTheme {
             GeekBackdrop {
                 PerAppScreen(
@@ -112,6 +125,7 @@ class PerAppActivity : BaseComponentActivity() {
                     selected = selected,
                     enabled = enabled,
                     bypass = bypass,
+                    profiles = profiles,
                     actions = object : PerAppActions {
                         override fun onBack() = finish()
                         override fun onEnabled(on: Boolean) = viewModel.setPerAppProxyEnabled(on)
@@ -129,8 +143,38 @@ class PerAppActivity : BaseComponentActivity() {
                             Utils.setClipboard(applicationContext, viewModel.exportProxyApp())
                             toastSuccess(R.string.toast_success)
                         }
+                        override fun onApplyProfile(profile: AppProfile) = applyProfile(profile)
+                        override fun onSaveProfile() {
+                            saveAsked = true
+                        }
+                        override fun onRemoveProfile(profile: AppProfile) {
+                            removeAsked = profile
+                        }
                     },
                 )
+                if (saveAsked) {
+                    SaveProfileDialog(
+                        onSave = { name ->
+                            if (profilesModel.save(name, viewModel.bypassApps.value, viewModel.blacklist.value)) {
+                                saveAsked = false
+                                Toast.makeText(this@PerAppActivity, R.string.geek_perapp_profile_saved, Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(this@PerAppActivity, R.string.geek_perapp_profile_full, Toast.LENGTH_LONG).show()
+                            }
+                        },
+                        onDismiss = { saveAsked = false },
+                    )
+                }
+                removeAsked?.let { profile ->
+                    RemoveProfileDialog(
+                        name = profile.name,
+                        onConfirm = {
+                            removeAsked = null
+                            profilesModel.remove(profile.id)
+                        },
+                        onDismiss = { removeAsked = null },
+                    )
+                }
                 if (iranianAsked) {
                     IranianAppsDialog(
                         onConfirm = {
@@ -142,6 +186,18 @@ class PerAppActivity : BaseComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * A saved profile's mode and list, through v2rayNG's own toggles as
+     * [applyIranianApps] does. Packages no longer installed stay in the list,
+     * as v2rayNG keeps them; they simply match nothing.
+     */
+    private fun applyProfile(profile: AppProfile) {
+        viewModel.setBypassAppsEnabled(profile.bypass)
+        AppProfileList.toggles(viewModel.blacklist.value, profile.packages.toSet()).forEach(viewModel::toggle)
+        viewModel.setPerAppProxyEnabled(true)
+        Toast.makeText(this, getString(R.string.geek_perapp_profile_applied, profile.name), Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -206,6 +262,15 @@ interface PerAppActions {
     fun onIranianApps()
     fun onImport()
     fun onExport()
+
+    /** «پروفایل برنامه‌ها»: put a saved selection back. */
+    fun onApplyProfile(profile: AppProfile)
+
+    /** Asks for a name, then saves the current selection. */
+    fun onSaveProfile()
+
+    /** Asks, then removes a saved profile. */
+    fun onRemoveProfile(profile: AppProfile)
 }
 
 @Composable
@@ -216,6 +281,7 @@ fun PerAppScreen(
     enabled: Boolean,
     bypass: Boolean,
     actions: PerAppActions,
+    profiles: List<AppProfile> = emptyList(),
 ) {
     val colors = Geek.colors
     var query by rememberSaveable { mutableStateOf("") }
@@ -245,6 +311,7 @@ fun PerAppScreen(
                 modifier = Modifier.fillMaxSize().navigationBarsPadding(),
             ) {
                 item(key = "switches") { Switches(enabled, bypass, actions) }
+                item(key = "profiles") { Profiles(profiles, AppProfileList.active(profiles, bypass, selected).takeIf { enabled }, actions) }
                 item(key = "search") {
                     SearchField(query) {
                         query = it
@@ -328,6 +395,90 @@ private fun SearchField(value: String, onChange: (String) -> Unit) {
             }
         }
     }
+}
+
+/**
+ * «پروفایل برنامه‌ها»: one pill per saved selection (white when it is the
+ * current one), then «ذخیره». The current profile also offers its removal.
+ */
+@Composable
+private fun Profiles(profiles: List<AppProfile>, active: AppProfile?, actions: PerAppActions) {
+    val colors = Geek.colors
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.geek_perapp_profiles), style = Geek.type.label, color = colors.onGlassMuted, modifier = Modifier.padding(horizontal = 4.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            profiles.forEach { profile ->
+                ChoicePill(selected = profile == active, onClick = { actions.onApplyProfile(profile) }) { color ->
+                    Text(profile.name, style = Geek.type.button.copy(fontSize = 14.sp), color = color, maxLines = 1, modifier = Modifier.padding(horizontal = 16.dp))
+                }
+            }
+            ChoicePill(selected = false, onClick = actions::onSaveProfile, dashed = true, role = Role.Button) { color ->
+                Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(GeekIcons.Plus, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+                    Text(stringResource(R.string.geek_perapp_profile_save), style = Geek.type.button.copy(fontSize = 14.sp), color = color, maxLines = 1)
+                }
+            }
+        }
+        if (active != null) {
+            Chip(stringResource(R.string.geek_perapp_profile_remove, active.name)) { actions.onRemoveProfile(active) }
+        }
+    }
+}
+
+@Composable
+private fun SaveProfileDialog(onSave: (String) -> Unit, onDismiss: () -> Unit) {
+    val colors = Geek.colors
+    var name by rememberSaveable { mutableStateOf("") }
+    val label = stringResource(R.string.geek_perapp_profile_name)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.geek_perapp_profile_save_title), style = Geek.type.sectionTitle) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(stringResource(R.string.geek_perapp_profile_save_text), style = Geek.type.body)
+                GlassSurface(kind = GlassKind.Milk, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().height(48.dp)) {
+                    Box(Modifier.fillMaxSize().padding(horizontal = 14.dp), contentAlignment = Alignment.CenterStart) {
+                        if (name.isEmpty()) Text(label, style = Geek.type.body, color = colors.onGlassMuted)
+                        BasicTextField(
+                            value = name,
+                            onValueChange = { name = it.take(AppProfileList.MAX_NAME) },
+                            singleLine = true,
+                            textStyle = Geek.type.body.copy(color = colors.onGlass),
+                            cursorBrush = SolidColor(colors.action),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            modifier = Modifier.fillMaxWidth().semantics { contentDescription = label },
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(name) }, enabled = AppProfileList.cleanName(name).isNotEmpty()) {
+                Text(stringResource(R.string.geek_perapp_profile_save_confirm), style = Geek.type.button)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.geek_account_cancel), style = Geek.type.button) }
+        },
+    )
+}
+
+@Composable
+private fun RemoveProfileDialog(name: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.geek_perapp_profile_remove, name), style = Geek.type.sectionTitle) },
+        text = { Text(stringResource(R.string.geek_perapp_profile_remove_text), style = Geek.type.body) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.geek_perapp_profile_remove_confirm), style = Geek.type.button) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.geek_account_cancel), style = Geek.type.button) }
+        },
+    )
 }
 
 @Composable

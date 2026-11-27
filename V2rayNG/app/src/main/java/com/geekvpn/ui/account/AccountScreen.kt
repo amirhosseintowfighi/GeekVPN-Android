@@ -21,6 +21,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -107,6 +111,12 @@ interface AccountActions {
 
     /** "مصرف روزانه". */
     fun onUsage()
+
+    /** "تاریخچه‌ی اتصال". */
+    fun onHistory() {}
+
+    /** "DNS". */
+    fun onDns() {}
 }
 
 @Composable
@@ -125,8 +135,11 @@ fun AccountScreen(
     onLogout: () -> Unit,
     /** "قفل برنامه". */
     onAppLock: (Boolean) -> Unit = {},
+    /** "زبان". */
+    onLanguage: (AppLanguage) -> Unit = {},
 ) {
     val colors = Geek.colors
+    var languageAsked by rememberSaveable { mutableStateOf(false) }
     val signedIn = state.session as? Session.SignedIn
     val hasBot = BuildConfig.BOT_USERNAME.isNotEmpty()
 
@@ -178,6 +191,13 @@ fun AccountScreen(
                 hint = stringResource(R.string.geek_sites_entry_hint),
                 onClick = actions::onSites,
             )
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Globe,
+                title = stringResource(R.string.geek_dns_title),
+                hint = stringResource(R.string.geek_dns_entry_hint),
+                onClick = actions::onDns,
+            )
             if (showCleanIp) {
                 SettingsDivider()
                 SettingRow(
@@ -193,6 +213,13 @@ fun AccountScreen(
                 title = stringResource(R.string.geek_usage_title),
                 hint = stringResource(R.string.geek_usage_entry_hint),
                 onClick = actions::onUsage,
+            )
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Clock,
+                title = stringResource(R.string.geek_history_title),
+                hint = stringResource(R.string.geek_history_entry_hint),
+                onClick = actions::onHistory,
             )
             SettingsDivider()
             SettingRow(
@@ -221,6 +248,13 @@ fun AccountScreen(
                 title = stringResource(R.string.geek_auto_entry),
                 hint = stringResource(R.string.geek_auto_entry_hint),
                 onClick = actions::onAutoConnect,
+            )
+            SettingsDivider()
+            SettingRow(
+                icon = GeekIcons.Globe,
+                title = stringResource(R.string.geek_language_title),
+                hint = stringResource(state.language.label),
+                onClick = { languageAsked = true },
             )
             SettingsDivider()
             SettingRow(
@@ -331,6 +365,17 @@ fun AccountScreen(
         }
     }
 
+    if (languageAsked) {
+        LanguageDialog(
+            current = state.language,
+            onSelect = { choice ->
+                languageAsked = false
+                onLanguage(choice)
+            },
+            onDismiss = { languageAsked = false },
+        )
+    }
+
     if (logoutAsked) {
         AlertDialog(
             onDismissRequest = { onAskLogout(false) },
@@ -348,6 +393,44 @@ fun AccountScreen(
             },
         )
     }
+}
+
+private val AppLanguage.label: Int
+    get() = when (this) {
+        AppLanguage.Persian -> R.string.geek_language_fa
+        AppLanguage.English -> R.string.geek_language_en
+        AppLanguage.System -> R.string.geek_language_system
+    }
+
+/** «زبان»: one radio row per [AppLanguage]; choosing one applies it at once. */
+@Composable
+private fun LanguageDialog(current: AppLanguage, onSelect: (AppLanguage) -> Unit, onDismiss: () -> Unit) {
+    val colors = Geek.colors
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.geek_language_title), style = Geek.type.sectionTitle) },
+        text = {
+            Column(Modifier.selectableGroup()) {
+                AppLanguage.entries.forEach { choice ->
+                    val selected = choice == current
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp)
+                            .selectable(selected = selected, role = Role.RadioButton) { onSelect(choice) },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Text(stringResource(choice.label), style = Geek.type.body, modifier = Modifier.weight(1f))
+                        if (selected) Icon(GeekIcons.Check, contentDescription = null, tint = colors.action, modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.geek_account_cancel), style = Geek.type.button) }
+        },
+    )
 }
 
 @Composable

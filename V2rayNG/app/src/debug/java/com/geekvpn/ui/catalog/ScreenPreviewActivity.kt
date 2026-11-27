@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.geekvpn.connection.RouteMode
 import com.geekvpn.scanner.CleanIp
 import com.geekvpn.shop.ServiceKind
+import com.geekvpn.connection.ConnectionRecord
 import com.geekvpn.ui.account.AccountActions
 import com.geekvpn.ui.account.AccountScreen
 import com.geekvpn.ui.autoconnect.AutoConnectActions
@@ -78,6 +79,11 @@ import com.geekvpn.ui.theme.GeekTheme
 import com.geekvpn.ui.usage.UsageScreen
 import com.geekvpn.ui.usage.UsageSource
 import com.geekvpn.ui.usage.UsageUiState
+import com.geekvpn.ui.dns.DnsScreen
+import com.geekvpn.ui.dns.DnsUiState
+import com.geekvpn.ui.history.HistoryScreen
+import com.geekvpn.ui.history.HistoryUiState
+import com.geekvpn.usage.DataCap
 import com.geekvpn.usage.DayUsage
 import com.v2ray.ang.ui.base.BaseComponentActivity
 
@@ -110,20 +116,49 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                 )
                 SCREEN_USERNAME -> UsernameScreen(busy = false, onSubmit = { _, _ -> }, onBack = {})
                 SCREEN_LOCK -> GeekBackdrop { LockScreen(onUnlock = {}) }
-                SCREEN_USAGE -> GeekBackdrop {
+                SCREEN_USAGE, SCREEN_USAGE_CAP -> GeekBackdrop {
                     val today = java.time.LocalDate.of(2026, 9, 28)
                     val sample = listOf(310L, 820L, 145L, 0L, 1260L, 530L, 690L)
                     val service = UsageSource("sample", "سرویس ۳۰ روزه")
+                    // usage-cap: this phone's chart with «سقف مصرف» on, past its warning.
+                    val capped = screen == SCREEN_USAGE_CAP
                     UsageScreen(
                         UsageUiState(
                             7,
                             sample.mapIndexed { i, mib -> DayUsage(today.minusDays((6 - i).toLong()), mib * 1024 * 1024) },
                             sources = listOf(UsageSource.Phone, service),
-                            source = service,
+                            source = if (capped) UsageSource.Phone else service,
+                            cap = if (capped) DataCap(5 * DataCap.GIB, DataCap.Period.Month, disconnect = true) else null,
+                            capUsed = 4_300L * 1024 * 1024,
                         ),
                         onRange = {},
                         onSource = {},
+                        onCap = {},
                         onBack = {},
+                    )
+                }
+                SCREEN_DNS -> GeekBackdrop {
+                    DnsScreen(DnsUiState("https://dns.adguard-dns.com/dns-query"), onSelect = {}, onBack = {})
+                }
+                SCREEN_HISTORY -> GeekBackdrop {
+                    val zone = java.time.ZoneId.of("Asia/Tehran")
+                    val now = java.time.ZonedDateTime.of(2026, 9, 28, 18, 40, 0, 0, zone).toInstant().toEpochMilli()
+                    val hour = 3_600_000L
+                    val mib = 1024L * 1024
+                    HistoryScreen(
+                        HistoryUiState(
+                            listOf(
+                                ConnectionRecord(now - hour, null, now, "🇩🇪 Germany 1", null, 0, 212 * mib),
+                                ConnectionRecord(now - 6 * hour, now - 4 * hour, now - 4 * hour, "🇩🇪 Germany 1", "🇳🇱 Netherlands 2", 1, 1_430 * mib, "Stopped"),
+                                ConnectionRecord(now - 9 * hour, now - 8 * hour, now - 8 * hour, "🇫🇮 Finland", null, 0, 512 * mib, "DataCap"),
+                                ConnectionRecord(now - 26 * hour, now - 25 * hour, now - 25 * hour, "🇩🇪 Germany 1", null, 0, 88 * mib, "Interrupted"),
+                            ),
+                            loaded = true,
+                        ),
+                        now = now,
+                        onClear = {},
+                        onBack = {},
+                        zone = zone,
                     )
                 }
                 SCREEN_REFERRAL -> GeekBackdrop {
@@ -215,6 +250,9 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_SITES = "sites"
         const val SCREEN_REFERRAL = "referral"
         const val SCREEN_USAGE = "usage"
+        const val SCREEN_USAGE_CAP = "usage-cap"
+        const val SCREEN_HISTORY = "history"
+        const val SCREEN_DNS = "dns"
         const val SCREEN_LOCK = "lock"
         const val SCREEN_TICKET_THREAD = "ticket-thread"
         val TAB_SCREENS = setOf(

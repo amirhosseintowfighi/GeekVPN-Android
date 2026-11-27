@@ -1,5 +1,6 @@
 package com.geekvpn.ui.catalog
 
+import com.geekvpn.connection.ServerSummary
 import com.geekvpn.update.UpdateApk
 import com.geekvpn.update.UpdateOffer
 import com.geekvpn.api.AppUser
@@ -48,12 +49,12 @@ import com.v2ray.ang.R
 /** Sample data for [ScreenPreviewActivity]: the design's own numbers where it has them. */
 internal object PreviewSamples {
     private val servers = listOf(
-        ServerRow("s1", "Germany · Frankfurt", "DE", 121, favorite = true),
-        ServerRow("s2", "Netherlands · Amsterdam", "NL", 142),
+        ServerRow("s1", "Germany · Frankfurt", "DE", 121, favorite = true, stats = ServerSummary(24, 23, 128)),
+        ServerRow("s2", "Netherlands · Amsterdam", "NL", 142, stats = ServerSummary(24, 19, 151)),
         ServerRow("s3", "United States", "US", 168),
         ServerRow("s4", "United Kingdom", "GB", 233),
         ServerRow("s5", "France", "FR", 410),
-        ServerRow("s6", "Turkey", "TR", -1),
+        ServerRow("s6", "Turkey", "TR", -1, stats = ServerSummary(6, 0, null)),
     )
 
     private val service = ServiceStatus(
