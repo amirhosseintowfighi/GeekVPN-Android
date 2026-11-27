@@ -242,6 +242,29 @@ class GeekApi(
     suspend fun rotateLink(subscriptionId: String): SubscriptionCard =
         post(authorized, "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/rotate", emptyMap<String, String>())
 
+    /** A name for the service, or null to go back to the plan's name (the bot's «تغییر نام»). */
+    suspend fun renameSubscription(subscriptionId: String, name: String?): SubscriptionCard =
+        post(authorized, "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/name", RenameRequest(name))
+
+    /** Gives the service to another customer of the bot at once; not undoable. */
+    suspend fun transferSubscription(subscriptionId: String, recipientTelegramId: Long): TransferResult =
+        post(authorized, "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/transfer", TransferRequest(recipientTelegramId))
+
+    suspend fun refundOffer(subscriptionId: String): RefundOffer =
+        get(authorized, "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/refund", object : TypeToken<RefundOffer>() {})
+
+    /** Returns an unused service; the price goes back to the wallet and the panel account is deleted. */
+    suspend fun refundSubscription(subscriptionId: String): RefundDone =
+        post(authorized, "/api/miniapp/subscriptions/${subscriptionId.pathSegment()}/refund", emptyMap<String, String>())
+
+    /** The apps signed in to this account, most recently used first (the bot's «دستگاه‌های متصل»). */
+    suspend fun devices(): List<DeviceSession> =
+        get(authorized, "/api/miniapp/devices", object : TypeToken<List<DeviceSession>>() {})
+
+    /** Signs one app out; its next refresh is refused. */
+    suspend fun revokeDevice(deviceId: String) =
+        send(authorized, request("/api/miniapp/devices/${deviceId.pathSegment()}/revoke").post(ByteArray(0).toRequestBody(JSON)).build())
+
     suspend fun registerPushToken(token: String) =
         send(authorized, request("/api/miniapp/push-token").post(gson.toJson(PushTokenRequest(token)).toRequestBody(JSON)).build())
 

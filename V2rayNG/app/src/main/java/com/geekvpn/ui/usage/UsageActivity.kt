@@ -209,7 +209,7 @@ class UsageViewModel(application: Application) : AndroidViewModel(application) {
         if (GeekGraph.session.session.value !is Session.SignedIn) return listOf(UsageSource.Phone)
         val services = GeekGraph.accountStore.services.value
             .filter { !it.subscriptionId.isNullOrBlank() }
-            .map { UsageSource(it.subscriptionId, it.productNameFa ?: it.planNameFa) }
+            .map { UsageSource(it.subscriptionId, it.displayName?.takeIf(String::isNotBlank) ?: it.productNameFa ?: it.planNameFa) }
         return listOf(UsageSource.Phone) + services
     }
 }

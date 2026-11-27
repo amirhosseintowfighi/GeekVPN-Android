@@ -89,6 +89,8 @@ data class SubscriptionCard(
     val tier: String?,
     /** The bot's category ("اروپا"); null from a server older than the field. */
     val categoryNameFa: String? = null,
+    /** A name the customer gave the service (bot or app); shown in place of the plan name. */
+    val displayName: String? = null,
 )
 
 /** `/api/miniapp/wallet`. Amounts are whole tomans. */
@@ -413,3 +415,44 @@ data class NotificationPreferences(
         quietHours = quietHours != false,
     )
 }
+
+/** `POST /api/miniapp/subscriptions/{id}/name`; null clears the name. */
+data class RenameRequest(val name: String?)
+
+/** `POST /api/miniapp/subscriptions/{id}/transfer`: the recipient's numeric Telegram id. */
+data class TransferRequest(val recipient: Long)
+
+data class TransferResult(
+    val subscriptionId: String?,
+    val recipientTelegramId: Long?,
+    /** Always `done` today: the bot moves the service at once. */
+    val status: String?,
+    val messageFa: String?,
+)
+
+/** `GET /api/miniapp/subscriptions/{id}/refund`: whether an unused service can go back. */
+data class RefundOffer(
+    val eligible: Boolean?,
+    /** Toman back into the wallet; null when not eligible. */
+    val amount: Long?,
+    /** refund_disabled | refund_service_not_active | refund_window_closed | refund_not_purchased | refund_service_used. */
+    val reasonCode: String?,
+    val reasonFa: String?,
+    val windowHours: Int?,
+    val deadlineAt: String?,
+    val policyFa: String?,
+)
+
+data class RefundDone(val subscriptionId: String?, val amount: Long?, val messageFa: String?)
+
+/** `GET /api/miniapp/devices`: one app signed in to this account. */
+data class DeviceSession(
+    val deviceId: String?,
+    val name: String?,
+    val platform: String?,
+    val appVersion: String?,
+    val createdAt: String?,
+    val lastSeenAt: String?,
+    /** The sign-in this phone is using. */
+    val current: Boolean?,
+)

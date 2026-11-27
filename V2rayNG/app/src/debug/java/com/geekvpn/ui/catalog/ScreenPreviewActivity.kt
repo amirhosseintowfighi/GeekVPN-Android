@@ -85,6 +85,15 @@ import com.geekvpn.ui.history.HistoryScreen
 import com.geekvpn.ui.history.HistoryUiState
 import com.geekvpn.usage.DataCap
 import com.geekvpn.usage.DayUsage
+import com.geekvpn.account.OwnerDialog
+import com.geekvpn.account.OwnerUiState
+import com.geekvpn.api.DeviceSession
+import com.geekvpn.api.RefundOffer
+import com.geekvpn.ui.devices.DevicesScreen
+import com.geekvpn.ui.devices.DevicesUiState
+import com.geekvpn.ui.services.OwnerDialogActions
+import com.geekvpn.ui.services.ServiceOwnerDialog
+import com.geekvpn.ui.components.BackdropLayout
 import com.v2ray.ang.ui.base.BaseComponentActivity
 
 /**
@@ -226,6 +235,32 @@ class ScreenPreviewActivity : BaseComponentActivity() {
                         PreviewAutoConnectActions,
                     )
                 }
+                SCREEN_DEVICES -> GeekBackdrop(layout = BackdropLayout.Bars) {
+                    DevicesScreen(
+                        DevicesUiState(
+                            listOf(
+                                DeviceSession("d1", "Pixel 8", "android", "1.6.0", "2026-09-01T10:00:00Z", "2026-09-28T15:10:00Z", true),
+                                DeviceSession("d2", "Galaxy A54", "android", "1.5.2", "2026-08-12T09:00:00Z", "2026-09-27T21:40:00Z", false),
+                                DeviceSession("d3", "Android TV", null, null, "2026-07-03T18:00:00Z", "2026-09-20T20:05:00Z", false),
+                            ),
+                        ),
+                        onRevoke = {},
+                        onRetry = {},
+                        onBack = {},
+                    )
+                }
+                SCREEN_OWNER_RENAME, SCREEN_OWNER_TRANSFER, SCREEN_OWNER_REFUND -> GeekBackdrop {
+                    val dialog = when (screen) {
+                        SCREEN_OWNER_RENAME -> OwnerDialog.Rename("sample", "سرویس ۳۰ روزه", "گوشی من")
+                        SCREEN_OWNER_TRANSFER -> OwnerDialog.Transfer("sample", "سرویس ۳۰ روزه")
+                        else -> OwnerDialog.Refund(
+                            "sample",
+                            "سرویس ۳۰ روزه",
+                            RefundOffer(true, 185_000, null, null, 48, "2026-09-29T15:00:00Z", null),
+                        )
+                    }
+                    ServiceOwnerDialog(OwnerUiState(dialog = dialog), PreviewOwnerActions)
+                }
                 SCREEN_TICKETS, SCREEN_TICKET_THREAD -> GeekBackdrop {
                     TicketsScreen(if (screen == SCREEN_TICKETS) PreviewSamples.tickets else PreviewSamples.ticketThread, PreviewTicketsActions)
                 }
@@ -255,6 +290,10 @@ class ScreenPreviewActivity : BaseComponentActivity() {
         const val SCREEN_DNS = "dns"
         const val SCREEN_LOCK = "lock"
         const val SCREEN_TICKET_THREAD = "ticket-thread"
+        const val SCREEN_DEVICES = "devices"
+        const val SCREEN_OWNER_RENAME = "owner-rename"
+        const val SCREEN_OWNER_TRANSFER = "owner-transfer"
+        const val SCREEN_OWNER_REFUND = "owner-refund"
         val TAB_SCREENS = setOf(
             "home-off", "home-on", "home-empty", "servers", "route", "services", "account",
             "shop", "shop-guest", "checkout", "wallet", "deposit", "scanner", "scanner-running",
@@ -473,4 +512,13 @@ private object PreviewScannerActions : ScannerActions {
     override fun onDownloadTest(enabled: Boolean) = Unit
     override fun onUse(ip: CleanIp) = Unit
     override fun onRevert() = Unit
+}
+
+private object PreviewOwnerActions : OwnerDialogActions {
+    override fun onRename(name: String) = Unit
+    override fun onTransfer(recipient: String) = Unit
+    override fun onRefund() = Unit
+    override fun onRetryOffer() = Unit
+    override fun onClearError() = Unit
+    override fun onDismiss() = Unit
 }

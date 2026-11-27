@@ -16,6 +16,7 @@ class SubscriptionPlanTest {
         plan: String? = "ماهانه ۵۰ گیگ",
         product: String? = "تانل",
         remote: String? = "geek_1",
+        name: String? = null,
     ) = SubscriptionCard(
         subscriptionId = id,
         productNameFa = product,
@@ -27,6 +28,7 @@ class SubscriptionPlanTest {
         subscriptionUrl = url,
         remoteUsername = remote,
         tier = "tunnel",
+        displayName = name,
     )
 
     @Test
@@ -138,5 +140,19 @@ class SubscriptionPlanTest {
         assertEquals("تانل", SubscriptionPlan.remarksOf(card(plan = " ")))
         assertEquals("geek_1", SubscriptionPlan.remarksOf(card(plan = null, product = "")))
         assertEquals("GeekVPN", SubscriptionPlan.remarksOf(card(plan = null, product = null, remote = null)))
+    }
+
+    @Test
+    fun a_name_the_customer_gave_comes_before_the_plan_name() {
+        assertEquals("گوشی مامان", SubscriptionPlan.remarksOf(card(name = " گوشی مامان ")))
+        assertEquals("ماهانه ۵۰ گیگ", SubscriptionPlan.remarksOf(card(name = "")))
+    }
+
+    @Test
+    fun renaming_a_service_renames_its_group_without_fetching_it_again() {
+        val local = SubscriptionPlan.plan(listOf(card()), emptyMap()).upserts.associate { it.guid to it.item.apply { lastUpdated = 1L } }
+        val upsert = SubscriptionPlan.plan(listOf(card(name = "کار")), local).upserts.single()
+        assertEquals("کار", upsert.item.remarks)
+        assertEquals(false, upsert.fetch)
     }
 }
