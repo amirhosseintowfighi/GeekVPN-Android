@@ -62,7 +62,7 @@ object SubscriptionPlan {
 
     /** The name shown in v2rayNG's group tabs. */
     fun remarksOf(card: SubscriptionCard): String =
-        listOf(card.planNameFa, card.productNameFa, card.remoteUsername)
+        listOf(card.displayName, card.planNameFa, card.productNameFa, card.remoteUsername)
             .firstOrNull { !it.isNullOrBlank() }
             ?.trim()
             ?: DEFAULT_REMARKS

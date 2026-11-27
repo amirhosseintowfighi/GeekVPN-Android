@@ -94,6 +94,15 @@ interface ServicesActions {
 
     /** «لینک جدید»: replace this service's link; the old one stops working. */
     fun onRotate(subscriptionId: String) {}
+
+    /** The bot's «تغییر نام». */
+    fun onRenameService(subscriptionId: String) {}
+
+    /** The bot's «انتقال به کاربر دیگر». */
+    fun onTransferService(subscriptionId: String) {}
+
+    /** The bot's «برگشت وجه» for an unused service. */
+    fun onRefundService(subscriptionId: String) {}
 }
 
 /** Services.dc.html: the account's services as glass cards, then the manual links on hairlines. */
@@ -192,6 +201,7 @@ private fun ServiceCard(
                     )
                 }
                 StateChip(service, connected)
+                OwnerMenuButton(service.subscriptionId, actions)
             }
             Hairline()
             Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -359,6 +369,41 @@ private fun SquareButton(icon: ImageVector, description: String, enabled: Boolea
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, contentDescription = description, tint = colors.onGlass, modifier = Modifier.size(20.dp))
+    }
+}
+
+/** «مدیریت سرویس»: rename, transfer and refund, the bot's owner buttons, behind one menu. */
+@Composable
+private fun OwnerMenuButton(subscriptionId: String, actions: ServicesActions) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    Box {
+        SquareButton(GeekIcons.Pencil, stringResource(R.string.geek_owner_menu_description)) { open = true }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.geek_owner_rename_title), style = Geek.type.body) },
+                leadingIcon = { Icon(GeekIcons.Pencil, contentDescription = null) },
+                onClick = {
+                    open = false
+                    actions.onRenameService(subscriptionId)
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.geek_owner_transfer_title), style = Geek.type.body) },
+                leadingIcon = { Icon(GeekIcons.ArrowAction, contentDescription = null) },
+                onClick = {
+                    open = false
+                    actions.onTransferService(subscriptionId)
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.geek_owner_refund_title), style = Geek.type.body) },
+                leadingIcon = { Icon(GeekIcons.Wallet, contentDescription = null) },
+                onClick = {
+                    open = false
+                    actions.onRefundService(subscriptionId)
+                },
+            )
+        }
     }
 }
 

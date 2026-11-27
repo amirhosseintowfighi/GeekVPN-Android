@@ -45,6 +45,8 @@ import com.geekvpn.GeekGraph
 import com.geekvpn.account.ApiFailureKind
 import com.geekvpn.account.AutoRenewViewModel
 import com.geekvpn.account.RefreshOutcome
+import com.geekvpn.account.ServiceOwnerViewModel
+import com.geekvpn.account.SubscriptionPlan
 import com.geekvpn.account.UsageNotifier
 import com.geekvpn.autoconnect.AutoConnect
 import com.geekvpn.autoconnect.Schedule
@@ -75,6 +77,8 @@ import com.geekvpn.ui.links.LinkEditActivity
 import com.geekvpn.ui.login.LaunchActivity
 import com.geekvpn.ui.perapp.PerAppActivity
 import com.geekvpn.ui.promo.PromoBanner
+import com.geekvpn.ui.services.OwnerDialogActions
+import com.geekvpn.ui.services.ServiceOwnerDialog
 import com.geekvpn.ui.services.ServicesActions
 import com.geekvpn.ui.services.ServicesScreen
 import com.geekvpn.ui.referral.ReferralActivity
@@ -93,6 +97,7 @@ import com.geekvpn.ui.shop.ShopUiState
 import com.geekvpn.ui.shop.ShopViewModel
 import com.geekvpn.ui.shop.WalletSheet
 import com.geekvpn.ui.speedtest.SpeedTestActivity
+import com.geekvpn.ui.devices.DevicesActivity
 import com.geekvpn.ui.diagnose.DiagnoseActivity
 import com.geekvpn.ui.share.ShareActivity
 import com.geekvpn.ui.onboarding.OnboardingActivity
@@ -132,6 +137,7 @@ class HomeActivity : HelperBaseComponentActivity() {
     private val shop: ShopViewModel by viewModels()
     private val scanner: ScannerViewModel by viewModels()
     private val autoRenew: AutoRenewViewModel by viewModels { AutoRenewViewModel.factory() }
+    private val owner: ServiceOwnerViewModel by viewModels { ServiceOwnerViewModel.factory() }
 
     /** The open tab. Here rather than in composition so shop events can switch it. */
     private var tab by mutableStateOf(GeekTab.Home)
@@ -185,6 +191,15 @@ class HomeActivity : HelperBaseComponentActivity() {
                 }
                 launch { shop.events.collect { onShopEvent(it) } }
                 launch { autoRenew.failed.collect { showMessage(R.string.geek_autorenew_failed) } }
+                launch {
+                    owner.done.collect { done ->
+                        val text = done.message.text ?: getString(done.message.res)
+                        Toast.makeText(this@HomeActivity, text, Toast.LENGTH_LONG).show()
+                        // The new name, or the service gone from this account (transfer, refund).
+                        home.refreshAccount(announce = false)
+                        if (done.refreshWallet) GeekGraph.refreshBalance(force = true)
+                    }
+                }
                 launch { GeekGraph.promos.refresh() }
                 launch {
                     scanner.events.collect { event ->
@@ -480,6 +495,8 @@ class HomeActivity : HelperBaseComponentActivity() {
                                                 actions = servicesActions(openShop = { tab = GeekTab.Shop }),
                                                 autoRenew = switches,
                                             )
+                                            val ownerState by owner.uiState.collectAsStateWithLifecycle()
+                                            ServiceOwnerDialog(ownerState, ownerActions)
                                         }
                                         GeekTab.Shop -> ShopScreen(state = shopState, actions = shopActions)
                                         GeekTab.Account -> AccountScreen(
@@ -652,6 +669,28 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onUseManual(groupId: String) = home.selectGroup(groupId)
         override fun onEditManual(groupId: String) = startActivity(LinkEditActivity.intent(this@HomeActivity, groupId))
         override fun onAutoRenew(subscriptionId: String, enabled: Boolean) = autoRenew.set(subscriptionId, enabled)
+        override fun onRenameService(subscriptionId: String) {
+            val card = accountCard(subscriptionId)
+            owner.openRename(subscriptionId, serviceTitle(subscriptionId), card?.displayName)
+        }
+        override fun onTransferService(subscriptionId: String) = owner.openTransfer(subscriptionId, serviceTitle(subscriptionId))
+        override fun onRefundService(subscriptionId: String) = owner.openRefund(subscriptionId, serviceTitle(subscriptionId))
+    }
+
+    private fun accountCard(subscriptionId: String) =
+        GeekGraph.accountStore.services.value.firstOrNull { it.subscriptionId == subscriptionId }
+
+    /** The name the service card shows, for the dialogs that name it. */
+    private fun serviceTitle(subscriptionId: String): String =
+        accountCard(subscriptionId)?.let(SubscriptionPlan::remarksOf) ?: getString(R.string.geek_brand)
+
+    private val ownerActions = object : OwnerDialogActions {
+        override fun onRename(name: String) = owner.rename(name)
+        override fun onTransfer(recipient: String) = owner.transfer(recipient)
+        override fun onRefund() = owner.refund()
+        override fun onRetryOffer() = owner.retryOffer()
+        override fun onClearError() = owner.clearError()
+        override fun onDismiss() = owner.dismiss()
     }
 
     private fun accountActions(
@@ -680,6 +719,7 @@ class HomeActivity : HelperBaseComponentActivity() {
         override fun onServerStatus() = startActivity(Intent(this@HomeActivity, ServerStatusActivity::class.java))
         override fun onFaq() = startActivity(Intent(this@HomeActivity, FaqActivity::class.java))
         override fun onNotifications() = startActivity(Intent(this@HomeActivity, NotificationsActivity::class.java))
+        override fun onDevices() = startActivity(Intent(this@HomeActivity, DevicesActivity::class.java))
         override fun onLogin() = GeekGraph.signOut()
     }
 

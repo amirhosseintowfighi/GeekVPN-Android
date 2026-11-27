@@ -105,6 +105,9 @@ interface AccountActions {
     /** "اعلان‌ها", the bot's notification switches; signed in only. */
     fun onNotifications() {}
 
+    /** "دستگاه‌های واردشده", the bot's «دستگاه‌های متصل»; signed in only. */
+    fun onDevices() {}
+
     /** "مصرف روزانه". */
     fun onUsage()
 }
@@ -239,6 +242,13 @@ fun AccountScreen(
                     title = stringResource(R.string.geek_notify_title),
                     hint = stringResource(R.string.geek_notify_entry_hint),
                     onClick = actions::onNotifications,
+                )
+                SettingsDivider()
+                SettingRow(
+                    icon = GeekIcons.User,
+                    title = stringResource(R.string.geek_devices_title),
+                    hint = stringResource(R.string.geek_devices_entry_hint),
+                    onClick = actions::onDevices,
                 )
                 SettingsDivider()
             }
